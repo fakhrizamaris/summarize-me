@@ -1,35 +1,36 @@
 // src/AuthPage.jsx
-import React, { useState } from 'react';
-// Import fungsi auth & provider Google
+import React, { useState, useEffect } from 'react'; // Tambah useEffect
 import { auth, googleProvider } from './config/firebaseConfig'; //
-// Import fungsi-fungsi autentikasi Firebase
 import {
   signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  setPersistence, // <-- Impor fungsi persistence
-  browserLocalPersistence, // <-- Ingat Saya (default)
-  browserSessionPersistence // <-- Jangan Ingat Saya
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence
 } from 'firebase/auth'; //
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // Import Link
 
-function AuthPage() {
+// Terima prop 'mode' ("login" atau "register")
+function AuthPage({ mode }) {
   const navigate = useNavigate();
-  // State untuk input form
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  // State baru untuk konfirmasi password
   const [confirmPassword, setConfirmPassword] = useState('');
-  // State baru untuk checkbox "Ingat Saya"
-  const [rememberMe, setRememberMe] = useState(true); // Defaultnya dicentang
-  const [isLoginView, setIsLoginView] = useState(true);
-  // State untuk pesan error
+  const [rememberMe, setRememberMe] = useState(true);
+  // Tentukan mode awal berdasarkan prop 'mode'
+  const [isLoginView, setIsLoginView] = useState(mode === 'login');
   const [error, setError] = useState('');
-  // State untuk loading
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false); // Loading khusus Google
 
+  // Efek untuk mengubah mode jika prop 'mode' berubah (misal user navigasi)
+  useEffect(() => {
+    setIsLoginView(mode === 'login');
+    setError(''); // Reset error saat mode berubah
+    setEmail(''); setPassword(''); setConfirmPassword(''); // Reset input
+  }, [mode]); // Jalankan efek ini jika 'mode' berubah
 
-  // --- Fungsi Login/Register dengan Email/Password ---
   const handleEmailPasswordSubmit = async (event) => {
     event.preventDefault(); // Mencegah form refresh halaman
     setError(''); // Bersihkan error lama
@@ -57,6 +58,7 @@ function AuthPage() {
         // Firebase otomatis login setelah register
         navigate('/'); // Redirect ke home setelah sukses
         // Opsional: Simpan data user tambahan ke Firestore di sini jika perlu
+        // Contoh: const user = auth.currentUser; if (user) { /* simpan ke Firestore */ }
       }
     } catch (err) {
       console.error("Firebase Auth Error:", err.code, err.message);
@@ -80,23 +82,28 @@ function AuthPage() {
   // --- Fungsi Login dengan Google ---
   const handleGoogleLogin = async () => {
     setError('');
-    setIsLoading(true);
+    setIsGoogleLoading(true); // Gunakan state loading terpisah
     try {
-      // Untuk Google, persistence biasanya diatur secara default atau saat init
-      // Jika ingin eksplisit: await setPersistence(auth, browserLocalPersistence);
+      // Untuk Google, persistence biasanya diatur secara default (local)
       await signInWithPopup(auth, googleProvider); //
       navigate('/');
     } catch (err) {
       console.error("Google Login Error:", err);
-      setError("Gagal login dengan Google. Silakan coba lagi.");
+       // Hanya tampilkan error jika bukan pembatalan oleh user
+      if (err.code !== 'auth/popup-closed-by-user') {
+        setError("Gagal login dengan Google. Silakan coba lagi.");
+      }
     } finally {
-        setIsLoading(false);
+        setIsGoogleLoading(false);
     }
   };
 
+  const isSubmitDisabled = isLoading || isGoogleLoading; // Tombol disable jika salah satu loading
+
   return (
     <div style={styles.authContainer}>
-      <h2>{isLoginView ? 'Login Akun' : 'Daftar Akun Baru'}</h2>
+      {/* Judul dinamis */}
+      <h2>{isLoginView ? 'Login ke SummarizeMe' : 'Buat Akun Baru'}</h2>
 
       {/* --- Form Email/Password --- */}
       <form onSubmit={handleEmailPasswordSubmit} style={styles.form}>
@@ -107,16 +114,16 @@ function AuthPage() {
           placeholder="Alamat Email"
           required
           style={styles.input}
-          disabled={isLoading} // Nonaktifkan saat loading
+          disabled={isSubmitDisabled} // Nonaktifkan saat loading
         />
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password (min. 6 karakter)"
+          placeholder="Password" // Hapus hint min. 6 karakter agar lebih bersih
           required
           style={styles.input}
-          disabled={isLoading} // Nonaktifkan saat loading
+          disabled={isSubmitDisabled} // Nonaktifkan saat loading
         />
 
         {/* --- Input Konfirmasi Password (Hanya Muncul Saat Register) --- */}
@@ -128,46 +135,47 @@ function AuthPage() {
             placeholder="Konfirmasi Password"
             required
             style={styles.input}
-            disabled={isLoading} // Nonaktifkan saat loading
+            disabled={isSubmitDisabled} // Nonaktifkan saat loading
           />
         )}
 
-        {/* --- Checkbox Ingat Saya (Hanya Muncul Saat Login) --- */}
+        {/* --- Opsi (Ingat Saya / Lupa Password) - Hanya Muncul Saat Login --- */}
         {isLoginView && (
-            <div style={styles.rememberMeContainer}>
-                <input
-                    type="checkbox"
-                    id="rememberMe"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    style={styles.checkbox}
-                    disabled={isLoading} // Nonaktifkan saat loading
-                />
-                <label htmlFor="rememberMe" style={styles.checkboxLabel}>
-                    Ingat Saya
-                </label>
+            <div style={styles.optionsContainer}>
+                <div style={styles.rememberMeContainer}>
+                    <input
+                        type="checkbox"
+                        id="rememberMe"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        style={styles.checkbox}
+                        disabled={isSubmitDisabled}
+                    />
+                    <label htmlFor="rememberMe" style={styles.checkboxLabel}>
+                        Ingat Saya
+                    </label>
+                </div>
+                 {/* Tambahkan link Lupa Password (implementasi nanti jika perlu) */}
+                {/* <a href="#" style={styles.forgotPassword}>Lupa Password?</a> */}
             </div>
         )}
 
         {error && <p style={styles.errorMessage}>{error}</p>}
 
-        <button type="submit" style={{...styles.submitButton, opacity: isLoading ? 0.7 : 1}} disabled={isLoading}>
-          {isLoading ? 'Memproses...' : (isLoginView ? 'Login' : 'Daftar')}
+        <button type="submit" style={{...styles.submitButton, opacity: isLoading ? 0.7 : 1}} disabled={isSubmitDisabled}>
+          {isLoading ? 'Memproses...' : (isLoginView ? 'Login' : 'Daftar Akun')}
         </button>
       </form>
 
-      {/* --- Tombol Ganti Mode (Login/Register) --- */}
-      <button
-        onClick={() => {
-            setIsLoginView(!isLoginView);
-            setError(''); // Reset error saat ganti mode
-            setEmail(''); setPassword(''); setConfirmPassword(''); // Reset input
-        }}
-        style={styles.toggleButton}
-        disabled={isLoading}
-      >
-        {isLoginView ? 'Belum punya akun? Daftar di sini' : 'Sudah punya akun? Login di sini'}
-      </button>
+      {/* --- Link Navigasi antara Login/Register --- */}
+      <p style={styles.switchText}>
+        {isLoginView ? 'Belum punya akun? ' : 'Sudah punya akun? '}
+        <Link to={isLoginView ? '/register' : '/login'} style={styles.switchLink}>
+          {isLoginView ? 'Daftar di sini' : 'Login di sini'}
+        </Link>
+      </p>
+      {/* ----------------------------------------------- */}
+
 
       {/* --- Pemisah "atau" --- */}
       <div style={styles.divider}>
@@ -177,9 +185,12 @@ function AuthPage() {
       </div>
 
       {/* --- Tombol Login Google --- */}
-      <button onClick={handleGoogleLogin} style={{...styles.googleButton, opacity: isLoading ? 0.7 : 1}} disabled={isLoading}>
-        {/* Tambahkan ikon Google sederhana */}
-        <svg style={styles.googleIcon} viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1h-9.8v3.8h5.5c-.3 1.3-1.6 3.2-5.5 3.2-3.3 0-6-2.7-6-6s2.7-6 6-6c1.8 0 3 .8 3.8 1.5l2.9-2.9C18.1 1.6 15.3 0 11.55 0 5.15 0 0 5.15 0 11.55S5.15 23.1 11.55 23.1c6.1 0 10.9-4.2 10.9-11.1 0-.6-.1-1-.2-1.2z"></path></svg>
+      <button onClick={handleGoogleLogin} style={{...styles.googleButton, opacity: isSubmitDisabled ? 0.7 : 1}} disabled={isSubmitDisabled}>
+        {isGoogleLoading ? (
+            <span style={styles.buttonSpinner}></span> // Spinner kecil
+        ) : (
+            <svg style={styles.googleIcon} viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1h-9.8v3.8h5.5c-.3 1.3-1.6 3.2-5.5 3.2-3.3 0-6-2.7-6-6s2.7-6 6-6c1.8 0 3 .8 3.8 1.5l2.9-2.9C18.1 1.6 15.3 0 11.55 0 5.15 0 0 5.15 0 11.55S5.15 23.1 11.55 23.1c6.1 0 10.9-4.2 10.9-11.1 0-.6-.1-1-.2-1.2z"></path></svg>
+        )}
         Lanjutkan dengan Google
       </button>
 
@@ -187,116 +198,138 @@ function AuthPage() {
   );
 }
 
+// Styling diperbarui untuk form dan opsi
 const styles = {
     authContainer: {
         maxWidth: '400px',
         margin: '10vh auto',
-        padding: '2.5rem', // Lebih besar padding
-        backgroundColor: 'rgba(30, 30, 50, 0.85)', // Lebih solid
+        padding: '2.5rem 3rem', // Padding lebih lebar
+        backgroundColor: 'rgba(30, 30, 50, 0.9)', // Lebih solid
         borderRadius: '16px', // Lebih bulat
-        border: '1px solid rgba(255, 255, 255, 0.1)',
+        border: '1px solid rgba(255, 255, 255, 0.15)',
         textAlign: 'center',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)', // Shadow lebih jelas
-        backdropFilter: 'blur(8px)',
+        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)', // Shadow lebih dramatis
+        backdropFilter: 'blur(10px)',
     },
     form: {
         display: 'flex',
         flexDirection: 'column',
-        gap: '1rem', // Jarak antar input
+        gap: '1.2rem', // Jarak antar input sedikit lebih besar
         marginBottom: '1rem',
     },
     input: {
-        padding: '12px 15px',
-        borderRadius: '8px',
-        border: '1px solid #556', // Border sedikit lebih jelas
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        padding: '14px 18px', // Input lebih tinggi
+        borderRadius: '10px', // Sudut lebih bulat
+        border: '1px solid #4a4a6a', // Border lebih kontras
+        backgroundColor: 'rgba(255, 255, 255, 0.08)',
         color: '#eee',
         fontSize: '1em',
+        transition: 'border-color 0.2s, box-shadow 0.2s',
     },
     errorMessage: {
-        color: '#ff8a8a', // Warna error merah muda
+        color: '#ff9a9a', // Warna error lebih lembut
         fontSize: '0.9em',
-        marginTop: '-0.5rem', // Dekatkan ke input
+        marginTop: '-0.8rem', // Lebih dekat
         marginBottom: '0.5rem',
-        textAlign: 'left', // Rata kiri agar lebih rapi
+        textAlign: 'left',
+    },
+    optionsContainer: { // Container untuk Ingat Saya & Lupa Password
+        display: 'flex',
+        justifyContent: 'space-between', // Pisahkan ke ujung
+        alignItems: 'center',
+        marginTop: '-0.5rem',
+        marginBottom: '1rem',
+    },
+    rememberMeContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+    },
+    checkbox: {
+        margin: 0,
+        width: '15px', // Sedikit lebih kecil
+        height: '15px',
+        cursor: 'pointer',
+    },
+    checkboxLabel: {
+        fontSize: '0.9em',
+        color: '#bbb', // Lebih terang sedikit
+        cursor: 'pointer',
+        userSelect: 'none',
+    },
+    forgotPassword: { // Styling link Lupa Password (jika ditambahkan)
+        fontSize: '0.9em',
+        color: '#aaa',
+        textDecoration: 'none',
     },
     submitButton: {
-        padding: '12px',
+        padding: '14px', // Lebih tinggi
         fontSize: '1.05em',
-        backgroundColor: '#7a7aff', // Warna utama sedikit diubah
+        backgroundColor: '#7a7aff',
         color: '#fff',
         fontWeight: 'bold',
         border: 'none',
-        borderRadius: '8px',
+        borderRadius: '10px', // Lebih bulat
         cursor: 'pointer',
         marginTop: '0.5rem',
         transition: 'background-color 0.2s, opacity 0.2s',
-        // disabled style ditangani dengan inline opacity
     },
-    toggleButton: {
-        background: 'none',
-        border: 'none',
-        color: '#aaa', // Warna abu-abu
-        cursor: 'pointer',
+    switchText: {
+        marginTop: '1.5rem', // Beri jarak setelah form
         fontSize: '0.9em',
-        marginTop: '0.5rem',
-        padding: '5px', // Area klik lebih besar
+        color: '#ccc',
+    },
+    switchLink: {
+        color: '#b0b0ff', // Warna link
+        fontWeight: '500',
         textDecoration: 'underline',
+        cursor: 'pointer',
     },
     divider: {
-        margin: '1.5rem 0',
+        margin: '2rem 0', // Jarak lebih besar
         display: 'flex',
         alignItems: 'center',
         textAlign: 'center',
-        color: '#888',
+        color: '#777', // Warna lebih gelap
     },
-    dividerLine: { // Style untuk garis pemisah
+    dividerLine: {
         flex: 1,
-        borderBottom: '1px solid #555',
+        borderBottom: '1px solid #444', // Garis lebih gelap
     },
     dividerText: {
         padding: '0 1em',
-        fontSize: '0.9em',
+        fontSize: '0.85em',
+        fontWeight: '500', // Sedikit bold
+        textTransform: 'uppercase', // Huruf besar
     },
     googleButton: {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '10px',
-        width: '100%', // Full width
+        gap: '12px', // Jarak ikon & teks
+        width: '100%',
         padding: '12px',
         fontSize: '1em',
-        backgroundColor: '#fff', // Latar putih
-        color: '#333', // Teks gelap
-        border: '1px solid #ddd',
-        borderRadius: '8px',
+        backgroundColor: '#fff',
+        color: '#333',
+        border: '1px solid #ccc', // Border lebih jelas
+        borderRadius: '10px',
         cursor: 'pointer',
         transition: 'background-color 0.2s, opacity 0.2s',
-        // disabled style ditangani dengan inline opacity
+        fontWeight: '500', // Sedikit bold
     },
     googleIcon: {
+        width: '20px', // Ikon lebih besar
+        height: '20px',
+    },
+    buttonSpinner: { // Spinner kecil untuk tombol Google
         width: '18px',
         height: '18px',
-    },
-    rememberMeContainer: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-start', // Rata kiri
-        gap: '8px', // Jarak checkbox & label
-        marginTop: '-0.5rem', // Dekatkan ke input password
-        marginBottom: '1rem',
-    },
-    checkbox: {
-        margin: 0,
-        width: '16px',
-        height: '16px',
-        cursor: 'pointer',
-    },
-    checkboxLabel: {
-        fontSize: '0.9em',
-        color: '#ccc',
-        cursor: 'pointer',
-        userSelect: 'none', // Agar teks tidak terseleksi saat klik
+        border: '2px solid rgba(0, 0, 0, 0.2)',
+        borderTopColor: '#555',
+        borderRadius: '50%',
+        display: 'inline-block',
+        animation: 'spin 0.8s linear infinite', // Pastikan animasi 'spin' ada di index.css
     }
 };
 

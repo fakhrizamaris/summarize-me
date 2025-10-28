@@ -163,3 +163,33 @@ label[htmlFor="audio-upload"]:hover {
     background-color: rgba(140, 140, 255, 0.1);
     color: #fff;
 }
+
+/* Container untuk loading awal */
+.initial-loading-container {
+    display: flex;
+    flex-direction: column; /* Susun spinner dan teks ke bawah */
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Penuhi tinggi layar */
+    background-color: #1a1a2e; /* Cocokkan dengan background utama */
+    color: #ccc;
+    font-size: 1.1em;
+}
+
+/* Styling Spinner Modern (Rotating Arc) */
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(140, 140, 255, 0.2); /* Warna dasar lingkaran */
+    border-top-color: #8c8cff; /* Warna bagian yang berputar */
+    border-radius: 50%;
+    animation: spin 1s linear infinite; /* Gunakan animasi spin yang sudah ada */
+    margin-bottom: 1rem; /* Jarak spinner ke teks */
+}
+
+/* Animasi spin (jika belum ada, tambahkan ini) */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
