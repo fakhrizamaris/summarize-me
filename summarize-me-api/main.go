@@ -285,7 +285,7 @@ func main() {
 	corsConfig := cors.DefaultConfig()
 	vercelUrl := os.Getenv("FRONTEND_URL") // Idealnya baca dari env var
 	if vercelUrl == "" {
-		vercelUrl = "https://summarizemeai.vercel.app/" // Default ke localhost jika env var tidak ada
+		vercelUrl = "https://summarizemeai.vercel.app" // Default ke localhost jika env var tidak ada
 		log.Printf("FRONTEND_URL tidak diset, hanya mengizinkan CORS dari %s", vercelUrl)
 	} else {
         log.Printf("Mengizinkan CORS dari %s dan http://localhost:5173", vercelUrl)
