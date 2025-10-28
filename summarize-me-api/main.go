@@ -54,7 +54,7 @@ func transcribeAudio(ctx context.Context, speechClient *speech.Client, fileData 
 
 	req := &speechpb.RecognizeRequest{
 		Config: &speechpb.RecognitionConfig{
-			Encoding:        speechpb.RecognitionConfig_LINEAR16, // Asumsi format .wav, bisa diubah
+			Encoding:        speechpb.RecognitionConfig_MP3, // Asumsi format .wav, bisa diubah
 			SampleRateHertz: 16000,                              // Sesuaikan jika perlu
 			LanguageCode:    "id-ID",                            // Bahasa Indonesia
 		},
@@ -189,7 +189,7 @@ func main() {
 	}
 	defer genaiClient.Close()
 
-	genaiModel := genaiClient.GenerativeModel("gemini-1.5-flash")
+	genaiModel := genaiClient.GenerativeModel("gemini-2.5-flash")
 
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {

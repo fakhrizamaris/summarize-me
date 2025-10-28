@@ -1,141 +1,127 @@
-import React, { useState } from 'react';
-import { auth, googleProvider } from './config/firebaseConfig';
-import { signInWithPopup, signOut } from 'firebase/auth';
-import axios from 'axios';
-import './App.css';
+// src/App.jsx
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // Import komponen Router
+import { auth } from './config/firebaseConfig'; // Hanya perlu auth
+import { signOut, onAuthStateChanged } from 'firebase/auth'; //
+
+// Impor halaman-halaman
+import HomePage from './HomePage';
+import AuthPage from './AuthPage';
+// Hapus import yang tidak perlu lagi (axios, ReactMarkdown, googleProvider, signInWithPopup)
+
+// import './App.css'; // Opsional
+
+// Komponen PrivateRoute untuk melindungi halaman yang butuh login
+function PrivateRoute({ children }) {
+    const [user, setUser] = useState(undefined); // undefined = loading
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+            setIsLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    if (isLoading) {
+        return <div>Loading...</div>; // Atau spinner
+    }
+
+    // Jika sudah loading dan TIDAK ada user, redirect ke /login
+    return user ? children : <Navigate to="/login" replace />;
+    // 'replace' agar halaman dashboard tidak masuk history browser saat belum login
+}
+
 
 function App() {
-  const [user, setUser] = useState(null); 
-  const [apiResponse, setApiResponse] = useState(""); 
-  
-  // --- TAMBAHAN: 'Memori' untuk menyimpan file yang dipilih pengguna ---
-  const [selectedFile, setSelectedFile] = useState(null);
+  // State user dan loading dipindahkan ke dalam PrivateRoute atau context nanti
+  // const [user, setUser] = useState(null);
+  // const [isLoadingUser, setIsLoadingUser] = useState(true);
 
-  const handleLogin = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      setUser(result.user);
-      setApiResponse(""); 
-    } catch (error) {
-      console.error("Error during login:", error);
-    }
-  };
+  // Fungsi logout (bisa ditaruh di context atau dilewatkan)
+   const handleLogout = async () => {
+     try {
+       await signOut(auth); //
+       // Navigasi ke home akan otomatis karena user jadi null
+     } catch (error) {
+       console.error("Error during logout:", error);
+     }
+   };
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      setUser(null);
-      setApiResponse(""); 
-    } catch (error) {
-      console.error("Error during logout:", error);
-    }
-  };
+  // useEffect(() => { ... onAuthStateChanged ... }, []); // Dipindahkan ke PrivateRoute
 
-  // --- TAMBAHAN: Fungsi untuk mencatat file yang dipilih ---
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]); // Ambil file pertama
-    setApiResponse(""); // Bersihkan respons lama
-  };
+  // if (isLoadingUser) { ... } // Dipindahkan
 
-  // -----------------------------------------------------------------
-  // --- UBAH: Ini adalah FUNGSI UTAMA kita sekarang (menggantikan handleTestApi)
-  // -----------------------------------------------------------------
-  const handleUpload = async () => {
-    if (!user) {
-      alert("Anda harus login terlebih dahulu!");
-      return;
-    }
-    if (!selectedFile) {
-      alert("Silakan pilih file audio terlebih dahulu!");
-      return;
-    }
-
-    try {
-      // 1. Ambil "Tiket" (ID Token)
-      const token = await user.getIdToken();
-
-      // 2. Siapkan "Paket" untuk kirim file
-      // Kita HARUS pakai 'FormData' untuk mengirim file
-      const formData = new FormData();
-      // "audioFile" adalah "kunci" yang akan dibaca Go
-      // selectedFile adalah "nilai" (filenya itu sendiri)
-      formData.append("audioFile", selectedFile); 
-
-      setApiResponse("Mengunggah dan memproses file...");
-
-      // 3. Kirim "Paket" ke Go pakai 'axios.post'
-      const response = await axios.post(
-        "http://localhost:8080/api/summarize", // <-- UBAH: Alamat API baru
-        formData, // <-- UBAH: Kirim 'FormData', bukan JSON
-        {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            // 'Content-Type' akan di-set otomatis oleh axios
-            // saat kita menggunakan FormData
-          }
-        }
-      );
-
-      // 4. Tampilkan balasan "dummy" dari Go
-      setApiResponse(response.data.summary); // Kita akan buat JSON { "summary": "..." }
-
-    } catch (error) {
-      console.error("Error upload file:", error);
-      setApiResponse(`Gagal: ${error.response?.data?.error || error.message}`); 
-    }
-  };
-
-  // --- Tampilan (HTML) ---
   return (
-    <div className='App'>
-      <header className='App-header'>
-        <h1>SummarizeMe 🚀</h1>
+    <Router> {/* Bungkus semua dengan Router */}
+      <Routes> {/* Definisikan rute-rute */}
+        
+        {/* Rute Halaman Utama (/) */}
+        {/* Tampilkan HomePage, berikan user (jika ada) dan fungsi logout */}
+         <Route path="/" element={
+             <HomePageWrapper onLogout={handleLogout} /> // Gunakan wrapper untuk ambil user
+         } />
 
-        {
-          user ? (
-            // --- TAMPILAN JIKA SUDAH LOGIN ---
-            <div>
-              <h3>Selamat Datang, {user.displayName}!</h3>
-              <img 
-                src={user.photoURL} 
-                alt="Foto Profil" 
-                style={{ borderRadius: '50%', width: '50px', height: '50px' }}
-                referrerPolicy="no-referrer"
-              />
-              <button onClick={handleLogout} style={{ marginLeft: '10px' }}>Logout</button>
-              
-              {/* --- UBAH: Form Upload --- */}
-              <div style={{ marginTop: '30px' }}>
-                <h4>Upload Rekaman Rapat (.mp3, .wav)</h4>
-                
-                {/* 1. Tombol Pilih File */}
-                <input type="file" onChange={handleFileChange} accept="audio/*" />
-                
-                {/* 2. Tombol Kirim */}
-                <button onClick={handleUpload} style={{ marginTop: '10px' }}>
-                  Buat Ringkasan
-                </button>
-                
-                {/* 3. Area Balasan */}
-                {apiResponse && (
-                  <p style={{ fontSize: '14px', background: '#333', padding: '10px', borderRadius: '5px', marginTop: '15px' }}>
-                    <strong>{apiResponse}</strong>
-                  </p>
-                )}
-              </div>
-              
-            </div>
-          ) : (
-            // --- TAMPILAN JIKA BELUM LOGIN ---
-            <div>
-              <h3>Silakan Login untuk Melanjutkan</h3>
-              <button onClick={handleLogin}>Login dengan Google</button>
-            </div>
-          )
-        }
-      </header>
-    </div>
+        {/* Rute Halaman Login (/login) */}
+        <Route path="/login" element={
+            // Jika SUDAH login, jangan tampilkan halaman login, redirect ke home
+             <AuthRedirectWrapper>
+                <AuthPage />
+             </AuthRedirectWrapper>
+         } />
+
+        {/* Contoh Rute Terproteksi (misal /dashboard jika dipisah) */}
+        {/* <Route path="/dashboard" element={
+            <PrivateRoute>
+                <DashboardPage user={auth.currentUser} onLogout={handleLogout} />
+            </PrivateRoute>
+        } /> */}
+
+        {/* Rute fallback jika halaman tidak ditemukan */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+
+      </Routes>
+    </Router>
   );
 }
+
+// Helper component untuk cek auth state di route "/"
+function HomePageWrapper({ onLogout }) {
+    const [user, setUser] = useState(auth.currentUser);
+    const [isLoading, setIsLoading] = useState(true);
+
+     useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+            setIsLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    if (isLoading) return <div>Loading...</div>;
+    // Berikan user (bisa null) dan onLogout ke HomePage
+    return <HomePage user={user} onLogout={onLogout} />;
+}
+
+// Helper component untuk redirect dari /login jika sudah login
+function AuthRedirectWrapper({ children }) {
+     const [user, setUser] = useState(auth.currentUser);
+    const [isLoading, setIsLoading] = useState(true);
+
+     useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+            setIsLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    if (isLoading) return <div>Loading...</div>;
+
+    // Jika sudah login, redirect ke home
+    return user ? <Navigate to="/" replace /> : children;
+}
+
 
 export default App;
