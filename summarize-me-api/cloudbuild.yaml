@@ -40,4 +40,3 @@ substitutions:
 # 6️⃣ Notifikasi build (opsional, aktifkan di GUI Cloud Build Notifications)
 options:
   logging: CLOUD_LOGGING_ONLY
-  machineType: 'E2_HIGHCPU_8'
