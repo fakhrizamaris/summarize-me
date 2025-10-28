@@ -1,0 +1,45 @@
+# ===== LOG FILES =====
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===== NODE.JS (Frontend) =====
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# ===== FRONTEND BUILD (Vite/React) =====
+summarize-me-ui/node_modules/
+summarize-me-ui/dist/
+summarize-me-ui/.env
+
+# ===== GO BACKEND =====
+summarize-me-api/serviceAccountKey.json
+summarize-me-api/.env
+summarize-me-api/tmp/
+summarize-me-api/bin/
+summarize-me-api/coverage/
+
+# ===== OS & EDITOR FILES =====
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ===== ENVIRONMENT FILES =====
+.env
+.env.*
+!env.example
+
+# ===== MISC =====
+*.bak
