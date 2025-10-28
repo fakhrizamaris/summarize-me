@@ -265,11 +265,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error inisialisasi Firebase Auth: %v\n", err)
 	}
-	// ----------------------------------------------------------------------
 
-
-	// --- Setup Klien Gemini API ---
-	// Ambil kunci API dari environment variable (akan diset di Cloud Run via Secret Manager atau Env Var)
 	geminiAPIKey := os.Getenv("GEMINI_API_KEY")
 	if geminiAPIKey == "" {
 		log.Fatalf("Environment variable GEMINI_API_KEY tidak ditemukan.")
@@ -279,21 +275,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("Gagal membuat GenAI (Gemini) Client: %v", err)
 	}
-	defer genaiClient.Close() // Tutup koneksi Gemini
+	defer genaiClient.Close()
 
-	// Pilih model Gemini yang akan digunakan
 	genaiModel := genaiClient.GenerativeModel("gemini-2.5-flash") // Model stabil
 
 	// --- Setup Server Gin ---
 	r := gin.Default()
 
-	// Setup CORS (Cross-Origin Resource Sharing)
-	// Izinkan request dari frontend (lokal dan Vercel nanti)
 	corsConfig := cors.DefaultConfig()
-	// Ganti dengan URL Vercel Anda setelah deploy, atau gunakan "*" untuk pengembangan (kurang aman)
 	vercelUrl := os.Getenv("FRONTEND_URL") // Idealnya baca dari env var
 	if vercelUrl == "" {
-		vercelUrl = "http://localhost:5173" // Default ke localhost jika env var tidak ada
+		vercelUrl = "https://summarizemeai.vercel.app/" // Default ke localhost jika env var tidak ada
 		log.Printf("FRONTEND_URL tidak diset, hanya mengizinkan CORS dari %s", vercelUrl)
 	} else {
         log.Printf("Mengizinkan CORS dari %s dan http://localhost:5173", vercelUrl)
@@ -319,11 +311,11 @@ func main() {
 	// Ambil PORT dari environment variable (disediakan oleh Cloud Run)
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080" // Gunakan port 8080 jika tidak ada env var PORT (untuk lokal)
+		port = "8080" 
 	}
 	log.Printf("Server Golang (siap Cloud Run) akan berjalan di port %s", port)
 
-	    // Jalankan server
+	// Jalankan server
     log.Printf("Listening on port %s...", port)
     r.Run(":" + port)
 }

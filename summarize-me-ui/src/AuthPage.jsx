@@ -187,7 +187,6 @@ function AuthPage() {
   );
 }
 
-// Styling diperbarui untuk form
 const styles = {
     authContainer: {
         maxWidth: '400px',
