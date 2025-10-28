@@ -7,6 +7,7 @@ import { signOut, onAuthStateChanged } from 'firebase/auth';
 // Impor halaman-halaman
 import HomePage from './HomePage'; // [cite: fakhrizamaris/summarize-me/summarize-me-534b62be55a4969aab39405b2ef61d0fa675d49a/summarize-me-ui/src/HomePage.jsx]
 import AuthPage from './AuthPage'; // [cite: fakhrizamaris/summarize-me/summarize-me-534b62be55a4969aab39405b2ef61d0fa675d49a/summarize-me-ui/src/AuthPage.jsx]
+import LoadingSpinner from './components/LoadingSpinner'; // Pastikan path benar
 
 
 function InitialLoadingScreen() {
