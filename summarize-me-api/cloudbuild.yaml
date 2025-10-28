@@ -31,8 +31,6 @@ steps:
         '--port', '8080',
       ]
 
-# 4️⃣ Simpan log build di Cloud Logging (otomatis aktif)
-logsBucket: 'gs://$PROJECT_ID-cloudbuild-logs'
 
 # 5️⃣ Substitutions (variabel opsional untuk fleksibilitas)
 substitutions:
