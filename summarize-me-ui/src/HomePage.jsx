@@ -760,7 +760,7 @@ const styles = {
     marginBottom: '12px',
   },
   stepDesc: {
-    opacity: 0.8',
+    opacity: 0.8,
     lineHeight: '1.6',
   },
   stepArrow: {
@@ -821,25 +821,4 @@ const styles = {
   },
 };
 
-// CSS untuk animasi (tambahkan ke index.css)
-const styleSheet = document.createElement("style");
-styleSheet.textContent = `
-  @keyframes float {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    25% { transform: translate(10px, 10px) rotate(5deg); }
-    50% { transform: translate(0, 20px) rotate(10deg); }
-    75% { transform: translate(-10px, 10px) rotate(5deg); }
-  }
-  
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-  
-  .featureCard:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-  }
-  
-  .processBtn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(102, 126, 234
+export default HomePage;
