@@ -1,0 +1,45 @@
+steps:
+  # 1️⃣ Build Docker image dari source
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        '-t',
+        'asia-southeast2-docker.pkg.dev/$PROJECT_ID/summarize-api/summarize-api:latest',
+        '.'
+      ]
+    dir: 'summarize-me-api'
+
+  # 2️⃣ Push image ke Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'push',
+        'asia-southeast2-docker.pkg.dev/$PROJECT_ID/summarize-api/summarize-api:latest'
+      ]
+
+  # 3️⃣ Deploy otomatis ke Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      [
+        'run', 'deploy', 'summarize-api',
+        '--image', 'asia-southeast2-docker.pkg.dev/$PROJECT_ID/summarize-api/summarize-api:latest',
+        '--region', 'asia-southeast2',
+        '--platform', 'managed',
+        '--allow-unauthenticated',
+        '--port', '8080',
+      ]
+
+# 4️⃣ Simpan log build di Cloud Logging (otomatis aktif)
+logsBucket: 'gs://$PROJECT_ID-cloudbuild-logs'
+
+# 5️⃣ Substitutions (variabel opsional untuk fleksibilitas)
+substitutions:
+  _SERVICE_NAME: 'summarize-api'
+  _REGION: 'asia-southeast2'
+
+# 6️⃣ Notifikasi build (opsional, aktifkan di GUI Cloud Build Notifications)
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'

@@ -89,32 +89,27 @@ input[type="file"] {
     color: rgba(255, 255, 255, 0.8);
 }
 
-/* Styling untuk area hasil markdown */
-/* Styling WAJIB untuk Hasil Markdown */
    .markdown-result {
-       font-size: 14px;
-       /* background: rgba(20, 20, 30, 0.7); Dikelola di DashboardPage */
-       /* padding: 15px; Dikelola di DashboardPage */
-       /* border-radius: 5px; Dikelola di DashboardPage */
-       margin-top: 15px;
+       font-size: 1em;
+       margin-top: 5px;
        text-align: left;
        white-space: pre-wrap;
-       /* border: 1px solid rgba(255, 255, 255, 0.1); Dikelola di DashboardPage */
        max-height: 400px;
        overflow-y: auto;
    }
    .markdown-result h1,
    .markdown-result h2,
    .markdown-result h3 {
-       color: #a0a0ff; /* Warna heading di hasil */
+       font-size: 1.2em;
+       color: #a0a0ff; 
        margin-top: 1em;
-       margin-bottom: 0.5em;
-       padding-bottom: 0.2em;
-       border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Garis bawah heading */
+       margin-bottom: 0.1em;
+       padding-bottom: 0.1em;
+       border-bottom: 1px solid rgba(255, 255, 255, 0.2); 
    }
-   .markdown-result p { margin-bottom: 0.8em; line-height: 1.6; }
+   .markdown-result p { margin-bottom: 0.2em; line-height: 1.6; }
    .markdown-result ul, .markdown-result ol { padding-left: 25px; }
-   .markdown-result li { margin-bottom: 0.5em; }
+   .markdown-result li { margin-bottom: 0.2em; }
    .markdown-result strong { color: #e0e0ff; font-weight: 600; }
    .markdown-result code {
        background-color: rgba(0, 0, 0, 0.3);
@@ -129,9 +124,7 @@ input[type="file"] {
        color: #bbb;
    }
 
-   /* src/index.css - Tambahkan di akhir */
-
-/* Animasi Floating Shapes */
+ 
 @keyframes float {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
   25% { transform: translate(15px, -10px) rotate(8deg); } /* Sedikit lebih dinamis */
@@ -145,19 +138,17 @@ input[type="file"] {
 }
 
 /* Efek Hover untuk Feature Card */
-/* Ganti '.featureCard' jika nama class di JSX Anda berbeda */
 div[style*="rgba(40, 40, 60, 0.6)"][style*="padding: 1.8rem"] /* Selector sementara berdasarkan inline style */
 {
     transition: transform 0.3s ease-out, box-shadow 0.3s ease-out; /* Transisi lebih halus */
 }
 
 div[style*="rgba(40, 40, 60, 0.6)"][style*="padding: 1.8rem"]:hover {
-  transform: translateY(-8px) scale(1.02); /* Tambahkan sedikit scale */
+  transform: translateY(-8px) scale(1.02); 
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
 }
 
 /* Efek Hover untuk Tombol Proses (jika tidak disabled) */
-/* Ganti selector jika perlu agar lebih spesifik */
 button[style*="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"]:not(:disabled) {
    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }

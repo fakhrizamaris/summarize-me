@@ -20,6 +20,21 @@ function FloatingShapes() {
 // Komponen Navbar yang Modern
 function UserNavbar({ user, onLogout }) {
   if (!user) return null;
+
+  const DefaultProfileIcon = () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor" // Warna ikon
+      style={styles.navAvatar} // Gunakan style yang sama dengan avatar
+    >
+      <path
+        fillRule="evenodd"
+        d="M18.685 19.097A9.723 9.723 0 0021.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 003.065 7.097A9.716 9.716 0 0012 21.75a9.716 9.716 0 006.685-2.653zm-12.54-1.285A7.486 7.486 0 0112 15a7.486 7.486 0 015.855 2.812A8.224 8.224 0 0112 20.25a8.224 8.224 0 01-5.855-2.438zM15.75 9a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
   return (
     <nav style={styles.navbar}>
       <div style={styles.navContent}>
@@ -28,12 +43,19 @@ function UserNavbar({ user, onLogout }) {
           <span style={styles.logoText}>SummarizeMe</span>
         </div>
         <div style={styles.navRight}>
-          <img 
-            src={user.photoURL} 
-            alt="Profile" 
-            style={styles.navAvatar} 
-            referrerPolicy="no-referrer" 
-          />
+          {/* --- Logika Kondisional untuk Avatar/Ikon --- */}
+          {user.photoURL ? (
+            // Jika ada photoURL, tampilkan gambar
+            <img
+              src={user.photoURL}
+              alt="Profile"
+              style={styles.navAvatar}
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            // Jika tidak ada photoURL, tampilkan ikon default
+            <DefaultProfileIcon />
+          )}
           <span style={styles.navName}>{user.displayName}</span>
           <button onClick={onLogout} style={styles.logoutBtn}>
             Logout
@@ -127,7 +149,7 @@ function HomePage({ user, onLogout }) {
       formData.append("audioFile", selectedFile);
 
       const response = await axios.post(
-        "http://localhost:8080/api/summarize",
+        "https://summarize-api-23978195141.asia-southeast2.run.app/api/summarize",
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -451,9 +473,12 @@ const styles = {
   },
   navAvatar: {
     width: '36px',
-    height: '36px',
-    borderRadius: '50%',
-    border: '2px solid rgba(255, 255, 255, 0.2)',
+        height: '36px',
+        borderRadius: '50%',
+        border: '2px solid rgba(255, 255, 255, 0.2)',
+        color: 'rgba(255, 255, 255, 0.6)',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+        objectFit: 'cover',
   },
   navName: {
     fontSize: '0.95em',

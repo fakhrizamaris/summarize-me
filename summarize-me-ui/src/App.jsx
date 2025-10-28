@@ -7,11 +7,7 @@ import { signOut, onAuthStateChanged } from 'firebase/auth'; //
 // Impor halaman-halaman
 import HomePage from './HomePage';
 import AuthPage from './AuthPage';
-// Hapus import yang tidak perlu lagi (axios, ReactMarkdown, googleProvider, signInWithPopup)
 
-// import './App.css'; // Opsional
-
-// Komponen PrivateRoute untuk melindungi halaman yang butuh login
 function PrivateRoute({ children }) {
     const [user, setUser] = useState(undefined); // undefined = loading
     const [isLoading, setIsLoading] = useState(true);
