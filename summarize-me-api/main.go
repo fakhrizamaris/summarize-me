@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil" // <-- Impor baru untuk baca file
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
