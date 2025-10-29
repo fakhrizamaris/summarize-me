@@ -1,0 +1,68 @@
+/* src/components/StepCard/StepCard.module.css */
+.stepCard {
+  position: relative;
+  flex: 1;
+  min-width: 250px;
+  max-width: 300px;
+  padding: 32px;
+  background-color: rgba(40, 40, 60, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  margin-bottom: 20px; /* Tambah margin bawah untuk wrap */
+}
+
+.stepNumber {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2em;
+  font-weight: bold;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  color: white; /* Pastikan angka terlihat */
+}
+
+.stepTitle {
+  font-size: 1.3em;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #e0e0ff;
+}
+
+.stepDesc {
+  opacity: 0.8;
+  line-height: 1.6;
+  color: #c0c0cc;
+}
+
+.stepArrow {
+  /* Style panah mungkin perlu penyesuaian posisi jika menggunakan flex-wrap */
+  display: none; /* Sembunyikan panah jika layout wrap */
+  /* Jika ingin tetap ada:
+  position: absolute;
+  right: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2em;
+  opacity: 0.3;
+  color: #888; */
+}
+
+/* Media query untuk menampilkan panah hanya di layar lebar */
+@media (min-width: 900px) { /* Sesuaikan breakpoint */
+  .stepCard:not(:last-child) .stepArrow {
+    display: block; /* Tampilkan lagi di layar lebar */
+    position: absolute;
+    right: -30px; /* Atur posisi */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2em;
+    opacity: 0.3;
+    color: #888;
+  }
+}

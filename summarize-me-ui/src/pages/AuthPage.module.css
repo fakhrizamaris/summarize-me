@@ -1,0 +1,196 @@
+/* src/pages/AuthPage.module.css */
+.authContainer {
+  max-width: 400px;
+  margin: 10vh auto; /* Jarak atas/bawah */
+  padding: 2.5rem 3rem;
+  background-color: rgba(30, 30, 50, 0.9);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.authContainer h2 {
+    color: #e0e0ff; /* Warna judul */
+    margin-bottom: 2rem; /* Jarak ke form */
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.input {
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid #4a4a6a;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #eee;
+  font-size: 1em;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input:focus {
+    outline: none;
+    border-color: #8c8cff;
+    box-shadow: 0 0 0 2px rgba(140, 140, 255, 0.3);
+}
+
+.input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+.errorMessage {
+  color: #ff9a9a;
+  font-size: 0.9em;
+  margin-top: -0.8rem;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+.optionsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+}
+
+.rememberMeContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox {
+  margin: 0;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.checkboxLabel {
+  font-size: 0.9em;
+  color: #bbb;
+  cursor: pointer;
+  user-select: none;
+}
+
+.forgotPassword {
+  font-size: 0.9em;
+  color: #aaa;
+  text-decoration: none;
+}
+ .forgotPassword:hover {
+    color: #ccc;
+    text-decoration: underline;
+ }
+
+.submitButton {
+  padding: 14px;
+  font-size: 1.05em;
+  background-color: #7a7aff;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+.submitButton:hover:not(:disabled) {
+    background-color: #6a6aff;
+}
+
+.submitButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.switchText {
+  margin-top: 1.5rem;
+  font-size: 0.9em;
+  color: #ccc;
+}
+
+.switchLink {
+  color: #b0b0ff;
+  font-weight: 500;
+  text-decoration: none; /* Hapus underline default */
+  cursor: pointer;
+  border-bottom: 1px solid transparent; /* Siapkan untuk hover */
+  transition: color 0.2s, border-color 0.2s;
+}
+.switchLink:hover {
+    color: #c0c0ff;
+    border-bottom-color: #c0c0ff; /* Underline saat hover */
+}
+
+.divider {
+  margin: 2rem 0;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #777;
+}
+
+.dividerLine {
+  flex: 1;
+  border-bottom: 1px solid #444;
+}
+
+.dividerText {
+  padding: 0 1em;
+  font-size: 0.85em;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.googleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  font-size: 1em;
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+  font-weight: 500;
+}
+
+.googleButton:hover:not(:disabled) {
+    background-color: #f5f5f5;
+}
+
+ .googleButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+
+.googleIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.buttonSpinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-top-color: #555;
+  border-radius: 50%;
+  display: inline-block;
+  /* Pastikan @keyframes spin ada di index.css */
+  animation: spin 0.8s linear infinite;
+}

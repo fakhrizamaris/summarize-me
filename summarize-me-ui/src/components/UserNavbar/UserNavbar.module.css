@@ -1,0 +1,76 @@
+/* src/components/UserNavbar/UserNavbar.module.css */
+.navbar {
+  position: relative; /* Mungkin tidak perlu 'position: relative' jika tidak ada elemen absolute di dalamnya */
+  z-index: 100;
+  background-color: rgba(30, 30, 50, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 12px 24px;
+  margin-bottom: 40px; /* Jaga jarak dari konten di bawahnya */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.navContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #e0e0ff; /* Pastikan teks logo terlihat */
+}
+
+.logoIcon {
+  font-size: 1.5em;
+}
+
+.logoText {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent; /* Teks dibuat transparan agar gradient terlihat */
+}
+
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6); /* Warna ikon default */
+  background-color: rgba(255, 255, 255, 0.1); /* Background ikon default */
+  object-fit: cover; /* Untuk gambar agar tidak penyok */
+}
+
+.navName {
+  font-size: 0.95em;
+  font-weight: 500;
+  color: #e0e0e0; /* Warna nama */
+}
+
+.logoutBtn {
+  padding: 8px 16px;
+  font-size: 0.9em;
+  background-color: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #fca5a5;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.logoutBtn:hover {
+  background-color: rgba(239, 68, 68, 0.4);
+  border-color: rgba(239, 68, 68, 0.5);
+}

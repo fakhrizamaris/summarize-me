@@ -17,6 +17,8 @@ summarize-me-ui/node_modules/
 summarize-me-ui/dist/
 summarize-me-ui/.env
 
+summarize-me-ui/src/config/firebaseConfig.js
+
 # ===== GO BACKEND =====
 summarize-me-api/serviceAccountKey.json
 summarize-me-api/.env

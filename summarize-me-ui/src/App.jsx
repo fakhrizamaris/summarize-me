@@ -1,151 +1,85 @@
 // src/App.jsx
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { auth } from './config/firebaseConfig'; // [cite: fakhrizamaris/summarize-me/summarize-me-534b62be55a4969aab39405b2ef61d0fa675d49a/summarize-me-ui/src/config/firebaseConfig.js]
-import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
+import { auth } from './config/firebaseConfig';
+import { useAuth } from './hooks/useAuth'; // Import hook
 
-// Impor halaman-halaman
-import HomePage from './HomePage'; // [cite: fakhrizamaris/summarize-me/summarize-me-534b62be55a4969aab39405b2ef61d0fa675d49a/summarize-me-ui/src/HomePage.jsx]
-import AuthPage from './AuthPage'; // [cite: fakhrizamaris/summarize-me/summarize-me-534b62be55a4969aab39405b2ef61d0fa675d49a/summarize-me-ui/src/AuthPage.jsx]
-import LoadingSpinner from './components/LoadingSpinner'; // Pastikan path benar
+// Import halaman dari lokasi baru
+import HomePage from './pages/HomePage';
+import AuthPage from './pages/AuthPage';
+import LoadingSpinner from './components/LoadingSpinner/LoadingSpinner';
 
-
-function InitialLoadingScreen() {
-  return (
-    <div className="initial-loading-container"> {/* Gunakan class CSS */}
-      <LoadingSpinner />
-      <p>Memuat aplikasi...</p>
-    </div>
-  );
-}
-
-// Helper component untuk cek auth state di route "/"
-function HomePageWrapper({ onLogout }) {
-    const [user, setUser] = useState(auth.currentUser);
-    const [isLoading, setIsLoading] = useState(true);
-
-     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-            setIsLoading(false);
-        });
-        return () => unsubscribe();
-    }, []);
-
-    if (isLoading) return <InitialLoadingScreen />;
-    return <HomePage user={user} onLogout={onLogout} />;
-}
-
-// Helper component untuk redirect dari /login atau /register jika sudah login
-function AuthRedirectWrapper({ children }) {
-     const [user, setUser] = useState(auth.currentUser);
-    const [isLoading, setIsLoading] = useState(true);
-
-     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-            setIsLoading(false);
-        });
-        return () => unsubscribe();
-    }, []);
-
-    if (isLoading) return <div>Loading...</div>; // Atau spinner loading
-
-    // Jika sudah login, redirect ke home
-    return user ? <Navigate to="/" replace /> : children;
-}
-
+// Impor CSS Module jika ingin styling App container
+import styles from './App.module.css'; // Buat file App.module.css jika perlu
 
 function App() {
-   const handleLogout = async () => {
-     try {
-       await signOut(auth);
-     } catch (error) {
-       console.error("Error during logout:", error);
-     }
-   };
+  const { user, isLoading } = useAuth(); // Gunakan hook
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      // Tidak perlu navigate, perubahan state `user` akan handle redirect
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
+
+  // Tampilkan loading spinner global saat status auth belum jelas
+  if (isLoading) {
+    return (
+      <div className={styles.initialLoadingContainer}> {/* Gunakan class CSS */}
+        <LoadingSpinner />
+        <p>Memuat aplikasi...</p>
+      </div>
+    );
+  }
 
   return (
     <Router>
-      {/* Tambahkan div container utama jika diperlukan untuk styling global */}
-      {/* <div style={styles.appContainer}> */}
+      <div className={styles.appContainer}> {/* Optional container */}
         <Routes>
+          {/* Rute Halaman Utama */}
+          {/* Perhatikan: HomePage sekarang menerima user langsung */}
+          <Route path="/" element={<HomePage user={user} onLogout={handleLogout} />} />
 
-          {/* Rute Halaman Utama (/) */}
-          <Route path="/" element={<HomePageWrapper onLogout={handleLogout} />} />
-
-          {/* Rute Halaman Login (/login) */}
+          {/* Rute Login */}
           <Route
             path="/login"
-            element={
-              <AuthRedirectWrapper>
-                 {/* Beri tahu AuthPage untuk mode 'login' */}
-                <AuthPage mode="login" />
-              </AuthRedirectWrapper>
-            }
+            element={user ? <Navigate to="/" replace /> : <AuthPage mode="login" />}
           />
 
-          {/* --- RUTE BARU Halaman Register (/register) --- */}
+          {/* Rute Register */}
           <Route
             path="/register"
-            element={
-              <AuthRedirectWrapper>
-                {/* Beri tahu AuthPage untuk mode 'register' */}
-                <AuthPage mode="register" />
-              </AuthRedirectWrapper>
-            }
+            element={user ? <Navigate to="/" replace /> : <AuthPage mode="register" />}
           />
-          {/* ------------------------------------------- */}
 
-
-          {/* Rute fallback */}
+          {/* Fallback redirect ke home */}
           <Route path="*" element={<Navigate to="/" replace />} />
-
         </Routes>
 
-        {/* --- FOOTER KREDIT BARU --- */}
-        <footer style={styles.footer}>
+        {/* Footer dipindah ke sini */}
+        <footer className={styles.footer}>
           <p>
-            Dibuat oleh {' '}
-            <a href="https://github.com/fakhrizamaris" target="_blank" rel="noopener noreferrer" style={styles.footerLink}>
+            Dibuat oleh{' '}
+            <a href="https://github.com/fakhrizamaris" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
               Fakhri Djamaris (GitHub)
             </a>
             {' | '}
-            <a href="https://www.linkedin.com/in/fakhri-djamaris" target="_blank" rel="noopener noreferrer" style={styles.footerLink}>
+            <a href="https://www.linkedin.com/in/fakhri-djamaris" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
               Fakhri Djamaris (LinkedIn)
             </a>
           </p>
-          <p style={styles.footerAppname}>
-            SummarizeMe &copy; 2024
+          <p className={styles.footerAppname}>
+            SummarizeMe &copy; 2025
           </p>
         </footer>
-        {/* --------------------------- */}
-      {/* </div> */}
+      </div>
     </Router>
   );
 }
 
-// Tambahkan objek styles jika belum ada (minimal untuk footer)
-const styles = {
-    footer: {
-        marginTop: 'auto', // Push footer ke bawah
-        padding: '1.5rem 1rem',
-        backgroundColor: 'rgba(25, 25, 40, 0.8)',
-        textAlign: 'center',
-        fontSize: '0.85em',
-        color: '#aaa',
-        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-    },
-    footerLink: {
-        color: '#8c8cff',
-        textDecoration: 'none',
-        transition: 'color 0.2s ease',
-    },
-    footerAppname: {
-        marginTop: '0.5rem',
-        fontSize: '0.75em',
-        color: '#777',
-    }
-};
+
 
 export default App;

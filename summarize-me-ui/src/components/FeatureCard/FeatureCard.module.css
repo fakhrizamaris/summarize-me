@@ -1,0 +1,32 @@
+/* src/components/FeatureCard/FeatureCard.module.css */
+.featureCard {
+  padding: 32px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out; /* Pindahkan transisi hover ke sini */
+  cursor: default; /* Ganti cursor jika tidak interaktif */
+}
+
+.featureCard:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.featureIconBox {
+  font-size: 3em;
+  margin-bottom: 16px;
+}
+
+.featureTitle {
+  font-size: 1.3em;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #e0e0ff; /* Warna judul */
+}
+
+.featureDesc {
+  opacity: 0.8;
+  line-height: 1.6;
+  color: #c0c0cc; /* Warna deskripsi */
+}

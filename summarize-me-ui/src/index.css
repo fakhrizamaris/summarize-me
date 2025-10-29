@@ -4,19 +4,18 @@
   line-height: 1.6;
   font-weight: 400;
 
-  color-scheme: dark; /* Paksa mode gelap */
-  color: rgba(255, 255, 255, 0.9); /* Teks sedikit lebih cerah */
-  
-  /* --- Background Gradient Modern --- */
-  background-color: #1a1a2e; /* Warna dasar jika gradient gagal */
-  background-image: 
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.9);
+
+  /* Background Gradient Modern */
+  background-color: #1a1a2e;
+  background-image:
     radial-gradient(at 20% 10%, hsla(217, 80%, 30%, 0.3) 0px, transparent 50%),
     radial-gradient(at 80% 90%, hsla(280, 70%, 25%, 0.25) 0px, transparent 50%),
     linear-gradient(135deg, #161a25 0%, #1a1a2e 50%, #1f1f38 100%);
   background-size: cover;
   background-repeat: no-repeat;
-  background-attachment: fixed; /* Agar background tidak ikut scroll */
-  /* ------------------------------ */
+  background-attachment: fixed;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -26,38 +25,21 @@
 
 body {
   margin: 0;
-  display: flex; /* Menggunakan flexbox untuk layout */
-  justify-content: center; /* Konten di tengah horizontal */
-  align-items: flex-start; /* Konten mulai dari atas */
   min-height: 100vh;
-  padding-top: 5vh; /* Beri sedikit jarak dari atas */
+  /* display: flex; dan align/justify dihapus, biarkan #root yang mengatur */
 }
 
-#root {
-     width: 90%;
-     max-width: 1100px; /* Lebar max landing page */
-     margin: 5vh auto;
-     text-align: center;
+/* Style dasar untuk link */
+a {
+  color: #8c8cff;
+  text-decoration: inherit; /* Bisa dihapus jika ingin default browser */
+  transition: color 0.2s ease;
+}
+a:hover {
+  color: #aab;
 }
 
-h1 {
-  font-size: 2.8em;
-  line-height: 1.1;
-  color: #e0e0ff; /* Warna judul lebih menonjol */
-  margin-bottom: 1.5rem;
-}
-
-h3 {
-    margin-top: 1.5rem;
-    color: #c0c0ff;
-}
-
-h4 {
-    color: #a0a0ff;
-    margin-top: 2rem;
-    margin-bottom: 0.8rem;
-}
-
+/* Style dasar untuk tombol (bisa dihapus jika semua tombol sudah dicustom) */
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -65,11 +47,10 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #3b3b5f; /* Warna tombol lebih menarik */
+  background-color: #3b3b5f;
   color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   transition: border-color 0.25s, background-color 0.25s;
-  margin: 5px; /* Beri sedikit jarak antar tombol */
 }
 button:hover {
   border-color: #8c8cff;
@@ -78,118 +59,81 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+  outline-offset: 2px; /* Perbaikan outline */
 }
 
-input[type="file"] {
-    margin-bottom: 10px;
-    padding: 8px;
-    border: 1px solid #555;
-    border-radius: 4px;
-    background-color: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.8);
-}
-
-   .markdown-result {
-       font-size: 1em;
-       margin-top: 5px;
-       text-align: left;
-       white-space: pre-wrap;
-       max-height: 400px;
-       overflow-y: auto;
-   }
-   .markdown-result h1,
-   .markdown-result h2,
-   .markdown-result h3 {
-       font-size: 1.2em;
-       color: #a0a0ff; 
-       margin-top: 1em;
-       margin-bottom: 0.1em;
-       padding-bottom: 0.1em;
-       border-bottom: 1px solid rgba(255, 255, 255, 0.2); 
-   }
-   .markdown-result p { margin-bottom: 0.2em; line-height: 1.6; }
-   .markdown-result ul, .markdown-result ol { padding-left: 25px; }
-   .markdown-result li { margin-bottom: 0.2em; }
-   .markdown-result strong { color: #e0e0ff; font-weight: 600; }
-   .markdown-result code {
-       background-color: rgba(0, 0, 0, 0.3);
-       padding: 0.2em 0.4em;
-       border-radius: 3px;
-       font-family: monospace;
-   }
-   .markdown-result blockquote {
-       border-left: 3px solid #8c8cff;
-       margin-left: 0;
-       padding-left: 1em;
-       color: #bbb;
-   }
-
- 
+/* Keyframes */
 @keyframes float {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(15px, -10px) rotate(8deg); } /* Sedikit lebih dinamis */
+  25% { transform: translate(15px, -10px) rotate(8deg); }
   50% { transform: translate(0, 25px) rotate(-5deg); }
   75% { transform: translate(-15px, 10px) rotate(5deg); }
 }
 
-/* Animasi Spinner Loading */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* Efek Hover untuk Feature Card */
-div[style*="rgba(40, 40, 60, 0.6)"][style*="padding: 1.8rem"] /* Selector sementara berdasarkan inline style */
-{
-    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out; /* Transisi lebih halus */
+/* Styling untuk .markdown-result bisa diletakkan di HomePage.module.css
+   atau di file CSS global jika digunakan di banyak tempat */
+.markdown-result { /* Contoh jika ditaruh global */
+   font-size: 1em;
+   text-align: left;
+   white-space: pre-wrap;
+   max-height: 600px; /* Sesuaikan */
+   overflow-y: auto;
+   line-height: 1.7; /* Tingkatkan keterbacaan */
+   color: #d0d0e0; /* Warna teks default */
+}
+.markdown-result h1,
+.markdown-result h2,
+.markdown-result h3,
+.markdown-result h4 { /* Target semua heading */
+   font-size: 1.2em;
+   color: #a0a0ff;
+   margin-top: 1.5em; /* Jarak atas lebih besar */
+   margin-bottom: 0.5em; /* Jarak bawah lebih kecil */
+   padding-bottom: 0.3em;
+   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+.markdown-result h1 { font-size: 1.6em; } /* Buat H1 lebih besar */
+.markdown-result h2 { font-size: 1.4em; }
+.markdown-result p { margin-bottom: 1em; } /* Beri jarak antar paragraf */
+.markdown-result ul, .markdown-result ol { padding-left: 25px; margin-bottom: 1em; }
+.markdown-result li { margin-bottom: 0.5em; }
+.markdown-result strong { color: #e0e0ff; font-weight: 600; }
+.markdown-result code {
+   background-color: rgba(0, 0, 0, 0.3);
+   padding: 0.2em 0.4em;
+   border-radius: 4px; /* Sudut lebih bulat */
+   font-family: 'Courier New', Courier, monospace; /* Font monospace */
+   font-size: 0.9em; /* Sedikit lebih kecil */
+   color: #f0f0f0; /* Warna kode */
+}
+.markdown-result blockquote {
+   border-left: 4px solid #8c8cff; /* Border lebih tebal */
+   margin-left: 0;
+   padding-left: 1.5em;
+   color: #bbb;
+   font-style: italic; /* Miringkan blockquote */
+   margin-bottom: 1em;
+}
+.markdown-result a { /* Style link di dalam markdown */
+   color: #9f9fff;
+   text-decoration: underline;
+}
+.markdown-result a:hover {
+    color: #bfbfff;
 }
 
-div[style*="rgba(40, 40, 60, 0.6)"][style*="padding: 1.8rem"]:hover {
-  transform: translateY(-8px) scale(1.02); 
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-}
-
-/* Efek Hover untuk Tombol Proses (jika tidak disabled) */
-button[style*="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"]:not(:disabled) {
-   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
-}
-button[style*="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"]:not(:disabled):hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5); /* Shadow lebih kuat */
-}
-
-/* Feedback Hover untuk Label Upload */
-label[htmlFor="audio-upload"]:hover {
-    border-color: #aab;
-    background-color: rgba(140, 140, 255, 0.1);
-    color: #fff;
-}
-
-/* Container untuk loading awal */
+/* Style untuk loading awal (pindahkan dari App.module.css jika diinginkan global) */
 .initial-loading-container {
     display: flex;
-    flex-direction: column; /* Susun spinner dan teks ke bawah */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 100vh; /* Penuhi tinggi layar */
-    background-color: #1a1a2e; /* Cocokkan dengan background utama */
+    min-height: 100vh;
+    background-color: #1a1a2e;
     color: #ccc;
     font-size: 1.1em;
-}
-
-/* Styling Spinner Modern (Rotating Arc) */
-.loading-spinner {
-    width: 48px;
-    height: 48px;
-    border: 4px solid rgba(140, 140, 255, 0.2); /* Warna dasar lingkaran */
-    border-top-color: #8c8cff; /* Warna bagian yang berputar */
-    border-radius: 50%;
-    animation: spin 1s linear infinite; /* Gunakan animasi spin yang sudah ada */
-    margin-bottom: 1rem; /* Jarak spinner ke teks */
-}
-
-/* Animasi spin (jika belum ada, tambahkan ini) */
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
