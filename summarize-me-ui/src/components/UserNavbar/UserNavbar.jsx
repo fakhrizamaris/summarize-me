@@ -26,7 +26,6 @@ function UserNavbar({ user, onLogout }) {
     <nav className={styles.navbar}>
       <div className={styles.navContent}>
         <div className={styles.logo}>
-          <span className={styles.logoIcon}>✨</span>
           <span className={styles.logoText}>SummarizeMe</span>
         </div>
         <div className={styles.navRight}>

@@ -6,6 +6,7 @@
   backdrop-filter: blur(10px);
   transition: transform 0.3s ease-out, box-shadow 0.3s ease-out; /* Pindahkan transisi hover ke sini */
   cursor: default; /* Ganti cursor jika tidak interaktif */
+
 }
 
 .featureCard:hover {

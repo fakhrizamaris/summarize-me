@@ -137,7 +137,6 @@ function HomePage({ user, onLogout }) {
       {/* Upload Section */}
       <section className={styles['upload-section']}>
         <h2 className={styles['section-title']}>
-          <span className={styles['title-icon']}>🎯</span>
           Mulai Sekarang
         </h2>
         <div
@@ -227,7 +226,6 @@ function HomePage({ user, onLogout }) {
       {/* Features Section */}
       <section className={styles['features-section']}>
         <h2 className={styles['section-title']}>
-          <span className={styles['title-icon']}>⚡</span>
           Fitur Unggulan
         </h2>
         {/* Class untuk grid */}
@@ -294,7 +292,6 @@ function HomePage({ user, onLogout }) {
           </p>
           {!user && (
             <button onClick={() => navigate('/login')} className={styles['cta-button']}>
-              <span>🚀</span>
               Mulai Gratis Sekarang
             </button>
           )}
