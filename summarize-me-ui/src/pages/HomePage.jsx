@@ -345,8 +345,8 @@ function HomePage({ user, onLogout }) {
         >
           {isProcessing ? (
             <>
-              <span className={styles.spinner}></span>
-              Memproses...
+               <LoadingSpinner variant="default" size="small" />
+    Memproses...
             </>
           ) : (
             <>
@@ -389,7 +389,7 @@ function HomePage({ user, onLogout }) {
           <div className={`markdown-result ${styles['results-box']}`}>
             {isProcessing && apiResponse === "⏳ Sedang memproses audio Anda..." ? (
               <div className={styles['loading-text']}>
-                <LoadingSpinner />
+                <LoadingSpinner variant="gradient" size="large" text="Memproses audio Anda..." />
                 <p>{apiResponse}</p>
               </div>
             ) : (

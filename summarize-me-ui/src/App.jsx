@@ -3,53 +3,50 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from './config/firebaseConfig';
-import { useAuth } from './hooks/useAuth'; // Import hook
+import { useAuth } from './hooks/useAuth';
 
-// Import halaman dari lokasi baru
+// Import halaman
 import HomePage from './pages/HomePage';
 import AuthPage from './pages/AuthPage';
+import FullPageLoader from './components/FullPageLoader/FullPageLoader';
 import LoadingSpinner from './components/LoadingSpinner/LoadingSpinner';
 
-// Impor CSS Module jika ingin styling App container
-import styles from './App.module.css'; // Buat file App.module.css jika perlu
+// Import CSS Module
+import styles from './App.module.css';
 
 function App() {
-  const { user, isLoading } = useAuth(); // Gunakan hook
+  const { user, isLoading } = useAuth();
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      // Tidak perlu navigate, perubahan state `user` akan handle redirect
     } catch (error) {
       console.error("Error during logout:", error);
     }
   };
 
-  // Tampilkan loading spinner global saat status auth belum jelas
+  // Tampilkan loading saat memeriksa status auth
   if (isLoading) {
-    return (
-      <div className={styles.initialLoadingContainer}> {/* Gunakan class CSS */}
-        <LoadingSpinner />
-        <p>Memuat aplikasi...</p>
-      </div>
-    );
+    return <LoadingSpinner variant="pulse" size="large" />
   }
 
   return (
     <Router>
-      <div className={styles.appContainer}> {/* Optional container */}
+      <div className={styles.appContainer}>
         <Routes>
           {/* Rute Halaman Utama */}
-          {/* Perhatikan: HomePage sekarang menerima user langsung */}
-          <Route path="/" element={<HomePage user={user} onLogout={handleLogout} />} />
+          <Route 
+            path="/" 
+            element={<HomePage user={user} onLogout={handleLogout} />} 
+          />
 
-          {/* Rute Login */}
+          {/* Rute Login - redirect ke home jika sudah login */}
           <Route
             path="/login"
             element={user ? <Navigate to="/" replace /> : <AuthPage mode="login" />}
           />
 
-          {/* Rute Register */}
+          {/* Rute Register - redirect ke home jika sudah login */}
           <Route
             path="/register"
             element={user ? <Navigate to="/" replace /> : <AuthPage mode="register" />}
@@ -59,15 +56,25 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
 
-        {/* Footer dipindah ke sini */}
+        {/* Footer Global */}
         <footer className={styles.footer}>
           <p>
             Dibuat oleh{' '}
-            <a href="https://github.com/fakhrizamaris" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
+            <a 
+              href="https://github.com/fakhrizamaris" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className={styles.footerLink}
+            >
               Fakhri Djamaris (GitHub)
             </a>
             {' | '}
-            <a href="https://www.linkedin.com/in/fakhri-djamaris" target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
+            <a 
+              href="https://www.linkedin.com/in/fakhri-djamaris" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className={styles.footerLink}
+            >
               Fakhri Djamaris (LinkedIn)
             </a>
           </p>
@@ -79,7 +86,5 @@ function App() {
     </Router>
   );
 }
-
-
 
 export default App;
