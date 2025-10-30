@@ -1,0 +1,14 @@
+/* src/components/LoadingSpinner/LoadingSpinner.module.css */
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(140, 140, 255, 0.2); /* Warna dasar lingkaran */
+  border-top-color: #8c8cff; /* Warna bagian yang berputar */
+  border-radius: 50%;
+  
+  /* Panggil animasi 'spin' global dari index.css */
+  animation: spin 1s linear infinite; 
+
+  /* Beri margin default, bisa di-override oleh parent */
+  margin: 1rem auto; 
+}

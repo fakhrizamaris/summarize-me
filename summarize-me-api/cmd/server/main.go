@@ -46,7 +46,7 @@ func main() {
     }
     defer geminiClient.Close()
 
-    geminiModel := geminiClient.GenerativeModel("gemini-1.5-flash")
+    geminiModel := geminiClient.GenerativeModel("gemini-2.5-flash")
 
 	// --- Inisialisasi Service (sama seperti sebelumnya) ---
 	summarizeService := services.NewSummarizeService(speechClient, geminiModel)

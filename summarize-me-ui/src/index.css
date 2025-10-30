@@ -6,10 +6,9 @@
 
   color-scheme: dark;
   color: rgba(255, 255, 255, 0.9);
-
-  /* Background Gradient Modern */
+  
   background-color: #1a1a2e;
-  background-image:
+  background-image: 
     radial-gradient(at 20% 10%, hsla(217, 80%, 30%, 0.3) 0px, transparent 50%),
     radial-gradient(at 80% 90%, hsla(280, 70%, 25%, 0.25) 0px, transparent 50%),
     linear-gradient(135deg, #161a25 0%, #1a1a2e 50%, #1f1f38 100%);
@@ -26,43 +25,30 @@
 body {
   margin: 0;
   min-height: 100vh;
-  /* display: flex; dan align/justify dihapus, biarkan #root yang mengatur */
 }
 
-/* Style dasar untuk link */
+#root {
+  width: 100%; /* Biarkan #root mengisi lebar penuh */
+  max-width: none; /* Hapus max-width dari root */
+  margin: 0;
+  padding: 0; /* Hapus padding dari root */
+  text-align: center;
+}
+
+/* Hapus style h1, h3, h4, button global, biarkan module yang atur */
+
 a {
   color: #8c8cff;
-  text-decoration: inherit; /* Bisa dihapus jika ingin default browser */
+  text-decoration: inherit;
   transition: color 0.2s ease;
 }
 a:hover {
   color: #aab;
 }
 
-/* Style dasar untuk tombol (bisa dihapus jika semua tombol sudah dicustom) */
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #3b3b5f;
-  color: rgba(255, 255, 255, 0.9);
-  cursor: pointer;
-  transition: border-color 0.25s, background-color 0.25s;
-}
-button:hover {
-  border-color: #8c8cff;
-  background-color: #4c4c7f;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-  outline-offset: 2px; /* Perbaikan outline */
-}
+/* --- Ini adalah bagian penting --- */
 
-/* Keyframes */
+/* Animasi untuk floating shapes */
 @keyframes float {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
   25% { transform: translate(15px, -10px) rotate(8deg); }
@@ -70,70 +56,39 @@ button:focus-visible {
   75% { transform: translate(-15px, 10px) rotate(5deg); }
 }
 
+/* Animasi untuk SEMUA spinner */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to { 
+    transform: rotate(360deg); 
+  }
 }
+/* ------------------------------- */
 
-/* Styling untuk .markdown-result bisa diletakkan di HomePage.module.css
-   atau di file CSS global jika digunakan di banyak tempat */
-.markdown-result { /* Contoh jika ditaruh global */
-   font-size: 1em;
-   text-align: left;
-   white-space: pre-wrap;
-   max-height: 600px; /* Sesuaikan */
-   overflow-y: auto;
-   line-height: 1.7; /* Tingkatkan keterbacaan */
-   color: #d0d0e0; /* Warna teks default */
-}
+
+/* Style global untuk hasil markdown, bisa ditaruh di sini */
 .markdown-result h1,
 .markdown-result h2,
-.markdown-result h3,
-.markdown-result h4 { /* Target semua heading */
-   font-size: 1.2em;
-   color: #a0a0ff;
-   margin-top: 1.5em; /* Jarak atas lebih besar */
-   margin-bottom: 0.5em; /* Jarak bawah lebih kecil */
-   padding-bottom: 0.3em;
-   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+.markdown-result h3 {
+    font-size: 1.2em;
+    color: #a0a0ff; 
+    margin-top: 1em;
+    margin-bottom: 0.1em;
+    padding-bottom: 0.1em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2); 
 }
-.markdown-result h1 { font-size: 1.6em; } /* Buat H1 lebih besar */
-.markdown-result h2 { font-size: 1.4em; }
-.markdown-result p { margin-bottom: 1em; } /* Beri jarak antar paragraf */
-.markdown-result ul, .markdown-result ol { padding-left: 25px; margin-bottom: 1em; }
-.markdown-result li { margin-bottom: 0.5em; }
+.markdown-result p { margin-bottom: 0.8em; line-height: 1.7; }
+.markdown-result ul, .markdown-result ol { padding-left: 25px; margin-bottom: 0.8em; }
+.markdown-result li { margin-bottom: 0.3em; }
 .markdown-result strong { color: #e0e0ff; font-weight: 600; }
 .markdown-result code {
-   background-color: rgba(0, 0, 0, 0.3);
-   padding: 0.2em 0.4em;
-   border-radius: 4px; /* Sudut lebih bulat */
-   font-family: 'Courier New', Courier, monospace; /* Font monospace */
-   font-size: 0.9em; /* Sedikit lebih kecil */
-   color: #f0f0f0; /* Warna kode */
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: monospace;
 }
 .markdown-result blockquote {
-   border-left: 4px solid #8c8cff; /* Border lebih tebal */
-   margin-left: 0;
-   padding-left: 1.5em;
-   color: #bbb;
-   font-style: italic; /* Miringkan blockquote */
-   margin-bottom: 1em;
-}
-.markdown-result a { /* Style link di dalam markdown */
-   color: #9f9fff;
-   text-decoration: underline;
-}
-.markdown-result a:hover {
-    color: #bfbfff;
-}
-
-/* Style untuk loading awal (pindahkan dari App.module.css jika diinginkan global) */
-.initial-loading-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #1a1a2e;
-    color: #ccc;
-    font-size: 1.1em;
+    border-left: 3px solid #8c8cff;
+    margin-left: 0;
+    padding-left: 1em;
+    color: #bbb;
 }

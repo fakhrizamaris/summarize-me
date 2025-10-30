@@ -1,11 +1,10 @@
 // src/components/LoadingSpinner.jsx
 import React from 'react';
-// Import CSS jika Anda memindahkannya ke file terpisah,
-// tapi karena sudah di index.css, tidak perlu import di sini.
+import styles from './LoadingSpinner.module.css'; // <-- 1. Impor CSS Module
 
 function LoadingSpinner() {
-  // Render div dengan class CSS yang sudah kita definisikan
-  return <div className="loading-spinner"></div>;
+  // 2. Render div dengan class name dari CSS Module
+  return <div className={styles.spinner}></div>;
 }
 
 export default LoadingSpinner;

@@ -22,24 +22,24 @@ func NewSummarizeHandler(s *services.SummarizeService) *SummarizeHandler {
 
 // HandleSummarize menangani request POST /api/summarize.
 func (h *SummarizeHandler) HandleSummarize(c *gin.Context) {
-	// 1. Ambil userID dari middleware
+	// 1. Ambil userID (tetap sama)
 	userID, exists := c.Get("userID")
 	if !exists {
-		log.Println("ERROR: userID tidak ditemukan di context") // Lebih jelas
+		log.Println("ERROR: userID tidak ditemukan di context") 
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Autentikasi gagal (internal server error)"})
 		return
 	}
 	log.Printf("Menerima request /api/summarize dari userID: %s", userID)
 
-	// 2. Ambil file dari form multipart
+	// 2. Ambil file (tetap sama)
 	file, err := c.FormFile("audioFile")
 	if err != nil {
-		log.Printf("WARN: Gagal mengambil file dari form: %v", err) // Log sebagai warning
+		log.Printf("WARN: Gagal mengambil file dari form: %v", err) 
 		c.JSON(http.StatusBadRequest, gin.H{"error": "File 'audioFile' tidak ditemukan atau request tidak valid"})
 		return
 	}
 
-	// 3. Buka dan baca file
+	// 3. Buka dan baca file (tetap sama)
 	openedFile, err := file.Open()
 	if err != nil {
 		log.Printf("ERROR: Gagal membuka file upload: %v", err)
@@ -56,16 +56,15 @@ func (h *SummarizeHandler) HandleSummarize(c *gin.Context) {
 	}
 	log.Printf("Berhasil menerima file: %s (Ukuran: %d bytes) dari userID: %s", file.Filename, len(fileData), userID)
 
-	// 4. Panggil service untuk transkripsi dan ringkasan
-	summary, err := h.service.TranscribeAndSummarize(c.Request.Context(), fileData) // Gunakan context request
+	// 4. Panggil service, TAMBAHKAN file.Filename
+	summary, err := h.service.TranscribeAndSummarize(c.Request.Context(), fileData, file.Filename) // <-- TAMBAHKAN file.Filename
 	if err != nil {
 		log.Printf("ERROR: Gagal TranscribeAndSummarize untuk userID %s: %v", userID, err)
-		// Kirim error yang lebih umum ke user, detail di log server
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Terjadi kesalahan saat memproses audio Anda."})
 		return
 	}
 
-	// 5. Kirim hasil
+	// 5. Kirim hasil (tetap sama)
 	log.Printf("Berhasil membuat ringkasan untuk userID: %s", userID)
 	c.JSON(http.StatusOK, gin.H{
 		"summary": summary,
