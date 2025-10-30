@@ -1,9 +1,13 @@
+/* src/pages/HomePage.module.css */
+
 .container {
   position: relative;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  z-index: 1; /* Konten di atas floating shapes */
+  box-sizing: border-box; /* Pastikan padding tidak menambah lebar */
 }
 
 /* Hero */
@@ -11,7 +15,7 @@
   position: relative;
   z-index: 10;
   text-align: center;
-  padding: 60px 0 80px;
+  padding: 40px 0 60px; /* Kurangi padding atas untuk mobile */
 }
 
 .hero-content {
@@ -36,25 +40,25 @@
 }
 
 .hero-title {
-  font-size: 3.5em;
+  font-size: 2.5em; /* Ukuran default untuk mobile */
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: 24px;
   letter-spacing: -0.02em;
 }
 
+/* Perbaikan untuk Gradient Text */
 .gradient-text {
-   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-   -webkit-background-clip: text; /* Vendor prefix */
-   background-clip: text;         /* Properti standar */
-   /* Tambahkan kembali -webkit-text-fill-color untuk kompatibilitas lebih luas */
-   -webkit-text-fill-color: transparent;
-   color: transparent;            /* Membuat teks asli transparan */
-   display: inline;               /* Secara eksplisit set display (meskipun default) */
- }
+  display: inline; /* Pastikan tetap inline */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent; /* Fallback */
+}
 
 .hero-subtitle {
-  font-size: 1.25em;
+  font-size: 1.1em; /* Sedikit lebih kecil di mobile */
   line-height: 1.6;
   opacity: 0.8;
   margin-bottom: 48px;
@@ -66,25 +70,26 @@
 .stats {
   display: flex;
   justify-content: center;
-  gap: 48px;
+  gap: 24px; /* Kurangi gap di mobile */
   margin-top: 48px;
+  flex-wrap: wrap; /* Izinkan wrap jika perlu */
 }
 
 .stat-item {
   text-align: center;
+  min-width: 80px; /* Beri lebar minimum */
 }
 
+/* Perbaikan untuk Gradient Text */
 .stat-number {
   font-size: 2.5em;
   font-weight: bold;
-  margin-bottom: 8px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-   -webkit-background-clip: text; /* Vendor prefix */
-   background-clip: text;         /* Properti standar */
-   /* Tambahkan kembali -webkit-text-fill-color untuk kompatibilitas lebih luas */
-   -webkit-text-fill-color: transparent;
-   color: transparent;            /* Membuat teks asli transparan */
-   display: inline;    
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent; /* Fallback */
+  margin-bottom: 8px;
 }
 
 .stat-label {
@@ -94,7 +99,7 @@
 
 /* Section Titles */
 .section-title {
-  font-size: 2.5em;
+  font-size: 2em; /* Sedikit lebih kecil di mobile */
   font-weight: 700;
   text-align: center;
   margin-bottom: 48px;
@@ -121,7 +126,7 @@
   backdrop-filter: blur(10px);
   border: 2px dashed rgba(255, 255, 255, 0.2);
   border-radius: 20px;
-  padding: 48px;
+  padding: 32px; /* Padding lebih kecil di mobile */
   margin-bottom: 24px;
   transition: all 0.3s;
   cursor: pointer;
@@ -142,7 +147,7 @@
   display: none;
 }
 
- .upload-label {
+.upload-label {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -150,7 +155,7 @@
 }
 
 .upload-icon {
-  font-size: 4em;
+  font-size: 3em; /* Ikon lebih kecil di mobile */
   margin-bottom: 16px;
   opacity: 0.6;
 }
@@ -178,12 +183,18 @@
 .file-info {
   flex: 1;
   text-align: left;
+  /* Mencegah teks terlalu panjang */
+  overflow: hidden; 
 }
 
 .file-name-display {
   font-size: 1.1em;
   margin-bottom: 8px;
   font-weight: 500;
+  /* Mencegah teks terlalu panjang */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .remove-file-btn {
@@ -220,6 +231,12 @@
   box-shadow: none;
 }
 
+.process-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+}
+
+
 .spinner {
   width: 16px;
   height: 16px;
@@ -236,13 +253,66 @@
   margin-bottom: 80px;
 }
 
-.results-title {
-  font-size: 2em;
-  font-weight: 600;
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 24px;
+  flex-wrap: wrap; /* Tombol akan pindah baris di layar kecil */
+  gap: 16px; /* Jarak antara judul dan tombol jika wrapping */
+}
+
+.results-title {
+  font-size: 1.8em; /* Sedikit lebih kecil */
+  font-weight: 600;
+  margin-bottom: 0; 
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0; /* Mencegah judul mengecil */
+}
+
+.results-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap; /* Tombol juga bisa wrap jika tidak muat */
+}
+
+.action-btn {
+  padding: 8px 16px;
+  font-size: 0.9em;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: transparent;
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-copy {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #93c5fd; 
+}
+.btn-copy:hover:not(:disabled) {
+  background-color: rgba(59, 130, 246, 0.4);
+  border-color: #93c5fd;
+}
+
+.btn-pdf {
+  background-color: rgba(236, 72, 153, 0.2);
+  color: #f9a8d4;
+}
+.btn-pdf:hover:not(:disabled) {
+  background-color: rgba(236, 72, 153, 0.4);
+  border-color: #f9a8d4;
 }
 
 .results-box {
@@ -250,7 +320,7 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  padding: 32px;
+  padding: 24px; /* Padding lebih kecil */
   max-height: 600px;
   overflow-y: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -262,15 +332,38 @@
   align-items: center;
   gap: 16px;
   padding: 40px;
+  color: #ccc;
 }
 
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #667eea;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+/* Spinner dari komponen LoadingSpinner akan digunakan di sini */
+
+
+/* Features Section */
+.features-section {
+  position: relative;
+  z-index: 10;
+  margin-bottom: 80px;
+}
+
+.features-grid {
+  display: grid;
+  /* Responsif: auto-fit, minimal 250px, maks 1fr */
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+/* How It Works Section */
+.steps-section {
+  position: relative;
+  z-index: 10;
+  margin-bottom: 80px;
+}
+
+.steps-grid {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap; /* <-- Kunci responsif untuk flex */
 }
 
 
@@ -279,7 +372,7 @@
   position: relative;
   z-index: 10;
   text-align: center;
-  padding: 80px 40px;
+  padding: 60px 30px; /* Padding lebih kecil di mobile */
   margin-bottom: 60px;
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
   border-radius: 24px;
@@ -292,20 +385,20 @@
 }
 
 .cta-title {
-  font-size: 2.5em;
+  font-size: 2em; /* Sedikit lebih kecil di mobile */
   font-weight: 700;
   margin-bottom: 16px;
 }
 
 .cta-text {
-  font-size: 1.2em;
+  font-size: 1.1em; /* Sedikit lebih kecil di mobile */
   opacity: 0.8;
   margin-bottom: 32px;
 }
 
 .cta-button {
-  padding: 16px 48px;
-  font-size: 1.2em;
+  padding: 16px 32px; /* Padding disesuaikan */
+  font-size: 1.1em; /* Ukuran font disesuaikan */
   font-weight: 600;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
@@ -315,70 +408,72 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+  transition: all 0.3s;
   box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
 }
 
 .cta-button:hover {
-  transform: translateY(-6px) scale(1.03);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
 }
 
-/* Footer */
-.footer {
-  position: relative;
-  z-index: 10;
-  text-align: center;
-  padding: 40px 0;
-  opacity: 0.6;
-  font-size: 0.9em;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-
- /* Features Section */
- .features-section {
-   position: relative;
-   z-index: 10;
-   margin-bottom: 80px;
- }
-
- .features-grid {
-   display: grid;
-   /* Menggunakan auto-fit agar jumlah kolom otomatis menyesuaikan lebar */
-   /* Setiap kolom minimal 250px, dan bisa membesar (1fr) */
-   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-   gap: 24px;
- }
-
- /* Style FeatureCard sendiri ada di FeatureCard.module.css */
-
- /* How It Works Section */
- .steps-section {
-   position: relative;
-   z-index: 10;
-   margin-bottom: 80px;
- }
-
- .steps-grid {
-   display: flex;
-   gap: 24px;
-   justify-content: center;
-   flex-wrap: wrap; /* <-- Tambahkan ini agar item bisa wrap */
- }
-
-/* Animations */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
+/* Media Queries untuk layar lebih besar (Tablet/Desktop) */
+@media (min-width: 768px) {
+  .container {
+    padding: 0 40px;
   }
-  50% {
-    transform: translateY(-30px);
+
+  .hero {
+    padding: 60px 0 80px;
+  }
+
+  .hero-title {
+    font-size: 3.5em; /* Kembalikan ke ukuran besar */
+  }
+
+  .hero-subtitle {
+    font-size: 1.25em;
+  }
+
+  .stats {
+    gap: 48px; /* Kembalikan gap */
+  }
+
+  .section-title {
+    font-size: 2.5em;
+  }
+
+  .upload-box {
+    padding: 48px;
+  }
+
+  .upload-icon {
+    font-size: 4em;
+  }
+
+  .results-title {
+    font-size: 2em;
+  }
+
+  .results-box {
+    padding: 32px;
+  }
+  
+  .cta-section {
+    padding: 80px 40px;
+  }
+
+  .cta-title {
+    font-size: 2.5em;
+  }
+
+  .cta-text {
+    font-size: 1.2em;
+  }
+
+  .cta-button {
+    padding: 16px 48px;
+    font-size: 1.2em;
   }
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
