@@ -39,7 +39,7 @@ function AppContent() {
 
   // Tampilkan loading saat memeriksa status auth
   if (isLoading) {
-    return <FullPageLoader text="Memeriksa autentikasi..." variant="gradient" />
+    return <FullPageLoader text="Memeriksa autentikasi..." variant="dual" size="large" />
   }
 
   // Tampilkan loading "dual" saat proses logout
