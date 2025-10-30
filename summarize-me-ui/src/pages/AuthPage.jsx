@@ -14,6 +14,9 @@ import { useNavigate, Link } from 'react-router-dom';
 // Import CSS Module
 import styles from './AuthPage.module.css';
 
+// === PERBAIKAN 1: Import FullPageLoader ===
+import FullPageLoader from '../components/FullPageLoader/FullPageLoader';
+
 // Terima prop 'mode' ("login" atau "register")
 function AuthPage({ mode }) {
   const navigate = useNavigate();
@@ -25,6 +28,8 @@ function AuthPage({ mode }) {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false); // Loading khusus Google
+  // === PERBAIKAN 2: State untuk loader halaman penuh ===
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Efek untuk mengubah mode jika prop 'mode' berubah
   useEffect(() => {
@@ -36,7 +41,11 @@ function AuthPage({ mode }) {
   const handleEmailPasswordSubmit = async (event) => {
     event.preventDefault();
     setError('');
-    setIsLoading(true);
+    setIsLoading(false);
+    setIsRedirecting(true); // Tampilkan FullPageLoader
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
 
     try {
       if (isLoginView) {
@@ -69,14 +78,17 @@ function AuthPage({ mode }) {
            friendlyMessage = "Password terlalu lemah (minimal 6 karakter).";
          }
       setError(friendlyMessage);
-    } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
     setError('');
-    setIsGoogleLoading(true);
+    setIsGoogleLoading(false);
+    setIsRedirecting(true); // Tampilkan FullPageLoader
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
     try {
       await signInWithPopup(auth, googleProvider);
       navigate('/');
@@ -85,12 +97,15 @@ function AuthPage({ mode }) {
       if (err.code !== 'auth/popup-closed-by-user') {
         setError("Gagal login dengan Google. Silakan coba lagi.");
       }
-    } finally {
-        setIsGoogleLoading(false);
-    }
+      setIsGoogleLoading(false);
+    } 
   };
 
   const isSubmitDisabled = isLoading || isGoogleLoading;
+
+  if (isRedirecting) {
+    return <FullPageLoader text="Login berhasil, mengarahkan ke dashboard..." variant="dual" size="large" />
+  }
 
   return (
     // Gunakan className dari CSS Module

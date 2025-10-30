@@ -1,57 +1,84 @@
 /* src/components/HistorySidebar/HistorySidebar.module.css */
 .sidebarContainer {
-  /* Default untuk mobile: lebar penuh, tinggi auto */
-  width: 100%;
-  height: 400px; /* Beri tinggi agar tidak kolaps */
-  background-color: rgba(25, 25, 40, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px; /* PERBAIKAN 1: Lebar default untuk mobile */
+  height: 100vh; 
+  z-index: 1000; 
+  
+  background-color: rgba(25, 25, 40, 0.9); /* Sedikit lebih gelap */
+  backdrop-filter: blur(15px); /* Lebih nge-blur */
+  border-right: 1px solid rgba(255, 255, 255, 0.1); 
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Mencegah konten meluap */
+  overflow: hidden; 
   flex-shrink: 0;
+
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(0); /* Default terbuka */
+}
+
+.sidebarContainer.closed {
+  transform: translateX(-100%); /* Sembunyikan ke kiri */
+}
+
+/* PERBAIKAN 1: Atur lebar di desktop */
+@media (min-width: 1024px) {
+  .sidebarContainer {
+    width: 320px; /* Lebar normal di desktop */
+  }
+}
+
+.sidebarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0; 
 }
 
 .sidebarTitle {
   font-size: 1.2em;
   font-weight: 600;
   color: #e0e0ff;
-  padding: 20px 24px;
-  margin: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  flex-shrink: 0; /* Judul tidak boleh mengecil */
+  margin: 0; 
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+.closeBtn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: color 0.2s, background-color 0.2s;
+}
+.closeBtn:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 .sidebarContent {
-  flex-grow: 1; /* Konten mengisi sisa ruang */
-  overflow-y: auto; /* Scroll jika history panjang */
+  flex-grow: 1; 
+  overflow-y: auto; 
   padding: 16px;
-  text-align: left; /* Override text-align center global */
+  text-align: left;
 }
 
-/* Styling untuk loading/error/empty state */
-.errorText, .emptyText {
-  padding: 20px;
-  text-align: center;
-  font-size: 0.9em;
-  color: #999;
-  line-height: 1.5;
-}
-
-.errorText {
-  color: #ff9a9a;
-}
-
+/* ... (style .errorText, .emptyText, .historyList, dll tetap sama) ... */
 .historyList {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-
 .historyItem {
   display: flex;
   align-items: center;
@@ -62,23 +89,19 @@
   transition: background-color 0.2s;
   margin-bottom: 8px;
 }
-
 .historyItem:hover, .historyItem:focus {
   background-color: rgba(255, 255, 255, 0.08);
   outline: none;
 }
-
 .itemIcon {
   font-size: 1.2em;
   color: #a0a0ff;
 }
-
 .itemDetails {
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Mencegah teks panjang merusak layout */
+  overflow: hidden; 
 }
-
 .itemFileName {
   font-size: 0.95em;
   font-weight: 500;
@@ -87,18 +110,17 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .itemDate {
   font-size: 0.8em;
   color: #999;
 }
-
-/* Media query untuk layar besar (desktop) */
-@media (min-width: 1024px) {
-  .sidebarContainer {
-    width: 320px; /* Lebar sidebar di desktop */
-    /* Tinggi dihitung dari viewport, dikurangi navbar dan padding bawah */
-    height: calc(100vh - 120px); 
-    max-height: 800px; /* Batas tinggi maksimum */
-  }
+.errorText, .emptyText {
+  padding: 20px;
+  text-align: center;
+  font-size: 0.9em;
+  color: #999;
+  line-height: 1.5;
+}
+.errorText {
+  color: #ff9a9a;
 }

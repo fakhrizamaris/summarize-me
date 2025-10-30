@@ -12,6 +12,7 @@ import UserNavbar from '../components/UserNavbar/UserNavbar';
 import FeatureCard from '../components/FeatureCard/FeatureCard';
 import StepCard from '../components/StepCard/StepCard';
 import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
+import FullPageLoader from '../components/FullPageLoader/FullPageLoader';
 import HistorySidebar from '../components/HistorySidebar/HistorySIdebar'; // <-- IMPORT BARU
 
 // Import service API
@@ -29,9 +30,9 @@ function HomePage({ user, onLogout }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [copyText, setCopyText] = useState("Salin Teks");
-  
-  // --- PERBAIKAN: State baru untuk history ---
   const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
 
   const navigate = useNavigate();
 
@@ -49,6 +50,10 @@ function HomePage({ user, onLogout }) {
       setCopyText("Salin Teks"); // Reset tombol copy
     }
   }, [user]); // <-- 'user' adalah dependensi
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   // --- PERBAIKAN: Fungsi untuk kembali ke mode upload ---
   const handleShowUpload = () => {
@@ -279,9 +284,13 @@ function HomePage({ user, onLogout }) {
   // Cek apakah ada hasil (bukan error atau pesan loading)
   const hasValidResult = currentResultText && !isProcessing && !currentResultText.startsWith("⏳") && !currentResultText.startsWith("⚠️") && !currentResultText.startsWith("❌");
 
-  // --- RENDER KONTEN UTAMA ---
-  // Ini adalah konten yang akan dilihat user (baik login/logout)
-  // atau konten di sebelah kanan sidebar (jika login)
+  const handleNavigateToLogin = () => {
+    setIsNavigating(true); // Tampilkan loader
+    setTimeout(() => {
+      navigate('/login');
+    }, 1000);
+  };
+
   const MainContent = () => (
     <>
       {/* Hero Section (Hanya tampil jika BELUM login) */}
@@ -357,7 +366,7 @@ function HomePage({ user, onLogout }) {
             {/* === PERBAIKAN UI/UX (REQUEST 2) === */}
             {!user ? (
               // Tampilan jika user BELUM LOGIN
-              <button className={styles.loginPromptButton} onClick={() => navigate('/login')}>
+              <button className={styles.loginPromptButton} onClick={handleNavigateToLogin}>
                 <div className={styles['upload-icon']}>🔒</div>
                 <div className={styles['upload-text']}>
                   <strong>Login untuk Mulai</strong>
@@ -530,7 +539,7 @@ function HomePage({ user, onLogout }) {
               Bergabung dengan ribuan profesional yang sudah menghemat waktu mereka.
             </p>
             {!user && (
-              <button onClick={() => navigate('/login')} className={styles['cta-button']}>
+              <button onClick={handleNavigateToLogin} className={styles['cta-button']}>
                 <span>🚀</span>
                 Mulai Gratis Sekarang
               </button>
@@ -541,31 +550,47 @@ function HomePage({ user, onLogout }) {
     </>
   );
 
-
-  // --- RENDER UTAMA ---
   return (
-    <div className={styles.container}>
+    <div className={styles.homeContainer}>
       <FloatingShapes />
-      {/* Navbar akan tampil jika user login, dan sembunyi jika tidak */}
-      <UserNavbar user={user} onLogout={onLogout} /> 
+      
+      {/* PERBAIKAN 3 (Toggle): Pindahkan Navbar ke sini, kirim prop */}
+      <UserNavbar 
+        user={user} 
+        onLogout={onLogout} 
+        onToggleSidebar={toggleSidebar}
+        isSidebarOpen={isSidebarOpen}
+      /> 
 
-      {/* === PERBAIKAN: Layout Halaman === */}
-      <div className={styles.pageContent}>
-        
-        {/* Tampilkan Sidebar HANYA jika user login */}
-        {user && (
+      {/* Tampilkan Sidebar HANYA jika user login */}
+      {user && (
+        <>
+          {/* Backdrop ini hanya akan terlihat di mobile saat sidebar terbuka */}
+          <div 
+            className={`${styles.sidebarBackdrop} ${isSidebarOpen ? styles.open : ''}`} 
+            onClick={toggleSidebar} 
+            aria-hidden="true"
+          />
           <HistorySidebar 
             user={user} 
             onSelectSummary={setSelectedHistoryItem} 
+            isSidebarOpen={isSidebarOpen}
+            onToggle={toggleSidebar}
           />
-        )}
+        </>
+      )}
 
-        {/* Konten Utama (Upload/Landing/Results) */}
-        <main className={styles.mainContent}>
-          <MainContent />
-        </main>
-
-      </div>
+      {/* PERBAIKAN 1 (Posisi): Konten utama dibungkus .mainContent */}
+      <main className={`${styles.mainContent} ${user && isSidebarOpen ? styles.sidebarOpen : ''}`}>
+        {/* Wrapper baru untuk centering */}
+        <div className={styles.contentInnerWrapper}>
+          {isNavigating ? (
+            <FullPageLoader text="Membuka halaman login..." variant="dual" />
+          ) : (
+            <MainContent />
+          )}
+        </div>
+      </main>
     </div>
   );
 }

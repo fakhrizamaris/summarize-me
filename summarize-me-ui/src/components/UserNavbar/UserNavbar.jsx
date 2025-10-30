@@ -1,14 +1,14 @@
 // src/components/UserNavbar/UserNavbar.jsx
-import React from 'react';
-import styles from './UserNavbar.module.css'; // Kita akan buat file CSS ini
+import React, { useState, useEffect, useRef } from 'react'; // <-- PERBAIKAN 2: Impor state, effect, ref
+import styles from './UserNavbar.module.css';
 
-// Komponen Ikon Profil Default (bisa juga jadi komponen terpisah jika kompleks)
+// ... (Komponen DefaultProfileIcon tetap sama) ...
 const DefaultProfileIcon = () => (
    <svg
      xmlns="http://www.w3.org/2000/svg"
      viewBox="0 0 24 24"
      fill="currentColor"
-     className={styles.navAvatar} // Gunakan class CSS
+     className={styles.navAvatar}
    >
      <path
        fillRule="evenodd"
@@ -18,31 +18,76 @@ const DefaultProfileIcon = () => (
    </svg>
  );
 
+function UserNavbar({ user, onLogout, onToggleSidebar, isSidebarOpen }) {
+  // PERBAIKAN 2: State untuk menu profile dropdown
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef(null); // Ref untuk deteksi klik di luar
 
-function UserNavbar({ user, onLogout }) {
-  if (!user) return null;
+  // PERBAIKAN 2: Logika untuk menutup dropdown saat klik di luar
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setIsProfileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [profileMenuRef]);
+
+
+  if (!user) return null; 
 
   return (
-    <nav className={styles.navbar}>
+    <nav className={`${styles.navbar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
       <div className={styles.navContent}>
-        <div className={styles.logo}>
-          <span className={styles.logoText}>SummarizeMe</span>
-        </div>
-        <div className={styles.navRight}>
-          {user.photoURL ? (
-            <img
-              src={user.photoURL}
-              alt="Profile"
-              className={styles.navAvatar}
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <DefaultProfileIcon />
-          )}
-          <span className={styles.navName}>{user.displayName || 'User'}</span> {/* Fallback name */}
-          <button onClick={onLogout} className={styles.logoutBtn}>
-            Logout
+        <div className={styles.navLeft}> 
+          <button onClick={onToggleSidebar} className={styles.toggleBtn} aria-label="Toggle sidebar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
           </button>
+          
+          <div className={styles.logo}>
+            <span className={styles.logoText}>SummarizeMe</span>
+          </div>
+        </div>
+
+        {/* PERBAIKAN 2: Modifikasi navRight menjadi container menu */}
+        <div className={styles.navRight} ref={profileMenuRef}>
+          {/* Tombol Avatar yang mentrigger dropdown */}
+          <button 
+            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} 
+            className={styles.profileAvatarButton}
+            aria-label="Buka menu profil"
+          >
+            {user.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt="Profile"
+                className={styles.navAvatar}
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <DefaultProfileIcon />
+            )}
+          </button>
+
+          {/* Dropdown Menu Modern */}
+          <div className={`${styles.profileDropdown} ${isProfileMenuOpen ? styles.open : ''}`}>
+            <div className={styles.dropdownHeader}>
+              Signed in as
+              <strong>{user.displayName || user.email || 'User'}</strong>
+            </div>
+            <button 
+              onClick={() => {
+                setIsProfileMenuOpen(false); // Tutup menu
+                onLogout(); // Jalankan logout
+              }} 
+              className={`${styles.dropdownItem} ${styles.logoutBtn}`}
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
     </nav>

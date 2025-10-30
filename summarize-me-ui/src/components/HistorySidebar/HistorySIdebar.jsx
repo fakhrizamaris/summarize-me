@@ -1,14 +1,14 @@
 // src/components/HistorySidebar/HistorySidebar.jsx
 import React, { useState, useEffect } from 'react';
 import { db } from '../../config/firebaseConfig';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+// PERBAIKAN 2 (Loading): Impor 'limit'
+import { collection, query, orderBy, onSnapshot, limit } from 'firebase/firestore';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 import styles from './HistorySidebar.module.css';
 
-// Helper untuk format tanggal
+// Helper untuk format tanggal (Tetap sama)
 const formatDate = (timestamp) => {
   if (!timestamp) return '...';
-  // Mengubah Firestore Timestamp ke Date, lalu format ke 'id-ID'
   return new Date(timestamp.seconds * 1000).toLocaleString('id-ID', {
     day: '2-digit',
     month: 'short',
@@ -18,10 +18,10 @@ const formatDate = (timestamp) => {
   });
 };
 
-// Ambil appId dari global variable (jika ada)
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-function HistorySidebar({ user, onSelectSummary }) {
+// PERBAIKAN 3 (Toggle): Terima prop 'isSidebarOpen' dan 'onToggle'
+function HistorySidebar({ user, onSelectSummary, isSidebarOpen, onToggle }) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -29,15 +29,16 @@ function HistorySidebar({ user, onSelectSummary }) {
   useEffect(() => {
     if (!user?.uid || !db) {
       setLoading(false);
+      setHistory([]); // Pastikan history kosong jika logout
       return;
     }
 
     setLoading(true);
-    // Path ke koleksi private user
     const historyCollectionRef = collection(db, "artifacts", appId, "users", user.uid, "summaries");
-    const q = query(historyCollectionRef, orderBy("createdAt", "desc")); // Urutkan terbaru di atas
+    
+    // PERBAIKAN 2 (Loading): Tambahkan limit(20) untuk memuat 20 terbaru
+    const q = query(historyCollectionRef, orderBy("createdAt", "desc"), limit(20)); 
 
-    // Gunakan onSnapshot untuk update real-time (jika ada ringkasan baru)
     const unsubscribe = onSnapshot(q, 
       (querySnapshot) => {
         const summaries = [];
@@ -54,14 +55,12 @@ function HistorySidebar({ user, onSelectSummary }) {
       }
     );
 
-    // Cleanup subscription saat komponen di-unmount
     return () => unsubscribe();
 
-  }, [user?.uid]); // Hanya jalankan ulang jika user ID berubah
+  }, [user?.uid]); 
 
   const renderContent = () => {
     if (loading) {
-      // Gunakan spinner yang sudah ada
       return <LoadingSpinner variant="dots" size="small" text="Memuat history..." />;
     }
     if (error) {
@@ -71,15 +70,20 @@ function HistorySidebar({ user, onSelectSummary }) {
       return <p className={styles.emptyText}>Belum ada riwayat ringkasan.</p>;
     }
     
-    // Tampilkan daftar history
     return (
       <ul className={styles.historyList}>
         {history.map((item) => (
           <li 
             key={item.id} 
             className={styles.historyItem} 
-            onClick={() => onSelectSummary(item)} // Kirim data item ke HomePage
-            tabIndex={0} // untuk aksesibilitas
+            // PERBAIKAN 1 (Responsive): Tutup sidebar di mobile saat item diklik
+            onClick={() => {
+              onSelectSummary(item);
+              if (window.innerWidth < 1024) {
+                onToggle();
+              }
+            }}
+            tabIndex={0} 
           >
             <span className={styles.itemIcon}>📄</span>
             <div className={styles.itemDetails}>
@@ -93,10 +97,18 @@ function HistorySidebar({ user, onSelectSummary }) {
   };
 
   return (
-    <aside className={styles.sidebarContainer}>
-      <h3 className={styles.sidebarTitle}>
-        Riwayat Ringkasan
-      </h3>
+    // PERBAIKAN 3 (Toggle): Tambahkan class 'closed' jika isSidebarOpen false
+    <aside className={`${styles.sidebarContainer} ${!isSidebarOpen ? styles.closed : ''}`}>
+      <div className={styles.sidebarHeader}> {/* Tambahkan header wrapper */}
+        <h3 className={styles.sidebarTitle}>
+          <span className={styles.titleIcon}>🗂️</span>
+          Riwayat Ringkasan
+        </h3>
+        {/* PERBAIKAN 3 (Toggle): Tombol Close */}
+        <button onClick={onToggle} className={styles.closeBtn} aria-label="Tutup sidebar">
+          ✕
+        </button>
+      </div>
       <div className={styles.sidebarContent}>
         {renderContent()}
       </div>
