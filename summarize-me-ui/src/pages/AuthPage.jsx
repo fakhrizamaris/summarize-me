@@ -152,7 +152,7 @@ function AuthPage({ mode }) {
 
         {/* Gunakan className, hapus style inline opacity */}
         <button type="submit" className={styles.submitButton} disabled={isSubmitDisabled}>
-          {isLoading ? 'Memproses...' : (isLoginView ? 'Login' : 'Daftar Akun')}
+          {isLoading ? (<LoadingSpinner variant="pulse" size="large" text="Menghubungkan..." />) : (isLoginView ? 'Login' : 'Daftar Akun')}
         </button>
       </form>
 
@@ -172,7 +172,7 @@ function AuthPage({ mode }) {
       {/* Gunakan className, hapus style inline opacity */}
       <button onClick={handleGoogleLogin} className={styles.googleButton} disabled={isSubmitDisabled}>
         {isGoogleLoading ? (
-            <span className={styles.buttonSpinner}></span> 
+           <LoadingSpinner variant="pulse" size="large" text="Menghubungkan..." />
         ) : (
             <svg className={styles.googleIcon} viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1h-9.8v3.8h5.5c-.3 1.3-1.6 3.2-5.5 3.2-3.3 0-6-2.7-6-6s2.7-6 6-6c1.8 0 3 .8 3.8 1.5l2.9-2.9C18.1 1.6 15.3 0 11.55 0 5.15 0 0 5.15 0 11.55S5.15 23.1 11.55 23.1c6.1 0 10.9-4.2 10.9-11.1 0-.6-.1-1-.2-1.2z"></path></svg> /* Ganti style jadi className */
         )}

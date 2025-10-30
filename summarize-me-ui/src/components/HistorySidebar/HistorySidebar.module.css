@@ -1,0 +1,104 @@
+/* src/components/HistorySidebar/HistorySidebar.module.css */
+.sidebarContainer {
+  /* Default untuk mobile: lebar penuh, tinggi auto */
+  width: 100%;
+  height: 400px; /* Beri tinggi agar tidak kolaps */
+  background-color: rgba(25, 25, 40, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Mencegah konten meluap */
+  flex-shrink: 0;
+}
+
+.sidebarTitle {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #e0e0ff;
+  padding: 20px 24px;
+  margin: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0; /* Judul tidak boleh mengecil */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebarContent {
+  flex-grow: 1; /* Konten mengisi sisa ruang */
+  overflow-y: auto; /* Scroll jika history panjang */
+  padding: 16px;
+  text-align: left; /* Override text-align center global */
+}
+
+/* Styling untuk loading/error/empty state */
+.errorText, .emptyText {
+  padding: 20px;
+  text-align: center;
+  font-size: 0.9em;
+  color: #999;
+  line-height: 1.5;
+}
+
+.errorText {
+  color: #ff9a9a;
+}
+
+.historyList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-bottom: 8px;
+}
+
+.historyItem:hover, .historyItem:focus {
+  background-color: rgba(255, 255, 255, 0.08);
+  outline: none;
+}
+
+.itemIcon {
+  font-size: 1.2em;
+  color: #a0a0ff;
+}
+
+.itemDetails {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Mencegah teks panjang merusak layout */
+}
+
+.itemFileName {
+  font-size: 0.95em;
+  font-weight: 500;
+  color: #ddd;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemDate {
+  font-size: 0.8em;
+  color: #999;
+}
+
+/* Media query untuk layar besar (desktop) */
+@media (min-width: 1024px) {
+  .sidebarContainer {
+    width: 320px; /* Lebar sidebar di desktop */
+    /* Tinggi dihitung dari viewport, dikurangi navbar dan padding bawah */
+    height: calc(100vh - 120px); 
+    max-height: 800px; /* Batas tinggi maksimum */
+  }
+}

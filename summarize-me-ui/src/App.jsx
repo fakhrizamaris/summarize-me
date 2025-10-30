@@ -8,8 +8,8 @@ import { useAuth } from './hooks/useAuth';
 // Import halaman
 import HomePage from './pages/HomePage';
 import AuthPage from './pages/AuthPage';
-import FullPageLoader from './components/FullPageLoader/FullPageLoader';
-import LoadingSpinner from './components/LoadingSpinner/LoadingSpinner';
+import FullPageLoader from './components/FullPageLoader/FullPageLoader'; // <-- GANTI IMPORT
+// import LoadingSpinner from './components/LoadingSpinner/LoadingSpinner'; // <-- Hapus ini
 
 // Import CSS Module
 import styles from './App.module.css';
@@ -27,7 +27,8 @@ function App() {
 
   // Tampilkan loading saat memeriksa status auth
   if (isLoading) {
-    return <LoadingSpinner variant="pulse" size="large" />
+    // === PERBAIKAN: Gunakan FullPageLoader untuk loading awal ===
+    return <FullPageLoader text="Memeriksa autentikasi..." variant="pulse" />
   }
 
   return (
