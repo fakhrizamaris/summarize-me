@@ -1,48 +1,57 @@
 /* src/App.module.css */
 
-/* Container utama aplikasi, memastikan footer menempel di bawah */
+/* ... (style .appContainer tetap sama) ... */
 .appContainer {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Minimal setinggi viewport */
+  min-height: 100vh; 
 }
-
-/* Container untuk layar loading awal */
+/* ... (style .initialLoadingContainer tetap sama) ... */
 .initialLoadingContainer {
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Tengah vertikal */
-  align-items: center; /* Tengah horizontal */
-  min-height: 100vh; /* Penuhi tinggi layar */
-  background-color: #1a1a2e; /* Cocokkan background utama */
-  color: #ccc; /* Warna teks loading */
+  justify-content: center; 
+  align-items: center; 
+  min-height: 100vh; 
+  background-color: #1a1a2e; 
+  color: #ccc; 
   font-size: 1.1em;
 }
 
 /* Style untuk Footer */
 .footer {
-  margin-top: auto; /* Mendorong footer ke bagian bawah flex container (.appContainer) */
+  margin-top: auto; 
   padding: 1.5rem 1rem;
-  background-color: rgba(25, 25, 40, 0.8); /* Warna background footer */
+  background-color: rgba(25, 25, 40, 0.8); 
   text-align: center;
   font-size: 0.85em;
-  color: #aaa; /* Warna teks footer */
-  border-top: 1px solid rgba(255, 255, 255, 0.08); /* Garis pemisah tipis di atas footer */
+  color: #aaa; 
+  border-top: 1px solid rgba(255, 255, 255, 0.08); 
+
+  /* === PERBAIKAN: Tambahkan transisi agar pergeseran mulus === */
+  transition: margin-left 0.3s ease-in-out;
+  /* Pastikan footer tidak di 'position: fixed' */
 }
 
-/* Style untuk link di footer */
+/* === PERBAIKAN: Tambahkan @media query untuk pergeseran === */
+/* Terapkan HANYA di desktop (lebar yang sama dengan sidebar) */
+@media (min-width: 1024px) {
+  .footer.sidebarOpen {
+    margin-left: 320px; /* Sesuaikan dengan lebar sidebar Anda */
+  }
+}
+
+/* ... (style .footerLink dan .footerAppname tetap sama) ... */
 .footerLink {
-  color: #8c8cff; /* Warna link */
-  text-decoration: none; /* Hapus underline default */
-  transition: color 0.2s ease; /* Transisi warna saat hover */
+  color: #8c8cff; 
+  text-decoration: none; 
+  transition: color 0.2s ease; 
 }
 .footerLink:hover {
-  color: #aab; /* Warna link saat hover */
+  color: #aab; 
 }
-
-/* Style untuk nama aplikasi di footer */
 .footerAppname {
-  margin-top: 0.5rem; /* Jarak dari teks kredit */
+  margin-top: 0.5rem; 
   font-size: 0.75em;
-  color: #777; /* Warna lebih redup */
+  color: #777; 
 }

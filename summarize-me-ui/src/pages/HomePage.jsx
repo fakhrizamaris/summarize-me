@@ -23,7 +23,7 @@ import styles from './HomePage.module.css';
 // Ambil appId dari global variable (jika ada)
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-function HomePage({ user, onLogout }) {
+function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
   const [apiResponse, setApiResponse] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileName, setFileName] = useState("");
@@ -32,16 +32,13 @@ function HomePage({ user, onLogout }) {
   const [copyText, setCopyText] = useState("Salin Teks");
   const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
   const [isNavigating, setIsNavigating] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
 
   const navigate = useNavigate();
 
-  // --- PERBAIKAN 2: Tambahkan useEffect ini ---
-  // Efek ini akan berjalan setiap kali prop 'user' berubah.
+
   useEffect(() => {
     // Jika user berubah menjadi 'null' (artinya baru saja logout)
     if (!user) {
-      // Bersihkan semua state yang berisi data pengguna
       setApiResponse("");
       setSelectedFile(null);
       setFileName("");
@@ -51,11 +48,6 @@ function HomePage({ user, onLogout }) {
     }
   }, [user]); // <-- 'user' adalah dependensi
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  // --- PERBAIKAN: Fungsi untuk kembali ke mode upload ---
   const handleShowUpload = () => {
     setSelectedHistoryItem(null); // Hapus item history yang dipilih
     setApiResponse(""); // Bersihkan respons API lama
@@ -456,7 +448,7 @@ function HomePage({ user, onLogout }) {
           <div className={`markdown-result ${styles['results-box']}`}>
             {isProcessing && apiResponse === "⏳ Sedang memproses audio Anda..." ? (
               <div className={styles['loading-text']}>
-                <LoadingSpinner variant="gradient" size="large" text="Memproses audio Anda..." />
+                <LoadingSpinner variant="dots" size="medium" text="Memproses audio Anda..." />
                 <p>{apiResponse}</p>
               </div>
             ) : (
@@ -558,7 +550,7 @@ function HomePage({ user, onLogout }) {
       <UserNavbar 
         user={user} 
         onLogout={onLogout} 
-        onToggleSidebar={toggleSidebar}
+        onToggleSidebar={onToggleSidebar}
         isSidebarOpen={isSidebarOpen}
       /> 
 
@@ -568,14 +560,14 @@ function HomePage({ user, onLogout }) {
           {/* Backdrop ini hanya akan terlihat di mobile saat sidebar terbuka */}
           <div 
             className={`${styles.sidebarBackdrop} ${isSidebarOpen ? styles.open : ''}`} 
-            onClick={toggleSidebar} 
+            onClick={onToggleSidebar} 
             aria-hidden="true"
           />
           <HistorySidebar 
             user={user} 
             onSelectSummary={setSelectedHistoryItem} 
             isSidebarOpen={isSidebarOpen}
-            onToggle={toggleSidebar}
+            onToggle={onToggleSidebar}
           />
         </>
       )}
