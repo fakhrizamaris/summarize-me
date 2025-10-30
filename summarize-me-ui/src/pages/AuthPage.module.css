@@ -1,6 +1,6 @@
 /* src/pages/AuthPage.module.css */
 .authContainer {
-  width: 90%;
+  width: 75%;
   max-width: 400px;
   margin: 10vh auto; /* Jarak atas/bawah */
   padding: 2.5rem 3rem;
