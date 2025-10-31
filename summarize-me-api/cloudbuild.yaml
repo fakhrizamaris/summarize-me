@@ -2,42 +2,33 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 steps:
-  # 1️⃣ Build image dari folder ini
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
         'build',
         '-t',
-        'us-central1-docker.pkg.dev/summarizeme-project/summarize-me-repo-us/summarize-api:$SHORT_SHA',
-        '.'
+        'us-central1-docker.pkg.dev/summarizeme-project/summarize-me-repo-us/summarize-api:latest',
+        './summarize-me-api'
       ]
-
-  # 2️⃣ Push image ke Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
         'push',
-        'us-central1-docker.pkg.dev/summarizeme-project/summarize-me-repo-us/summarize-api:$SHORT_SHA'
+        'us-central1-docker.pkg.dev/summarizeme-project/summarize-me-repo-us/summarize-api:latest'
       ]
-
-  # 3️⃣ Deploy ke Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'gcloud'
+    entrypoint: gcloud
     args:
       [
         'run',
         'deploy',
         'summarize-api',
         '--image',
-        'us-central1-docker.pkg.dev/summarizeme-project/summarize-me-repo-us/summarize-api:$SHORT_SHA',
+        'us-central1-docker.pkg.dev/summarizeme-project/summarize-me-repo-us/summarize-api:latest',
         '--region',
         'us-central1',
-        '--platform',
-        'managed',
-        '--allow-unauthenticated',
-        '--set-env-vars',
-        'GEMINI_API_KEY=${_GEMINI_API_KEY},FIREBASE_PROJECT_ID=${_FIREBASE_PROJECT_ID},ENVIRONMENT=production'
+        '--allow-unauthenticated'
       ]
 
 images:
-  - 'us-central1-docker.pkg.dev/summarizeme-project/summarize-me-repo-us/summarize-api:$SHORT_SHA'
+  - 'us-central1-docker.pkg.dev/summarizeme-project/summarize-me-repo-us/summarize-api:latest'
