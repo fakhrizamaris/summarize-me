@@ -1,10 +1,8 @@
-/**
- * Import function triggers (V2)
- */
 const {setGlobalOptions} = require("firebase-functions");
 const {onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const { GoogleAuth } = require('google-auth-library'); 
+const { google } = require('googleapis'); 
 
 // Set opsi global
 setGlobalOptions({ maxInstances: 10 });
