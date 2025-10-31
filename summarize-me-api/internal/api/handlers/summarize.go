@@ -57,7 +57,8 @@ func (h *SummarizeHandler) HandleSummarize(c *gin.Context) {
 	log.Printf("Berhasil menerima file: %s (Ukuran: %d bytes) dari userID: %s", file.Filename, len(fileData), userID)
 
 	// 4. Panggil service, TAMBAHKAN file.Filename
-	summary, err := h.service.TranscribeAndSummarize(c.Request.Context(), fileData, file.Filename) // <-- TAMBAHKAN file.Filename
+	// === PERBAIKAN: Ganti nama variabel 'summary' menjadi 'result' ===
+	result, err := h.service.TranscribeAndSummarize(c.Request.Context(), fileData, file.Filename) // <-- 'result' adalah map
 	if err != nil {
 		log.Printf("ERROR: Gagal TranscribeAndSummarize untuk userID %s: %v", userID, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Terjadi kesalahan saat memproses audio Anda."})
@@ -66,8 +67,10 @@ func (h *SummarizeHandler) HandleSummarize(c *gin.Context) {
 
 	// 5. Kirim hasil (tetap sama)
 	log.Printf("Berhasil membuat ringkasan untuk userID: %s", userID)
+	// === PERBAIKAN: Gunakan 'result' yang dikembalikan service ===
 	c.JSON(http.StatusOK, gin.H{
 		"summary":    result["summary"],
 		"transcript": result["transcript"],
 	})
 }
+
