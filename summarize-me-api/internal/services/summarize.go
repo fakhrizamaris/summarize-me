@@ -27,20 +27,25 @@ func NewSummarizeService(speechClient *speech.Client, geminiModel *genai.Generat
 }
 
 // TranscribeAndSummarize melakukan transkripsi dan peringkasan audio.
-func (s *SummarizeService) TranscribeAndSummarize(ctx context.Context, fileData []byte, fileName string) (string, error) {
+func (s *SummarizeService) TranscribeAndSummarize(ctx context.Context, fileData []byte, fileName string) (map[string]string, error) {
 	// 1. Transkripsi (kirim fileName)
 	transcript, err := s.transcribeAudio(ctx, fileData, fileName)
 	if err != nil {
-		return "", fmt.Errorf("gagal mentranskrip audio: %w", err)
+		return nil, fmt.Errorf("gagal mentranskrip audio: %w", err)
 	}
 
 	// 2. Peringkasan (tetap sama)
 	summary, err := s.summarizeText(ctx, transcript)
 	if err != nil {
-		return "", fmt.Errorf("gagal membuat ringkasan: %w", err)
+		return nil, fmt.Errorf("gagal membuat ringkasan: %w", err)
 	}
 
-	return summary, nil
+	// === PERBAIKAN 2: Kembalikan kedua hasil dalam map ===
+	result := map[string]string{
+		"transcript": transcript,
+		"summary":    summary,
+	}
+	return result, nil
 }
 
 // transcribeAudio (sekarang menjadi method private di dalam service)

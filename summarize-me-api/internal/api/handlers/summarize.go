@@ -67,6 +67,7 @@ func (h *SummarizeHandler) HandleSummarize(c *gin.Context) {
 	// 5. Kirim hasil (tetap sama)
 	log.Printf("Berhasil membuat ringkasan untuk userID: %s", userID)
 	c.JSON(http.StatusOK, gin.H{
-		"summary": summary,
+		"summary":    result["summary"],
+		"transcript": result["transcript"],
 	})
 }
