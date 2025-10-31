@@ -9,6 +9,7 @@ import { useAuth } from './hooks/useAuth';
 import HomePage from './pages/HomePage';
 import AuthPage from './pages/AuthPage';
 import FullPageLoader from './components/FullPageLoader/FullPageLoader';
+import FloatingFeedback from './components/FloatingFeedback/FloatingFeedback';
 
 // Import CSS Module
 import styles from './App.module.css';

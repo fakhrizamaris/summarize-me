@@ -73,12 +73,40 @@
   text-align: left;
 }
 
-/* ... (style .errorText, .emptyText, .historyList, dll tetap sama) ... */
+/* === TAMBAHAN BARU: Search Bar === */
+.searchContainer {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+.searchInput {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #4a4a6a;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #eee;
+  font-size: 0.95em;
+  box-sizing: border-box;
+}
+.searchInput:focus {
+  outline: none;
+  border-color: #8c8cff;
+}
+
+.sidebarContent {
+  flex-grow: 1; 
+  overflow-y: auto; 
+  padding: 16px;
+  text-align: left;
+}
+
 .historyList {
   list-style: none;
   padding: 0;
   margin: 0;
 }
+
 .historyItem {
   display: flex;
   align-items: center;
@@ -88,20 +116,61 @@
   cursor: pointer;
   transition: background-color 0.2s;
   margin-bottom: 8px;
+  position: relative; /* Untuk tombol aksi */
 }
-.historyItem:hover, .historyItem:focus {
-  background-color: rgba(255, 255, 255, 0.08);
-  outline: none;
+
+/* Tampilkan tombol aksi saat hover di desktop */
+.historyItem .itemActions {
+  display: none; /* Sembunyi by default */
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(25, 25, 40, 0.8); /* Background agar tidak transparan */
+  border-radius: 6px;
 }
+.historyItem:hover .itemActions {
+  display: flex;
+  gap: 4px;
+}
+/* Selalu tampilkan di mobile (jika diperlukan, tapi hover lebih bersih) */
+/* @media (max-width: 1023px) {
+  .historyItem .itemActions {
+    display: flex;
+  }
+} */
+
+.actionBtn {
+  background: none;
+  border: none;
+  font-size: 1em;
+  padding: 6px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  color: #999;
+}
+.actionBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+.actionBtn:last-child:hover {
+  color: #ff9a9a; /* Warna merah untuk hapus */
+}
+
 .itemIcon {
   font-size: 1.2em;
   color: #a0a0ff;
 }
+
 .itemDetails {
   display: flex;
   flex-direction: column;
   overflow: hidden; 
+  /* Beri ruang untuk tombol aksi */
+  padding-right: 60px;
 }
+
 .itemFileName {
   font-size: 0.95em;
   font-weight: 500;
@@ -114,6 +183,7 @@
   font-size: 0.8em;
   color: #999;
 }
+
 .errorText, .emptyText {
   padding: 20px;
   text-align: center;
@@ -123,4 +193,26 @@
 }
 .errorText {
   color: #ff9a9a;
+}
+
+/* === TAMBAHAN BARU: Tombol Load More === */
+.loadMoreBtn {
+  width: 100%;
+  padding: 12px;
+  font-size: 0.9em;
+  font-weight: 500;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ccc;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: background-color 0.2s;
+}
+.loadMoreBtn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.loadMoreBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

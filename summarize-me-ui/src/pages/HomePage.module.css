@@ -284,6 +284,57 @@
   text-overflow: ellipsis;
 }
 
+/* === TAMBAHAN BARU: Style untuk Tab === */
+.resultTabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: -1px; /* Agar menempel dengan border .results-box */
+  position: relative;
+  z-index: 10; /* Di atas .results-box */
+}
+
+.tabButton {
+  padding: 10px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none; /* Hapus border bawah */
+  background-color: rgba(20, 20, 30, 0.8); /* Sama dengan box */
+  color: #aaa;
+  font-size: 0.9em;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0; /* Bulat di atas */
+  transition: all 0.2s;
+}
+
+.tabButton:hover {
+  background-color: rgba(30, 30, 45, 0.8);
+  color: #ccc;
+}
+
+.tabButton.active {
+  background-color: rgba(30, 30, 45, 0.9); /* Lebih terang saat aktif */
+  color: #e0e0ff;
+  border-color: rgba(255, 255, 255, 0.1);
+  /* Trik agar menutupi border atas .results-box */
+  transform: translateY(1px); 
+}
+
+
+.results-box {
+  background-color: rgba(20, 20, 30, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  
+  /* === PERBAIKAN: Pastikan border atasnya bulat === */
+  border-top-left-radius: 0; /* Karena tab ada di kiri */
+  
+  padding: 24px; 
+  max-height: 600px;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
 .remove-file-btn {
   padding: 6px 12px;
   font-size: 0.9em;

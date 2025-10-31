@@ -1,10 +1,10 @@
 // src/pages/HomePage.jsx
-import React, { useState, useEffect } from 'react'; // <-- PERBAIKAN 1: Impor useEffect
+import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router-dom';
-import { auth, db } from '../config/firebaseConfig'; // Pastikan db di-impor
-import { collection, addDoc, serverTimestamp } from "firebase/firestore"; // Import fungsi Firestore
-import { jsPDF } from "jspdf"; // Import jsPDF
+import { auth, db } from '../config/firebaseConfig';
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { jsPDF } from "jspdf";
 
 // Import komponen
 import FloatingShapes from '../components/FloatingShapes/FloatingShapes';
@@ -13,65 +13,90 @@ import FeatureCard from '../components/FeatureCard/FeatureCard';
 import StepCard from '../components/StepCard/StepCard';
 import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
 import FullPageLoader from '../components/FullPageLoader/FullPageLoader';
-import HistorySidebar from '../components/HistorySidebar/HistorySIdebar'; // <-- IMPORT BARU
+// === PERBAIKAN: Typo 'HistorySIdebar' diubah menjadi 'HistorySidebar' ===
+import HistorySidebar from '../components/HistorySidebar/HistorySidebar'; 
 
 // Import service API
 import { summarizeAudio } from '../services/summarizeApi';
 // Import CSS Module
 import styles from './HomePage.module.css';
 
-// Ambil appId dari global variable (jika ada)
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
 function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
-  const [apiResponse, setApiResponse] = useState("");
+  // apiResponse: menyimpan hasil dari API (objek {summary, transcript})
+  // atau pesan error/loading (objek {error: msg} atau {processing: msg})
+  const [apiResponse, setApiResponse] = useState(null); // Default ke null
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [copyText, setCopyText] = useState("Salin Teks");
+  
+  // selectedHistoryItem: menyimpan *item* utuh dari sidebar
   const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
   const [isNavigating, setIsNavigating] = useState(false);
+  
+  // State untuk Tab (summary atau transcript)
+  const [activeTab, setActiveTab] = useState('summary');
 
   const navigate = useNavigate();
 
-
+  // Efek untuk membersihkan state saat logout
   useEffect(() => {
-    // Jika user berubah menjadi 'null' (artinya baru saja logout)
     if (!user) {
-      setApiResponse("");
+      setApiResponse(null);
       setSelectedFile(null);
       setFileName("");
       setSelectedHistoryItem(null);
-      setIsProcessing(false); // Hentikan loading jika sedang proses
-      setCopyText("Salin Teks"); // Reset tombol copy
+      setIsProcessing(false); 
+      setCopyText("Salin Teks");
+      setActiveTab('summary');
     }
-  }, [user]); // <-- 'user' adalah dependensi
+  }, [user]); 
 
+  // Fungsi untuk kembali ke mode upload baru
   const handleShowUpload = () => {
-    setSelectedHistoryItem(null); // Hapus item history yang dipilih
-    setApiResponse(""); // Bersihkan respons API lama
-    setSelectedFile(null); // Bersihkan file
+    setSelectedHistoryItem(null); 
+    setApiResponse(null); 
+    setSelectedFile(null); 
     setFileName("");
     setCopyText("Salin Teks");
+    setActiveTab('summary');
+  };
+  
+  // Fungsi baru untuk menangani klik history
+  const handleSelectHistory = (item, isDelete = false) => {
+    // Jika item yang sedang dilihat dihapus
+    if (isDelete && selectedHistoryItem && selectedHistoryItem.id === item.id) {
+      handleShowUpload();
+    } 
+    // Jika memilih item baru (atau me-rename)
+    else if (item && !isDelete) {
+      setSelectedHistoryItem(item);
+      setApiResponse(null); // Bersihkan respons API lama
+      setActiveTab('summary'); // Selalu reset ke tab summary
+      setCopyText("Salin Teks");
+    }
+    // Jika isDelete tapi item-nya tidak sedang dipilih, tidak perlu lakukan apa-apa
   };
 
+
   const handleFileChange = (event) => {
-    // PERBAIKAN (Request 2): Jangan lakukan apapun jika tidak login
     if (!user) return; 
-    
     const file = event.target.files[0];
     if (file) {
       setSelectedFile(file);
       setFileName(file.name);
-      setApiResponse(""); 
+      setApiResponse(null); 
+      setSelectedHistoryItem(null); 
+      setActiveTab('summary');
       setCopyText("Salin Teks");
     }
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
-    // PERBAIKAN (Request 2): Jangan drag jika tidak login
     if (!user) return; 
     setIsDragging(true);
   };
@@ -83,7 +108,6 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    // PERBAIKAN (Request 2): Jangan drop jika tidak login
     if (!user) return; 
 
     const file = e.dataTransfer.files[0];
@@ -92,39 +116,46 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
     if (file && (allowedTypes.includes(file.type) || file.name.endsWith('.mp3') || file.name.endsWith('.wav'))) {
       setSelectedFile(file);
       setFileName(file.name);
-      setApiResponse("");
+      setApiResponse(null);
+      setSelectedHistoryItem(null); 
+      setActiveTab('summary');
       setCopyText("Salin Teks");
     } else {
-      setApiResponse("⚠️ Format file tidak didukung. Harap upload MP3 atau WAV.");
+      // PERBAIKAN: Set state sebagai objek error
+      setApiResponse({ error: "⚠️ Format file tidak didukung. Harap upload MP3 atau WAV." });
     }
   };
 
-  // Fungsi untuk menyimpan history ke Firestore (Tetap sama)
-  const saveSummaryToHistory = async (summary, originalFileName, userId) => {
+  // Simpan 'transcript' juga ke Firestore
+  const saveSummaryToHistory = async (summary, transcript, originalFileName, userId) => {
     if (!db || !userId) {
         console.warn("Firestore DB atau User ID tidak tersedia, history tidak disimpan.");
         return;
     }
     try {
+      // Path koleksi private user: artifacts/{appId}/users/{userId}/summaries
       const historyCollectionRef = collection(db, "artifacts", appId, "users", userId, "summaries");
+      
       await addDoc(historyCollectionRef, {
         fileName: originalFileName,
         summary: summary,
-        createdAt: serverTimestamp()
+        transcript: transcript, // <-- SIMPAN TRANSKRIP
+        createdAt: serverTimestamp() 
       });
-      console.log("Ringkasan berhasil disimpan ke history Firestore.");
+      console.log("Ringkasan dan Transkrip berhasil disimpan.");
+
     } catch (error) {
       console.error("Gagal menyimpan history ke Firestore: ", error);
+      // Tidak perlu menampilkan error ini ke user, cukup log di console
     }
   };
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      setApiResponse("⚠️ Silakan pilih file audio terlebih dahulu!");
+      setApiResponse({ error: "⚠️ Silakan pilih file audio terlebih dahulu!" });
       return;
     }
     
-    // Cek user sudah ada (meski tombol upload hanya tampil jika login)
     const currentUser = auth.currentUser;
     if (!currentUser) {
       console.warn("User not logged in, redirecting to login.");
@@ -133,18 +164,24 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
     }
 
     setIsProcessing(true);
-    setApiResponse("⏳ Sedang memproses audio Anda...");
+    // PERBAIKAN: Set state sebagai objek processing
+    setApiResponse({ processing: "⏳ Sedang memproses audio Anda..." }); 
     setFileName(selectedFile.name);
     setCopyText("Salin Teks");
+    setActiveTab('summary'); 
 
     try {
+      // summaryResult sekarang adalah OBJEK {summary, transcript}
       const summaryResult = await summarizeAudio(selectedFile);
-      setApiResponse(summaryResult);
+      setApiResponse(summaryResult); 
+
       // Simpan ke history
-      saveSummaryToHistory(summaryResult, selectedFile.name, currentUser.uid);
+      saveSummaryToHistory(summaryResult.summary, summaryResult.transcript, selectedFile.name, currentUser.uid);
+
     } catch (error) {
       console.error("Error during summarization:", error);
-      setApiResponse(`❌ ${error.message}\n\nPastikan file audio Anda valid dan coba lagi.`);
+      // PERBAIKAN: Set state sebagai objek error
+      setApiResponse({ error: `❌ ${error.message}\n\nPastikan file audio Anda valid dan coba lagi.` });
       if (error.message.includes("User not authenticated")) {
         navigate('/login');
       }
@@ -153,45 +190,70 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
     }
   };
 
-  // PERBAIKAN: Fungsi Copy disesuaikan untuk history
+  
+  // === PERBAIKAN: Logika 'hasValidResult' dipindahkan ke sini ===
+  
+  // Tentukan data mana yang sedang aktif (dari API atau dari History)
+  const activeData = selectedHistoryItem || apiResponse;
+  
+  // Cek apakah ada hasil yang valid (bukan error, loading, atau null)
+  const hasValidResult = !!(activeData && activeData.summary && !isProcessing);
+
+  // Tentukan teks mana yang akan ditampilkan
+  let textToDisplay = "";
+  let currentTitle = "Hasil";
+
+  if (isProcessing && activeData?.processing) {
+    textToDisplay = activeData.processing;
+    currentTitle = "Memproses...";
+  } else if (activeData?.error) {
+    textToDisplay = activeData.error;
+    currentTitle = "Error";
+  } else if (hasValidResult) {
+    textToDisplay = activeTab === 'summary' ? activeData.summary : activeData.transcript;
+    currentTitle = selectedHistoryItem ? 'Riwayat Ringkasan' : 'Hasil Ringkasan';
+  }
+  // === AKHIR PERBAIKAN ===
+
+
   const handleCopy = () => {
-    // Tentukan teks mana yang akan disalin
-    const textToCopy = selectedHistoryItem ? selectedHistoryItem.summary : apiResponse;
-    if (!textToCopy || isProcessing) return;
+    if (!hasValidResult) return;
+    const textToCopy = textToDisplay; // Teks sudah difilter oleh activeTab
 
-    const textArea = document.createElement('textarea');
-    textArea.value = textToCopy; // Salin teks dari state yang relevan
-    textArea.style.position = "fixed";
-    textArea.style.top = "0";
-    textArea.style.left = "0";
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-
-    try {
-      document.execCommand('copy');
+    navigator.clipboard.writeText(textToCopy).then(() => {
       setCopyText("✅ Tersalin!");
-    } catch (err) {
-      console.error('Gagal menyalin teks: ', err);
-      setCopyText("Gagal salin");
-    }
-
-    document.body.removeChild(textArea);
-    setTimeout(() => { setCopyText("Salin Teks"); }, 2000);
+      setTimeout(() => setCopyText("Salin Teks"), 2000);
+    }, (err) => {
+      console.error('Gagal menyalin teks (coba fallback): ', err);
+      // Fallback untuk 'document.execCommand'
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = textToCopy; 
+        textArea.style.position = "fixed";
+        textArea.style.top = "-9999px"; // Pindahkan ke luar layar
+        textArea.style.left = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        setCopyText("✅ Tersalin!");
+        document.body.removeChild(textArea);
+        setTimeout(() => setCopyText("Salin Teks"), 2000);
+      } catch (fallbackErr) {
+        console.error('Fallback copy gagal: ', fallbackErr);
+        setCopyText("Gagal salin");
+      }
+    });
   };
 
-  // PERBAIKAN: Fungsi PDF disesuaikan untuk history
   const handleDownloadPDF = () => {
-    // Tentukan data mana yang akan dipakai
-    const textToRender = selectedHistoryItem ? selectedHistoryItem.summary : apiResponse;
-    const fileToName = selectedHistoryItem ? selectedHistoryItem.fileName : fileName;
-
-    if (!textToRender || isProcessing) return;
+    if (!hasValidResult) return;
+    
+    const textToRender = textToDisplay; 
+    const fileToName = selectedHistoryItem ? selectedHistoryItem.fileName : (fileName || 'untitled');
 
     const doc = new jsPDF();
-    
     doc.setFont("helvetica", "normal");
-    
     const margin = 15;
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -199,90 +261,52 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
     const lineHeight = 7;
     let cursorY = margin;
 
-    const checkPageBreak = () => {
-        if (cursorY + lineHeight > pageHeight - margin) {
-            doc.addPage();
-            cursorY = margin;
-        }
-    };
-
+    const checkPageBreak = () => { if (cursorY + lineHeight > pageHeight - margin) { doc.addPage(); cursorY = margin; } };
+    
     // Judul
-    doc.setFontSize(18);
-    doc.setFont("helvetica", "bold");
-    doc.text("Ringkasan Audio", pageWidth / 2, cursorY, { align: "center" });
+    doc.setFontSize(18); doc.setFont("helvetica", "bold");
+    doc.text(activeTab === 'summary' ? "Ringkasan Audio" : "Transkrip Penuh", pageWidth / 2, cursorY, { align: "center" });
     cursorY += 15;
     
-    // Info File (gunakan nama file yang relevan)
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "italic");
-    doc.setTextColor(100); 
+    // Info File
+    doc.setFontSize(10); doc.setFont("helvetica", "italic"); doc.setTextColor(100); 
     doc.text(`File: ${fileToName}`, margin, cursorY);
     cursorY += 10;
 
-    // Reset font untuk konten
-    doc.setFontSize(11); 
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(0); 
-
-    const lines = textToRender.split('\n'); // Render teks yang relevan
+    // Konten
+    doc.setFontSize(11); doc.setFont("helvetica", "normal"); doc.setTextColor(0); 
+    const lines = textToRender.split('\n'); 
     
     lines.forEach(line => {
-      let isBold = false;
-      let isHeader = false;
-      let processedLine = line;
-
-      if (processedLine.startsWith('### ')) {
-        isHeader = true;
-        processedLine = processedLine.substring(4);
-      } else if (processedLine.startsWith('**') && processedLine.endsWith('**')) {
-        isBold = true;
-        processedLine = processedLine.substring(2, processedLine.length - 2);
-      } else if (processedLine.startsWith('* ') || processedLine.startsWith('- ')) {
-        processedLine = `  • ${processedLine.substring(2)}`;
-      }
+      let isBold = false; let isHeader = false; let processedLine = line;
+      if (processedLine.startsWith('### ')) { isHeader = true; processedLine = processedLine.substring(4); }
+      else if (processedLine.startsWith('**') && processedLine.endsWith('**')) { isBold = true; processedLine = processedLine.substring(2, processedLine.length - 2); }
+      else if (processedLine.startsWith('* ') || processedLine.startsWith('- ')) { processedLine = `  • ${processedLine.substring(2)}`; }
       
       const splitLines = doc.splitTextToSize(processedLine, maxLineWidth);
 
       splitLines.forEach(textLine => {
         checkPageBreak(); 
-        
-        if (isHeader) {
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(14);
-        } else if (isBold) {
-            doc.setFont("helvetica", "bold");
-        }
-
+        if (isHeader) { doc.setFont("helvetica", "bold"); doc.setFontSize(14); }
+        else if (isBold) { doc.setFont("helvetica", "bold"); }
         doc.text(textLine, margin, cursorY);
         cursorY += lineHeight;
-
-        // Reset font
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(11);
+        doc.setFont("helvetica", "normal"); doc.setFontSize(11);
       });
-      
-      if (line.trim() === "") {
-          cursorY += (lineHeight / 2);
-      }
+      if (line.trim() === "") { cursorY += (lineHeight / 2); }
     });
 
-    const safeFileName = fileToName.replace(/\.[^/.]+$/, "") || "summary";
-    doc.save(`${safeFileName}_summary.pdf`);
+    const safeFileName = (fileToName || 'file').replace(/\.[^/.]+$/, "");
+    doc.save(`${safeFileName}_${activeTab}.pdf`); // Tambahkan nama tab ke file
   };
-
-  // PERBAIKAN: Tentukan teks yang akan ditampilkan di result box
-  const currentResultText = selectedHistoryItem ? selectedHistoryItem.summary : apiResponse;
-  
-  // Cek apakah ada hasil (bukan error atau pesan loading)
-  const hasValidResult = currentResultText && !isProcessing && !currentResultText.startsWith("⏳") && !currentResultText.startsWith("⚠️") && !currentResultText.startsWith("❌");
 
   const handleNavigateToLogin = () => {
-    setIsNavigating(true); // Tampilkan loader
-    setTimeout(() => {
-      navigate('/login');
-    }, 1000);
+    setIsNavigating(true); 
+    setTimeout(() => { navigate('/login'); }, 1500); 
   };
 
+
+  // --- RENDER KONTEN UTAMA ---
   const MainContent = () => (
     <>
       {/* Hero Section (Hanya tampil jika BELUM login) */}
@@ -321,8 +345,6 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
         </section>
       )}
 
-      {/* === PERBAIKAN LOGIC UPLOAD & HISTORY VIEW === */}
-      
       {/* Jika user login DAN memilih history, tampilkan tombol "New Summary" */}
       {user && selectedHistoryItem && (
         <button onClick={handleShowUpload} className={styles.newSummaryButton}>
@@ -335,7 +357,6 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
         <section className={styles['upload-section']}>
           <h2 className={styles['section-title']}>
             <span className={styles['title-icon']}>🎯</span>
-            {/* Judul dinamis berdasarkan status login */}
             {user ? 'Upload Audio Anda' : 'Mulai Sekarang'}
           </h2>
           <div
@@ -344,7 +365,6 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            {/* Input file asli (hanya ada jika user login) */}
             {user && (
               <input
                 id="audio-upload"
@@ -354,10 +374,7 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
                 className={styles['file-input']}
               />
             )}
-
-            {/* === PERBAIKAN UI/UX (REQUEST 2) === */}
             {!user ? (
-              // Tampilan jika user BELUM LOGIN
               <button className={styles.loginPromptButton} onClick={handleNavigateToLogin}>
                 <div className={styles['upload-icon']}>🔒</div>
                 <div className={styles['upload-text']}>
@@ -366,7 +383,6 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
                 <div className={styles['upload-hint']}>Gratis untuk memulai</div>
               </button>
             ) : !selectedFile ? (
-              // Tampilan jika user SUDAH LOGIN & Belum pilih file
               <label htmlFor="audio-upload" className={styles['upload-label']}>
                 <div className={styles['upload-icon']}>📁</div>
                 <div className={styles['upload-text']}>
@@ -375,7 +391,6 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
                 <div className={styles['upload-hint']}>MP3, WAV (Max 100MB)</div>
               </label>
             ) : (
-              // Tampilan jika user SUDAH LOGIN & SUDAH pilih file
               <div className={styles['file-selected']}>
                 <div className={styles['file-icon']}>🎵</div>
                 <div className={styles['file-info']}>
@@ -390,8 +405,6 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
               </div>
             )}
           </div>
-
-          {/* Tombol proses (Hanya tampil jika user login) */}
           {user && (
             <button
               onClick={handleUpload}
@@ -413,18 +426,16 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
           )}
         </section>
       )}
-      {/* === AKHIR PERBAIKAN LOGIC UPLOAD === */}
 
-
-      {/* Results (Tampilkan jika ada apiResponse ATAU selectedHistoryItem) */}
-      {currentResultText && (
+      {/* Results (Tampilkan jika ada data (apiResponse atau history)) */}
+      {activeData && (
         <section className={styles['results-section']}>
           <div className={styles['results-header']}>
             <h3 className={styles['results-title']}>
               <span className={styles['title-icon']}>📄</span>
-              {/* Judul dinamis berdasarkan konteks */}
-              {selectedHistoryItem ? 'Ringkasan dari History' : 'Hasil Ringkasan'}
+              {currentTitle}
             </h3>
+            {/* Tampilkan aksi HANYA jika hasil valid (bukan error/loading) */}
             {hasValidResult && (
               <div className={styles['results-actions']}>
                 <button 
@@ -444,16 +455,34 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
               </div>
             )}
           </div>
+
+          {/* Tampilkan Tab HANYA jika hasil valid */}
+          {hasValidResult && (
+            <div className={styles.resultTabs}>
+              <button 
+                className={`${styles.tabButton} ${activeTab === 'summary' ? styles.active : ''}`}
+                onClick={() => setActiveTab('summary')}
+              >
+                Ringkasan
+              </button>
+              <button 
+                className={`${styles.tabButton} ${activeTab === 'transcript' ? styles.active : ''}`}
+                onClick={() => setActiveTab('transcript')}
+              >
+                Transkrip Penuh
+              </button>
+            </div>
+          )}
           
           <div className={`markdown-result ${styles['results-box']}`}>
-            {isProcessing && apiResponse === "⏳ Sedang memproses audio Anda..." ? (
+            {isProcessing ? (
               <div className={styles['loading-text']}>
                 <LoadingSpinner variant="dots" size="medium" text="Memproses audio Anda..." />
-                <p>{apiResponse}</p>
+                <p>{textToDisplay}</p>
               </div>
             ) : (
-              // Tampilkan hasil dari history atau API
-              <ReactMarkdown>{currentResultText}</ReactMarkdown>
+              // Tampilkan teks berdasarkan state (bisa error, bisa hasil)
+              <ReactMarkdown>{textToDisplay}</ReactMarkdown>
             )}
           </div>
         </section>
@@ -542,11 +571,12 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
     </>
   );
 
+
+  // --- RENDER UTAMA ---
   return (
     <div className={styles.homeContainer}>
       <FloatingShapes />
       
-      {/* PERBAIKAN 3 (Toggle): Pindahkan Navbar ke sini, kirim prop */}
       <UserNavbar 
         user={user} 
         onLogout={onLogout} 
@@ -554,10 +584,8 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
         isSidebarOpen={isSidebarOpen}
       /> 
 
-      {/* Tampilkan Sidebar HANYA jika user login */}
       {user && (
         <>
-          {/* Backdrop ini hanya akan terlihat di mobile saat sidebar terbuka */}
           <div 
             className={`${styles.sidebarBackdrop} ${isSidebarOpen ? styles.open : ''}`} 
             onClick={onToggleSidebar} 
@@ -565,19 +593,17 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
           />
           <HistorySidebar 
             user={user} 
-            onSelectSummary={setSelectedHistoryItem} 
+            onSelectSummary={handleSelectHistory} // <-- Gunakan fungsi wrapper baru
             isSidebarOpen={isSidebarOpen}
             onToggle={onToggleSidebar}
           />
         </>
       )}
 
-      {/* PERBAIKAN 1 (Posisi): Konten utama dibungkus .mainContent */}
       <main className={`${styles.mainContent} ${user && isSidebarOpen ? styles.sidebarOpen : ''}`}>
-        {/* Wrapper baru untuk centering */}
         <div className={styles.contentInnerWrapper}>
           {isNavigating ? (
-            <FullPageLoader text="Membuka halaman login..." variant="dual" />
+            <FullPageLoader text="Membuka halaman login..." variant="dual" size="large"/>
           ) : (
             <MainContent />
           )}
@@ -588,3 +614,4 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
 }
 
 export default HomePage;
+

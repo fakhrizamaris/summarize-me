@@ -1,0 +1,159 @@
+/* src/components/FloatingFeedback/FloatingFeedback.module.css */
+.container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2000; /* Paling depan */
+}
+
+.feedbackButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  font-size: 1.8em; /* Ukuran emoji */
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedbackButton:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1998; /* Di bawah modal */
+}
+
+.modal {
+  position: fixed;
+  bottom: 90px; /* Di atas tombol */
+  right: 24px;
+  width: 320px;
+  background-color: #1e1e32;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  z-index: 1999;
+  padding: 24px;
+  box-sizing: border-box;
+
+  /* Animasi */
+  opacity: 0;
+  transform: translateY(10px);
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.title {
+  font-size: 1.3em;
+  color: #e0e0ff;
+  margin: 0 0 8px 0;
+  text-align: left;
+}
+
+.subtitle {
+  font-size: 0.9em;
+  color: #aaa;
+  margin: 0 0 16px 0;
+  text-align: left;
+  line-height: 1.5;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid #4a4a6a;
+  border-radius: 8px;
+  padding: 12px;
+  color: #eee;
+  font-family: inherit;
+  font-size: 1em;
+  box-sizing: border-box;
+}
+.textarea:focus {
+  outline: none;
+  border-color: #8c8cff;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end; /* Tombol ke kanan */
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.closeButton, .submitButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9em;
+  transition: all 0.2s;
+}
+
+.closeButton {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ccc;
+}
+.closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.submitButton {
+  background-color: #7a7aff;
+  color: white;
+}
+.submitButton:hover {
+  background-color: #6a6aff;
+}
+.submitButton:disabled, .closeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.successView {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100px;
+}
+
+.successIcon {
+  font-size: 3em;
+  margin-bottom: 16px;
+}
+
+/* Responsif di mobile */
+@media (max-width: 600px) {
+  .modal {
+    width: calc(100vw - 32px); /* Lebar penuh dikurangi padding */
+    left: 16px;
+    right: 16px;
+    bottom: 90px;
+  }
+}
