@@ -14,7 +14,7 @@ import StepCard from '../components/StepCard/StepCard.jsx'; // .jsx
 import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner.jsx'; // .jsx
 import FullPageLoader from '../components/FullPageLoader/FullPageLoader.jsx'; // .jsx
 // === PERBAIKAN: Typo 'HistorySIdebar' dan path import ===
-import HistorySidebar from '../components/HistorySidebar/HistorySidebar.jsx'; // .jsx
+import HistorySidebar from '../components/HistorySidebar/HistorySIdebar.jsx'; // .jsx
 
 // Import service API
 import { summarizeAudio } from '../services/summarizeApi.js'; // .js
