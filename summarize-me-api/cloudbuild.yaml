@@ -1,46 +1,37 @@
 steps:
-  # 1. Build Docker image
+  # Build image (ganti path ke Artifact Registry baru Anda)
   - name: 'gcr.io/cloud-builders/docker'
     args:
-      [
-        'build',
-        '-t',
-        # --- PERUBAHAN DI SINI ---
-        'us-east4-docker.pkg.dev/$PROJECT_ID/summarize-api/summarize-api:latest', 
-        '.', # Build dari root project
-        '-f', # Tentukan Dockerfile secara eksplisit
-        'summarize-me-api/Dockerfile' # Path Dockerfile
-      ]
+      - 'build'
+      - '-t'
+      # UBAH INI: (ganti 'asia-southeast1' ke 'us-central1' dan sesuaikan nama repo)
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/summarize-me-repo-us/summarize-me-api:latest' 
+      - '.'
 
-  # 2. Push image
+  # Push image (ganti path juga)
   - name: 'gcr.io/cloud-builders/docker'
     args:
-      [
-        'push',
-        # --- PERUBAHAN DI SINI ---
-        'us-east4-docker.pkg.dev/$PROJECT_ID/summarize-api/summarize-api:latest'
-      ]
+      - 'push'
+      # UBAH INI:
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/summarize-me-repo-us/summarize-me-api:latest'
 
-  # 3. Deploy ke Cloud Run
+  # Deploy ke Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
-      [
-        'run', 'deploy', 'summarize-api', # Nama service Cloud Run
-        '--image', 'us-east4-docker.pkg.dev/$PROJECT_ID/summarize-api/summarize-api:latest',
-        # --- PERUBAHAN DI SINI ---
-        '--region', 'us-east4',
-        '--platform', 'managed',
-        '--allow-unauthenticated', # Sesuaikan jika perlu autentikasi IAM/IAP
-        '--port', '8080',
-        # ... (sisa env-vars Anda)
-      ]
+      - run
+      - deploy
+      - 'summarize-me-api'
+      - '--image'
+      # UBAH INI:
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/summarize-me-repo-us/summarize-me-api:latest'
+      - '--platform'
+      - 'managed'
+      - '--region'
+      - 'us-central1'
+      - '--allow-unauthenticated'
 
-# Substitutions (opsional)
-substitutions:
-  _SERVICE_NAME: 'summarize-api'
-  # --- PERUBAHAN DI SINI ---
-  _REGION: 'us-east4'
-
-options:
-  logging: CLOUD_LOGGING_ONLY
+# ... (sisa file) ...
+images:
+  # UBAH INI:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/summarize-me-repo-us/summarize-me-api:latest'
