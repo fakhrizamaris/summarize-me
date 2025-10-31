@@ -12,18 +12,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Ambil ID Sheet dari environment variable
+const SHEET_ID = "1JYNHzsm_EKBEVT_UFM1doFAWqX_bl6ziNlVtgMkURxo"
+const RANGE = "Sheet1!A:C"
+
 // SetupRouter mengkonfigurasi dan mengembalikan Gin engine.
 func SetupRouter(cfg *config.Config, authClient *auth.Client, summarizeService *services.SummarizeService) *gin.Engine {
 	r := gin.Default()
 
-	// Setup CORS
+	// ... (Setup CORS Anda tetap sama) ...
 	corsConfig := cors.DefaultConfig()
-	// Mengizinkan origin dari FrontendURL dan localhost (untuk development)
 	corsConfig.AllowOrigins = []string{"http://localhost:5173", cfg.FrontendURL}
 	corsConfig.AllowMethods = []string{"GET", "POST", "OPTIONS"}
-	corsConfig.AllowHeaders = []string{"Authorization", "Content-Type", "Origin"} // Tambahkan Origin
-	corsConfig.AllowCredentials = true // Izinkan credentials jika diperlukan
+	corsConfig.AllowHeaders = []string{"Authorization", "Content-Type", "Origin"} 
+	corsConfig.AllowCredentials = true 
 	r.Use(cors.New(corsConfig))
+
 
 	// Rute publik untuk health check
 	r.GET("/ping", func(c *gin.Context) {
@@ -32,13 +36,17 @@ func SetupRouter(cfg *config.Config, authClient *auth.Client, summarizeService *
 
 	// Buat instance handler
 	summarizeHandler := handlers.NewSummarizeHandler(summarizeService)
+	// --- TAMBAHKAN INI ---
+	feedbackHandler := handlers.NewFeedbackHandler(SHEET_ID, RANGE)
+
 
 	// Grup rute API yang memerlukan autentikasi
 	api := r.Group("/api")
 	api.Use(middleware.FirebaseAuthMiddleware(authClient)) // Terapkan middleware auth
 	{
 		api.POST("/summarize", summarizeHandler.HandleSummarize)
-		// Tambahkan rute API lain di sini jika ada
+		// --- TAMBAHKAN RUTE INI ---
+		api.POST("/feedback", feedbackHandler.HandleSubmitFeedback) 
 	}
 
 	return r

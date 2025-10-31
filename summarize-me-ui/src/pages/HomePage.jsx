@@ -458,7 +458,7 @@ function HomePage({ user, onLogout, isSidebarOpen, onToggleSidebar }) {
           <div className={`markdown-result ${styles['results-box']}`}>
             {isProcessing ? (
               <div className={styles['loading-text']}>
-                <LoadingSpinner variant="gradient" size="large" text="Memproses audio Anda..." />
+                <LoadingSpinner variant="dots" size="medium" text="Memproses audio Anda..." />
                 <p>{textToDisplay}</p>
               </div>
             ) : (

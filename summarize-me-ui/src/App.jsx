@@ -1,7 +1,7 @@
 // src/App.jsx
 import React, { useState, useEffect } from 'react';
 // Menggunakan HashRouter untuk mengatasi masalah refresh 404 di hosting statis
-import { HashRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import {  Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from './config/firebaseConfig.js'; // PERBAIKAN: .js
 import { useAuth } from './hooks/useAuth.js'; // PERBAIKAN: .js
@@ -52,7 +52,7 @@ function AppContent() {
 
   // Loader saat cek auth
   if (isLoading) {
-    return <FullPageLoader text="Memeriksa autentikasi..." variant="gradient" />
+    return <FullPageLoader text="Memeriksa autentikasi..." variant="dual" size="large" />
   }
 
   // Loader saat proses logout

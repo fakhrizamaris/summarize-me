@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { db } from '../../config/firebaseConfig.js'; 
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import styles from './FloatingFeedback.module.css'; // .css
+import axios from 'axios';
 
 function FloatingFeedback({user}) {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,6 +17,22 @@ function FloatingFeedback({user}) {
 
     setIsLoading(true);
     try {
+
+      // 1. Dapatkan token otentikasi
+      const token = await auth.currentUser.getIdToken();
+      
+      // 2. Siapkan data
+      const data = {
+        email: user.email,
+        comment: comment
+      };
+      
+      // 3. Panggil Go API Anda
+      await axios.post(`${API_BASE_URL}/api/feedback`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       // Simpan ke koleksi 'project_feedback'
       await addDoc(collection(db, 'project_feedback'), {
           comment: comment,
