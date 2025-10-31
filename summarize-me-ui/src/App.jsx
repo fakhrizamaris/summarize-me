@@ -1,26 +1,29 @@
 // src/App.jsx
-import React, { useState, useEffect } from 'react'; // <-- PERBAIKAN: Impor useEffect
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+// Menggunakan HashRouter untuk mengatasi masalah refresh 404 di hosting statis
+import { HashRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
-import { auth } from './config/firebaseConfig';
-import { useAuth } from './hooks/useAuth';
+import { auth } from './config/firebaseConfig.js'; // PERBAIKAN: .js
+import { useAuth } from './hooks/useAuth.js'; // PERBAIKAN: .js
 
-// Import halaman
-import HomePage from './pages/HomePage';
-import AuthPage from './pages/AuthPage';
-import FullPageLoader from './components/FullPageLoader/FullPageLoader';
-import FloatingFeedback from './components/FloatingFeedback/FloatingFeedback';
+// Import halaman dan komponen
+import HomePage from './pages/HomePage.jsx'; // PERBAIKAN: .jsx
+import AuthPage from './pages/AuthPage.jsx'; // PERBAIKAN: .jsx
+import FullPageLoader from './components/FullPageLoader/FullPageLoader.jsx'; // PERBAIKAN: .jsx
+import FloatingFeedback from './components/FloatingFeedback/FloatingFeedback.jsx'; // PERBAIKAN: .jsx
 
 // Import CSS Module
-import styles from './App.module.css';
+import styles from './App.module.css'; // PERBAIKAN: .css
 
+// Komponen AppContent untuk menggunakan hook navigasi
 function AppContent() {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate(); 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // === PERBAIKAN 1: Pindahkan state dan fungsi toggle ke sini ===
+  // State untuk sidebar, dipindahkan ke sini agar bisa diakses footer
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
+  
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -31,25 +34,28 @@ function AppContent() {
       setIsSidebarOpen(false); // Selalu tutup sidebar saat logout
     }
   }, [user]);
-  // === AKHIR PERBAIKAN 1 ===
 
   const handleLogout = async () => {
     setIsLoggingOut(true); 
     try {
       await signOut(auth);
+      // Tunda navigasi agar animasi terlihat
       setTimeout(() => {
         navigate('/login'); 
         setIsLoggingOut(false); 
-      }, 1500);
+      }, 1500); // 1.5 detik
     } catch (error) {
       console.error("Error during logout:", error);
       setIsLoggingOut(false); 
     }
   };
 
+  // Loader saat cek auth
   if (isLoading) {
-    return <FullPageLoader text="Memeriksa autentikasi..." variant="dual" size="large" />
+    return <FullPageLoader text="Memeriksa autentikasi..." variant="gradient" />
   }
+
+  // Loader saat proses logout
   if (isLoggingOut) {
     return <FullPageLoader text="Anda sedang logout..." variant="dual" />
   }
@@ -60,7 +66,7 @@ function AppContent() {
         {/* Rute Halaman Utama */}
         <Route 
           path="/" 
-          // === PERBAIKAN 2: Kirim state dan fungsi toggle ke HomePage ===
+          // Kirim state dan fungsi toggle ke HomePage
           element={<HomePage 
             user={user} 
             onLogout={handleLogout}
@@ -85,8 +91,8 @@ function AppContent() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      {/* Footer Global */}
-      {/* === PERBAIKAN 3: Sembunyikan footer jika !user & tambahkan class === */}
+      {/* Footer Global (Bergeser saat sidebar terbuka) */}
+      {/* Footer hanya tampil jika user login */}
       {user && (
         <footer className={`${styles.footer} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
           <p>
@@ -114,10 +120,14 @@ function AppContent() {
           </p>
         </footer>
       )}
+      
+      {/* Komponen Feedback Melayang */}
+      <FloatingFeedback />
     </div>
   );
 }
 
+// App utama sekarang hanya merender Router
 function App() {
   return (
     <Router>
@@ -127,3 +137,4 @@ function App() {
 }
 
 export default App;
+

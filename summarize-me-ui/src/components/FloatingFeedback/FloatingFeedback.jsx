@@ -1,8 +1,8 @@
-// src/components/FloatingFeedback/FloatingFeedback.jsx
 import React, { useState } from 'react';
-import { db } from '../../config/firebaseConfig';
+// PERBAIKAN: Path salah, harusnya ../../
+import { db } from '../../config/firebaseConfig.js'; 
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import styles from './FloatingFeedback.module.css';
+import styles from './FloatingFeedback.module.css'; // .css
 
 function FloatingFeedback() {
   const [isOpen, setIsOpen] = useState(false);
