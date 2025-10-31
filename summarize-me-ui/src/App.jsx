@@ -122,7 +122,7 @@ function AppContent() {
       )}
       
       {/* Komponen Feedback Melayang */}
-      <FloatingFeedback />
+      <FloatingFeedback user={user} />
     </div>
   );
 }

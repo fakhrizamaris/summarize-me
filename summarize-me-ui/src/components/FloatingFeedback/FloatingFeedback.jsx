@@ -4,7 +4,7 @@ import { db } from '../../config/firebaseConfig.js';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import styles from './FloatingFeedback.module.css'; // .css
 
-function FloatingFeedback() {
+function FloatingFeedback({user}) {
   const [isOpen, setIsOpen] = useState(false);
   const [comment, setComment] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -18,10 +18,15 @@ function FloatingFeedback() {
     try {
       // Simpan ke koleksi 'project_feedback'
       await addDoc(collection(db, 'project_feedback'), {
-        comment: comment,
-        createdAt: serverTimestamp(),
-        page: window.location.href, // Catat halaman tempat user memberi feedback
-        userAgent: navigator.userAgent,
+          comment: comment,
+          createdAt: serverTimestamp(),
+          page: window.location.href, // Catat halaman tempat user memberi feedback
+          userAgent: navigator.userAgent,
+
+          // --- TAMBAHAN BARU ---
+          // Jika user login, simpan emailnya, jika tidak, simpan 'Anonymous'
+          userEmail: user ? user.email : 'Anonymous',
+          userId: user ? user.uid : 'N/A'
       });
       setIsSuccess(true);
       setComment('');

@@ -5,19 +5,20 @@ steps:
       [
         'build',
         '-t',
-        'asia-southeast2-docker.pkg.dev/$PROJECT_ID/summarize-api/summarize-api:latest',
+        # --- PERUBAHAN DI SINI ---
+        'us-east4-docker.pkg.dev/$PROJECT_ID/summarize-api/summarize-api:latest', 
         '.', # Build dari root project
         '-f', # Tentukan Dockerfile secara eksplisit
         'summarize-me-api/Dockerfile' # Path Dockerfile
       ]
-    # 'dir' tidak perlu jika build context adalah root dan Dockerfile path ditentukan
 
   # 2. Push image
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
         'push',
-        'asia-southeast2-docker.pkg.dev/$PROJECT_ID/summarize-api/summarize-api:latest'
+        # --- PERUBAHAN DI SINI ---
+        'us-east4-docker.pkg.dev/$PROJECT_ID/summarize-api/summarize-api:latest'
       ]
 
   # 3. Deploy ke Cloud Run
@@ -26,20 +27,20 @@ steps:
     args:
       [
         'run', 'deploy', 'summarize-api', # Nama service Cloud Run
-        '--image', 'asia-southeast2-docker.pkg.dev/$PROJECT_ID/summarize-api/summarize-api:latest',
-        '--region', 'asia-southeast2',
+        '--image', 'us-east4-docker.pkg.dev/$PROJECT_ID/summarize-api/summarize-api:latest',
+        # --- PERUBAHAN DI SINI ---
+        '--region', 'us-east4',
         '--platform', 'managed',
         '--allow-unauthenticated', # Sesuaikan jika perlu autentikasi IAM/IAP
         '--port', '8080',
-        # Tambahkan --set-env-vars di sini atau konfigurasikan di Cloud Run UI/gcloud terpisah
-        # Contoh: '--set-env-vars=FIREBASE_PROJECT_ID=summarizeme-project,FRONTEND_URL=https://summarizemeai.vercel.app',
-        # Untuk GEMINI_API_KEY, gunakan Secret Manager: '--set-secrets=GEMINI_API_KEY=nama-secret:versi-terbaru'
+        # ... (sisa env-vars Anda)
       ]
 
 # Substitutions (opsional)
 substitutions:
   _SERVICE_NAME: 'summarize-api'
-  _REGION: 'asia-southeast2'
+  # --- PERUBAHAN DI SINI ---
+  _REGION: 'us-east4'
 
 options:
   logging: CLOUD_LOGGING_ONLY
