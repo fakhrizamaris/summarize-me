@@ -1,37 +1,40 @@
 steps:
-  # Build image (ganti path ke Artifact Registry baru Anda)
+  # 1️⃣ Build image dari folder ini
   - name: 'gcr.io/cloud-builders/docker'
     args:
-      - 'build'
-      - '-t'
-      # UBAH INI: (ganti 'asia-southeast1' ke 'us-central1' dan sesuaikan nama repo)
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/summarize-me-repo-us/summarize-me-api:latest' 
-      - '.'
+      [
+        'build',
+        '-t',
+        'us-central1-docker.pkg.dev/summarizeme-project/summarize-me-repo-us/summarize-api:$SHORT_SHA',
+        '.'
+      ]
 
-  # Push image (ganti path juga)
+  # 2️⃣ Push image ke Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
-      - 'push'
-      # UBAH INI:
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/summarize-me-repo-us/summarize-me-api:latest'
+      [
+        'push',
+        'us-central1-docker.pkg.dev/summarizeme-project/summarize-me-repo-us/summarize-api:$SHORT_SHA'
+      ]
 
-  # Deploy ke Cloud Run
+  # 3️⃣ Deploy ke Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
+    entrypoint: 'gcloud'
     args:
-      - run
-      - deploy
-      - 'summarize-me-api'
-      - '--image'
-      # UBAH INI:
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/summarize-me-repo-us/summarize-me-api:latest'
-      - '--platform'
-      - 'managed'
-      - '--region'
-      - 'us-central1'
-      - '--allow-unauthenticated'
+      [
+        'run',
+        'deploy',
+        'summarize-api',
+        '--image',
+        'us-central1-docker.pkg.dev/summarizeme-project/summarize-me-repo-us/summarize-api:$SHORT_SHA',
+        '--region',
+        'us-central1',
+        '--platform',
+        'managed',
+        '--allow-unauthenticated',
+        '--set-env-vars',
+        'GEMINI_API_KEY=${_GEMINI_API_KEY},FIREBASE_PROJECT_ID=${_FIREBASE_PROJECT_ID},ENVIRONMENT=production'
+      ]
 
-# ... (sisa file) ...
 images:
-  # UBAH INI:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/summarize-me-repo-us/summarize-me-api:latest'
+  - 'us-central1-docker.pkg.dev/summarizeme-project/summarize-me-repo-us/summarize-api:$SHORT_SHA'
