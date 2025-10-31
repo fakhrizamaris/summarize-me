@@ -1,32 +1,69 @@
 /**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ * Import function triggers (V2)
  */
-
 const {setGlobalOptions} = require("firebase-functions");
-const {onRequest} = require("firebase-functions/https");
+const {onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
+const { GoogleAuth } = require('google-auth-library'); 
 
-// For cost control, you can set the maximum number of containers that can be
-// running at the same time. This helps mitigate the impact of unexpected
-// traffic spikes by instead downgrading performance. This limit is a
-// per-function limit. You can override the limit for each function using the
-// `maxInstances` option in the function's options, e.g.
-// `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
-// NOTE: setGlobalOptions does not apply to functions using the v1 API. V1
-// functions should each use functions.runWith({ maxInstances: 10 }) instead.
-// In the v1 API, each function can only serve one request per container, so
-// this will be the maximum concurrent request count.
+// Set opsi global
 setGlobalOptions({ maxInstances: 10 });
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+// ID Google Sheet Anda. GANTI DENGAN ID GOOGLE SHEET ANDA!
+const SHEET_ID = "1JYNHzsm_EKBEVT_UFM1doFAWqX_bl6ziNlVtgMkURxo"; 
+// RANGE disesuaikan untuk 3 kolom: A (Timestamp), B (Email), C (Comment)
+// Ganti "Feedback" jika nama tab spreadsheet Anda berbeda.
+const RANGE = "Sheet1!A:C"; 
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+exports.writeFeedbackToSheet = onRequest(
+    { cors: true }, // Izinkan CORS
+    async (request, response) => {
+    
+    // Hanya izinkan metode POST
+    if (request.method !== 'POST') {
+        logger.warn("Request method not POST", { method: request.method });
+        return response.status(405).send('Method Not Allowed');
+    }
+
+    try {
+        // Menerima input: email dan comment
+        const { email, comment } = request.body;
+
+        if (!email || !comment) {
+            return response.status(400).send('Missing required fields: email and comment.');
+        }
+
+        // 1. Otentikasi: Menggunakan Akun Layanan default Cloud Functions
+        const auth = new GoogleAuth({ // <--- INI PERUBAHANNYA
+            scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+        })
+        const authClient = await auth.getClient();
+        const sheets = google.sheets({ version: 'v4', auth: authClient });
+
+        // 2. Data yang akan dimasukkan (sesuai urutan kolom: Timestamp, Email, Comment)
+        const values = [
+            [
+                new Date().toISOString(), // Kolom A: Timestamp otomatis
+                email,                    // Kolom B: Email dari body request
+                comment,                  // Kolom C: Comment dari body request
+            ],
+        ];
+
+        // 3. Konfigurasi penulisan data
+        const resource = { values };
+        
+        const result = await sheets.spreadsheets.values.append({
+            spreadsheetId: SHEET_ID,
+            range: RANGE,
+            valueInputOption: 'USER_ENTERED',
+            resource: resource,
+        });
+
+        logger.info('Feedback successfully written to sheet', { updates: result.data.updates });
+        response.status(200).send({ message: 'Feedback submitted successfully' });
+
+    } catch (error) {
+        logger.error('Error writing feedback to sheet:', error);
+        response.status(500).send('Failed to submit feedback due to an internal error.');
+    }
+});
