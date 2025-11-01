@@ -1,140 +1,103 @@
-// src/App.jsx
-import React, { useState, useEffect } from 'react';
-// Menggunakan HashRouter untuk mengatasi masalah refresh 404 di hosting statis
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { signOut } from 'firebase/auth';
-import { auth } from './config/firebaseConfig.js'; // PERBAIKAN: .js
-import { useAuth } from './hooks/useAuth.js'; // PERBAIKAN: .js
+import React, { Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth.js'; 
+import styles from './App.module.css';
 
-// Import halaman dan komponen
-import HomePage from './pages/HomePage.jsx'; // PERBAIKAN: .jsx
-import AuthPage from './pages/AuthPage.jsx'; // PERBAIKAN: .jsx
-import FullPageLoader from './components/FullPageLoader/FullPageLoader.jsx'; // PERBAIKAN: .jsx
-import FloatingFeedback from './components/FloatingFeedback/FloatingFeedback.jsx'; // PERBAIKAN: .jsx
+// Import komponen
+import FullPageLoader from './components/FullPageLoader/FullPageLoader.jsx';
+import FloatingFeedback from './components/FloatingFeedback/FloatingFeedback.jsx';
 
-// Import CSS Module
-import styles from './App.module.css'; // PERBAIKAN: .css
+// Lazy load pages
+const HomePage = React.lazy(() => import('./pages/HomePage.jsx'));
+const AuthPage = React.lazy(() => import('./pages/AuthPage.jsx'));
 
-// Komponen AppContent untuk menggunakan hook navigasi
+// Komponen ProtectedRoute
+function ProtectedRoute({ user, children }) {
+  const location = useLocation();
+  if (!user) {
+    // Redirect ke AuthPage, simpan lokasi asal
+    return <AuthPage targetPath={location.pathname + location.search} />;
+  }
+  return children;
+}
+
+// Komponen AppContent (tempat perbaikan)
 function AppContent() {
-  const { user, isLoading } = useAuth();
-  const navigate = useNavigate(); 
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const location = useLocation();
 
-  // State untuk sidebar, dipindahkan ke sini agar bisa diakses footer
-  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
-  
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-  
-  // Efek untuk menutup sidebar saat logout
-  useEffect(() => {
-    if (!user) {
-      setIsSidebarOpen(false); // Selalu tutup sidebar saat logout
-    }
-  }, [user]);
+  // Ambil user dari hook.
+  // Kita perlu ini untuk menentukan apakah FloatingFeedback boleh tampil.
+  const { user } = useAuth();
 
-  const handleLogout = async () => {
-    setIsLoggingOut(true); 
-    try {
-      await signOut(auth);
-      // Tunda navigasi agar animasi terlihat
-      setTimeout(() => {
-        navigate('/'); 
-        setIsLoggingOut(false); 
-      }, 1500); // 1.5 detik
-    } catch (error) {
-      console.error("Error during logout:", error);
-      setIsLoggingOut(false); 
-    }
-  };
-
-  // Loader saat cek auth
-  if (isLoading) {
-    return <FullPageLoader text="Memeriksa autentikasi..." variant="dual" size="large" />
-  }
-
-  // Loader saat proses logout
-  if (isLoggingOut) {
-    return <FullPageLoader text="Anda sedang logout..." variant="dual" />
-  }
+  // Tentukan apakah navbar/feedback harus disembunyikan
+  // Sembunyikan jika kita di AuthPage ('/login')
+  const isAuthPage = location.pathname === '/login';
 
   return (
-    <div className={styles.appContainer}>
+    <>
       <Routes>
-        {/* Rute Halaman Utama */}
-        <Route 
+        {/* Rute publik (Landing Page) */}
+        {/* Catatan: File HomePage.jsx Anda saat ini menampilkan konten 
+          berbeda berdasarkan status login (user). 
+          Ini berarti HomePage menangani logika publik (landing) 
+          dan privat (aplikasi) dalam satu file.
+        */}
+        <Route path="/" element={<HomePage />} />
+
+        {/* Rute otentikasi (Halaman Login) */}
+        <Route path="/login" element={<AuthPage />} />
+
+        {/* Rute yang dilindungi (Contoh: /dashboard) */}
+        {/* Jika Anda ingin / (HomePage) dilindungi, pindahkan ke sini */}
+        {/* <Route 
           path="/" 
-          // Kirim state dan fungsi toggle ke HomePage
-          element={<HomePage 
-            user={user} 
-            onLogout={handleLogout}
-            isSidebarOpen={isSidebarOpen}
-            onToggleSidebar={toggleSidebar}
-          />} 
-        />
-
-        {/* Rute Login */}
-        <Route
-          path="/login"
-          element={user ? <Navigate to="/" replace /> : <AuthPage mode="login" />}
-        />
-
-        {/* Rute Register */}
-        <Route
-          path="/register"
-          element={user ? <Navigate to="/" replace /> : <AuthPage mode="register" />}
-        />
-
-        {/* Fallback redirect ke home */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+          element={
+            <ProtectedRoute user={user}>
+              <HomePage />
+            </ProtectedRoute>
+          } 
+        /> */}
       </Routes>
 
-      {/* Footer Global (Bergeser saat sidebar terbuka) */}
-      {/* Footer hanya tampil jika user login */}
-      {user && (
-        <footer className={`${styles.footer} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
-          <p>
-            Dibuat oleh{' '}
-            <a 
-              href="https://github.com/fakhrizamaris" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className={styles.footerLink}
-            >
-              Fakhri Djamaris (GitHub)
-            </a>
-            {' | '}
-            <a 
-              href="https://www.linkedin.com/in/fakhri-djamaris" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className={styles.footerLink}
-            >
-              Fakhri Djamaris (LinkedIn)
-            </a>
-          </p>
-          <p className={styles.footerAppname}>
-            SummarizeMe &copy; 2025
-          </p>
-        </footer>
-      )}
-      
-      {/* Komponen Feedback Melayang */}
-      <FloatingFeedback user={user} />
-    </div>
+      {/* ==================================================================
+        === PERBAIKAN 1: FLOATING FEEDBACK ===
+        ==================================================================
+        Tambahkan kondisi 'user && !isAuthPage'.
+        Ini memastikan FloatingFeedback HANYA muncul jika:
+        1. User SUDAH LOGIN (user)
+        2. User TIDAK sedang di halaman /login (!isAuthPage)
+      */}
+      {user && !isAuthPage && <FloatingFeedback />}
+    </>
   );
 }
 
-// App utama sekarang hanya merender Router
 function App() {
+  const { user, loadingAuth, errorAuth } = useAuth();
+
+  // if (loadingAuth) {
+  //   return <FullPageLoader variant="dual" size="large" text="Autentikasi..." />;
+  // }
+
+  if (errorAuth) {
+    console.error('Auth Error:', errorAuth);
+    return (
+      <div className={styles.errorFallback}>
+        <h2>Terjadi Kesalahan Autentikasi</h2>
+        <p>{errorAuth.message || 'Tidak dapat terhubung ke layanan autentikasi. Silakan refresh halaman.'}</p>
+      </div>
+    );
+  }
+
+  // Passing 'user' dan 'loadingAuth' ke AppContent via Context (useAuth)
+  // Jadi AppContent bisa mengaksesnya
   return (
     <Router>
-      <AppContent />
+      <Suspense fallback={<FullPageLoader variant="dual" size="large" text="Memuat Halaman..." />}>
+        <AppContent />
+      </Suspense>
     </Router>
   );
 }
 
 export default App;
-

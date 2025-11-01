@@ -64,7 +64,7 @@ func (h *FeedbackHandler) HandleSubmitFeedback(c *gin.Context) {
 	// 4. Siapkan data untuk dikirim
 	row := &sheets.ValueRange{
 		Values: [][]interface{}{
-			{time.Now().Format(time.RFC3339), req.Email, req.Comment},
+			{time.Now().Format("2006-01-02/15:04:05"), req.Email, req.Comment},
 		},
 	}
 

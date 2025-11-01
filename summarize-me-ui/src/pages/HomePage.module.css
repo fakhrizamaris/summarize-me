@@ -312,7 +312,7 @@
 }
 
 .tabButton.active {
-  background-color: rgba(30, 30, 45, 0.9); /* Lebih terang saat aktif */
+  background-color:  rgba(0, 0, 0, 0.3); /* Lebih terang saat aktif */
   color: #e0e0ff;
   border-color: rgba(255, 255, 255, 0.1);
   /* Trik agar menutupi border atas .results-box */
@@ -325,9 +325,7 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  
-  /* === PERBAIKAN: Pastikan border atasnya bulat === */
-  border-top-left-radius: 0; /* Karena tab ada di kiri */
+  border-top-left-radius: 0;
   
   padding: 24px; 
   max-height: 600px;
@@ -346,23 +344,63 @@
 }
 
 .process-btn {
-  width: 100%;
-  padding: 16px;
-  font-size: 1.1em;
-  font-weight: 600;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  border-radius: 12px;
-  color: white;
-  cursor: pointer;
-  display: flex;
+  display: none;
+}
+.process-btn-disabled {
+  display: none; 
+} 
+
+.summarizeButton {
+  /* display: flex; */
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: all 0.3s;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  gap: 15px;
+  width: 100%;
+  max-width: 300px;
+  margin-top: 24px;
+  padding: 14px 24px;
+  font-size: 1rem; /* 16px */
+  font-weight: 600;
+  color: #ffffff;
+  
+  /* Gradient Profesional */
+  background-image: linear-gradient(to right, #4f46e5, #7c3aed);
+  
+  border: none;
+  border-radius: 50px; /* Bentuk "pil" */
+  cursor: pointer;
+  
+  /* Shadow & Transisi */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
+.summarizeButton:hover:not(:disabled) {
+  /* Efek hover "terangkat" */
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+}
+
+.summarizeButton:disabled {
+  background-image: none;
+  background-color: #00173d; /* Abu-abu saat disabled */
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ====================================================== */
+/* === HAPUS STYLE UNTUK TOMBOL LOGIN ANEH === */
+/* ====================================================== */
+
+/* Style .loginPromptButton ini yang membuat tombol login
+  terlihat seperti box upload. Kita HAPUS saja.
+*/
+.loginPromptButton {
+  /* ... (SEMUA STYLE di dalam block ini BISA DIHAPUS) ... */
+  display: none !important; /* Pastikan benar-benar hilang */
+}
 .process-btn-disabled {
   opacity: 0.5;
   cursor: not-allowed;
