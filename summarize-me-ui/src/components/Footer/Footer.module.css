@@ -1,12 +1,11 @@
 .footerContainer {
-  width: 100%;
+  width: auto;
   padding: 2rem 1rem;
   text-align: center;
   color: #888; /* Warna abu-abu yang subtle */
   font-size: 0.9em;
   background-color: transparent; /* Menyatu dengan background utama */
   
-  /* Ini adalah KUNCI agar footer menempel di bawah */
   margin-top: auto; 
   flex-shrink: 0; /* Mencegah footer mengecil */
   box-sizing: border-box;

@@ -6,10 +6,11 @@ toolchain go1.24.4
 
 require (
 	cloud.google.com/go/speech v1.28.1
+	cloud.google.com/go/storage v1.57.1
 	firebase.google.com/go/v4 v4.14.0
 	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.11.0
-	github.com/google/generative-ai-go v0.17.0
+	github.com/google/generative-ai-go v0.20.1
 	github.com/joho/godotenv v1.5.1
 	google.golang.org/api v0.254.0
 )
@@ -25,7 +26,6 @@ require (
 	cloud.google.com/go/iam v1.5.2 // indirect
 	cloud.google.com/go/longrunning v0.6.7 // indirect
 	cloud.google.com/go/monitoring v1.24.2 // indirect
-	cloud.google.com/go/storage v1.57.1 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.29.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.53.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.53.0 // indirect

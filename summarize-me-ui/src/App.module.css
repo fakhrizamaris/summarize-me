@@ -18,20 +18,6 @@
   font-size: 1.1em;
 }
 
-/* Style untuk Footer */
-.footer {
-  margin-top: auto; 
-  padding: 1.5rem 1rem;
-  background-color: rgba(25, 25, 40, 0.8); 
-  text-align: center;
-  font-size: 0.85em;
-  color: #aaa; 
-  border-top: 1px solid rgba(255, 255, 255, 0.08); 
-
-  /* === PERBAIKAN: Tambahkan transisi agar pergeseran mulus === */
-  transition: margin-left 0.3s ease-in-out;
-  /* Pastikan footer tidak di 'position: fixed' */
-}
 
 /* === PERBAIKAN: Tambahkan @media query untuk pergeseran === */
 /* Terapkan HANYA di desktop (lebar yang sama dengan sidebar) */
