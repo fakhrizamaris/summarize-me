@@ -19,8 +19,7 @@ const RANGE = "Sheet1!A:C"
 // SetupRouter mengkonfigurasi dan mengembalikan Gin engine.
 func SetupRouter(cfg *config.Config, authClient *auth.Client, summarizeService *services.SummarizeService) *gin.Engine {
 	r := gin.Default()
-
-	// ... (Setup CORS Anda tetap sama) ...
+	
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowOrigins = []string{"http://localhost:5173", cfg.FrontendURL, "https://summarizemeai.vercel.app"}
 	corsConfig.AllowMethods = []string{"GET", "POST", "OPTIONS"}

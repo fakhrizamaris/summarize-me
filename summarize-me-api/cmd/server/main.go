@@ -4,14 +4,18 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os" // Impor os
+	"os"
 	"summarize-me-api/internal/api/router"
 	"summarize-me-api/internal/config"
 	"summarize-me-api/internal/platform"
 	"summarize-me-api/internal/services"
 
-	"github.com/joho/godotenv" // <-- Impor godotenv
+	"cloud.google.com/go/storage" // <-- TAMBAHKAN IMPORT INI
+	"github.com/joho/godotenv"
 )
+
+// !!! PENTING: Ganti nilai ini dengan nama GCS Bucket Anda !!!
+const GCS_BUCKET_NAME = "summarizeme_bucket"
 
 func main() {
 	// Muat variabel dari .env HANYA jika file ada (untuk development lokal)
@@ -23,18 +27,18 @@ func main() {
 		log.Println("File .env ditemukan dan dimuat untuk development lokal.")
 	}
 
-	// Load Konfigurasi (sekarang akan membaca dari env vars yang mungkin diisi oleh .env)
+	// Load Konfigurasi
 	cfg := config.LoadConfig()
 
 	ctx := context.Background()
 
-	// --- Inisialisasi Klien Eksternal (sama seperti sebelumnya) ---
+	// --- Inisialisasi Klien Eksternal ---
 	authClient, err := platform.InitFirebaseAuth(ctx, cfg.FirebaseProjectID)
 	if err != nil {
 		log.Fatalf("Gagal inisialisasi Firebase Auth: %v", err)
 	}
-	// ... (sisa inisialisasi speechClient, geminiClient)
-    speechClient, err := platform.InitSpeechClient(ctx)
+	
+	speechClient, err := platform.InitSpeechClient(ctx)
     if err != nil {
         log.Fatalf("Gagal inisialisasi Speech Client: %v", err)
     }
@@ -46,15 +50,27 @@ func main() {
     }
     defer geminiClient.Close()
 
-    geminiModel := geminiClient.GenerativeModel("gemini-2.5-flash")
+    geminiModel := geminiClient.GenerativeModel("gemini-1.5-flash") // Anda bisa ganti modelnya jika perlu
 
-	// --- Inisialisasi Service (sama seperti sebelumnya) ---
-	summarizeService := services.NewSummarizeService(speechClient, geminiModel)
+	// --- Inisialisasi Storage Client (BARU) ---
+	storageClient, err := storage.NewClient(ctx)
+	if err != nil {
+		log.Fatalf("Gagal inisialisasi Storage Client: %v", err)
+	}
+	// ----------------------------------------
 
-	// --- Setup Router (sama seperti sebelumnya) ---
+	// --- Inisialisasi Service (DIPERBARUI) ---
+	summarizeService := services.NewSummarizeService(
+		speechClient,
+		geminiModel,
+		storageClient,
+		GCS_BUCKET_NAME,
+	)
+
+	// --- Setup Router ---
 	r := router.SetupRouter(cfg, authClient, summarizeService)
 
-	// --- Jalankan Server (sama seperti sebelumnya) ---
+	// --- Jalankan Server ---
 	serverAddr := fmt.Sprintf(":%s", cfg.Port)
 	log.Printf("Server starting on %s", serverAddr)
 	if err := r.Run(serverAddr); err != nil {

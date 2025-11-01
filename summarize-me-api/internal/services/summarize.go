@@ -6,41 +6,97 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	speech "cloud.google.com/go/speech/apiv1"
 	"cloud.google.com/go/speech/apiv1/speechpb"
+	"cloud.google.com/go/storage"
 	"github.com/google/generative-ai-go/genai"
 )
 
-// SummarizeService menampung dependensi untuk layanan ringkasan.
 type SummarizeService struct {
-	speechClient *speech.Client
-	geminiModel  *genai.GenerativeModel
+	speechClient  *speech.Client
+	geminiModel   *genai.GenerativeModel
+	storageClient *storage.Client // <-- FIELD BARU
+	bucketName    string          // <-- FIELD BARU
 }
 
 // NewSummarizeService membuat instance baru dari SummarizeService.
-func NewSummarizeService(speechClient *speech.Client, geminiModel *genai.GenerativeModel) *SummarizeService {
+// <-- SIGNATURE DIPERBARUI
+func NewSummarizeService(
+	speechClient *speech.Client,
+	geminiModel *genai.GenerativeModel,
+	storageClient *storage.Client,
+	bucketName string,
+) *SummarizeService {
 	return &SummarizeService{
-		speechClient: speechClient,
-		geminiModel:  geminiModel,
+		speechClient:  speechClient,
+		geminiModel:   geminiModel,
+		storageClient: storageClient, // <-- SET FIELD BARU
+		bucketName:    bucketName,    // <-- SET FIELD BARU
 	}
 }
 
-// TranscribeAndSummarize melakukan transkripsi dan peringkasan audio.
-func (s *SummarizeService) TranscribeAndSummarize(ctx context.Context, fileData []byte, fileName string) (map[string]string, error) {
-	// 1. Transkripsi (kirim fileName)
-	transcript, err := s.transcribeAudio(ctx, fileData, fileName)
-	if err != nil {
-		return nil, fmt.Errorf("gagal mentranskrip audio: %w", err)
+// uploadToGCS adalah fungsi helper baru untuk mengupload file ke GCS
+func (s *SummarizeService) uploadToGCS(ctx context.Context, fileData []byte, fileName string) (string, error) {
+	// Buat nama file unik agar tidak bentrok
+	objectName := fmt.Sprintf("uploads/%d-%s", time.Now().UnixNano(), fileName)
+
+	// Set timeout untuk konteks upload
+	uploadCtx, cancel := context.WithTimeout(ctx, time.Second*60) // 60 detik timeout upload
+	defer cancel()
+
+	wc := s.storageClient.Bucket(s.bucketName).Object(objectName).NewWriter(uploadCtx)
+	if _, err := wc.Write(fileData); err != nil {
+		return "", fmt.Errorf("gagal menulis data ke GCS: %w", err)
+	}
+	if err := wc.Close(); err != nil {
+		return "", fmt.Errorf("gagal menutup GCS writer: %w", err)
 	}
 
-	// 2. Peringkasan (tetap sama)
+	gcsURI := fmt.Sprintf("gs://%s/%s", s.bucketName, objectName)
+	log.Printf("File berhasil diupload ke: %s", gcsURI)
+	return gcsURI, nil
+}
+
+// TranscribeAndSummarize melakukan transkripsi dan peringkasan audio.
+// <-- FUNGSI INI DIPERBARUI
+func (s *SummarizeService) TranscribeAndSummarize(ctx context.Context, fileData []byte, fileName string) (map[string]string, error) {
+
+	// 1. Upload file ke GCS dulu
+	gcsURI, err := s.uploadToGCS(ctx, fileData, fileName)
+	if err != nil {
+		return nil, fmt.Errorf("gagal upload ke GCS: %w", err)
+	}
+
+	// 2. (Opsional tapi disarankan) Jadwalkan penghapusan file dari GCS setelah selesai
+	defer func() {
+		log.Printf("Menjadwalkan penghapusan file dari GCS: %s", gcsURI)
+		objectName := strings.TrimPrefix(gcsURI, fmt.Sprintf("gs://%s/", s.bucketName))
+		// Gunakan context baru (Background) untuk delete, agar tetap berjalan
+		// meskipun context request aslinya (c) sudah selesai/timeout.
+		deleteCtx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+		defer cancel()
+		if err := s.storageClient.Bucket(s.bucketName).Object(objectName).Delete(deleteCtx); err != nil {
+			log.Printf("Peringatan: Gagal menghapus file dari GCS: %s, error: %v", gcsURI, err)
+		} else {
+			log.Printf("Berhasil menghapus file dari GCS: %s", gcsURI)
+		}
+	}()
+
+	// 3. Panggil fungsi transkrip asinkron yang baru
+	transcript, err := s.transcribeAudioAsync(ctx, gcsURI)
+	if err != nil {
+		return nil, fmt.Errorf("gagal mentranskrip audio (async): %w", err)
+	}
+
+	// 4. Peringkasan (tetap sama)
 	summary, err := s.summarizeText(ctx, transcript)
 	if err != nil {
 		return nil, fmt.Errorf("gagal membuat ringkasan: %w", err)
 	}
 
-	// === PERBAIKAN 2: Kembalikan kedua hasil dalam map ===
+	// 5. Kembalikan hasil
 	result := map[string]string{
 		"transcript": transcript,
 		"summary":    summary,
@@ -48,57 +104,54 @@ func (s *SummarizeService) TranscribeAndSummarize(ctx context.Context, fileData 
 	return result, nil
 }
 
-// transcribeAudio (sekarang menjadi method private di dalam service)
-// UBAH TANDA TANGAN: Tambahkan fileName
-func (s *SummarizeService) transcribeAudio(ctx context.Context, fileData []byte, fileName string) (string, error) {
-	log.Println("Mengirim audio ke Google Speech-to-Text API (dengan Diarization)...")
+// transcribeAudioAsync menggantikan transcribeAudio lama
+// <-- INI FUNGSI BARU YANG UTAMA
+func (s *SummarizeService) transcribeAudioAsync(ctx context.Context, gcsURI string) (string, error) {
+	log.Println("Mengirim audio ke Google Speech-to-Text API (Asynchronous)...")
 
 	// Konfigurasi request transkripsi
 	config := &speechpb.RecognitionConfig{
-		LanguageCode:    "id-ID",
-		EnableAutomaticPunctuation: true,
-		DiarizationConfig: &speechpb.SpeakerDiarizationConfig{
-			EnableSpeakerDiarization: true,
-			MinSpeakerCount:          2,
-			MaxSpeakerCount:          6,
-		},
+		LanguageCode:               "id-ID", //
+		EnableAutomaticPunctuation: true,    //
+		// DiarizationConfig: &speechpb.SpeakerDiarizationConfig{ //
+		// 	EnableSpeakerDiarization: true, //
+		// 	MinSpeakerCount:          2,    //
+		// 	MaxSpeakerCount:          6,    //
+		// },
+		// TIDAK PERLU Encoding
+		// TIDAK PERLU SampleRateHertz
+		// Google akan mendeteksinya secara otomatis dari file di GCS
 	}
 
-	// --- LOGIKA BARU UNTUK DETEKSI TIPE FILE ---
-	if strings.HasSuffix(strings.ToLower(fileName), ".wav") {
-		log.Println("Deteksi file WAV. Menggunakan encoding LINEAR16.")
-		config.Encoding = speechpb.RecognitionConfig_LINEAR16
-		// PENTING: LINEAR16 (WAV) membutuhkan SampleRateHertz yang akurat.
-		// Asumsi 16000 adalah tebakan; jika file WAV-mu punya rate beda (misal 44100Hz), ini akan GAGAL.
-		// Solusi ideal adalah membaca header WAV, tapi untuk sekarang kita coba asumsi 16000.
-		config.SampleRateHertz = 16000 
-	} else {
-		log.Println("Deteksi file non-WAV (asumsi MP3). Menggunakan encoding MP3.")
-		config.Encoding = speechpb.RecognitionConfig_MP3
-		// MP3 bisa mendeteksi SampleRateHertz dari header filenya,
-		// tapi kita bisa set 16000 sebagai petunjuk.
-		config.SampleRateHertz = 16000
-	}
-	// ----------------------------------------
-
-	req := &speechpb.RecognizeRequest{
-		Config: config, // Gunakan config dinamis
+	req := &speechpb.LongRunningRecognizeRequest{
+		Config: config,
 		Audio: &speechpb.RecognitionAudio{
-			AudioSource: &speechpb.RecognitionAudio_Content{Content: fileData},
+			AudioSource: &speechpb.RecognitionAudio_Uri{Uri: gcsURI}, // <-- Gunakan GCS URI
 		},
 	}
 
-	resp, err := s.speechClient.Recognize(ctx, req)
+	op, err := s.speechClient.LongRunningRecognize(ctx, req)
 	if err != nil {
-		// Ini akan mencetak error dari Google ke terminal backend-mu
-		return "", fmt.Errorf("gagal Recognize API: %w", err)
+		return "", fmt.Errorf("gagal memulai LongRunningRecognize: %w", err)
 	}
 
-	// ... (Sisa fungsi untuk memproses hasil transkripsi tetap sama) ...
-	if len(resp.Results) > 0 && len(resp.Results[len(resp.Results)-1].Alternatives[0].Words) > 0 {
-		var transcriptWithSpeakers strings.Builder
-		currentSpeakerTag := int32(-1)
-		result := resp.Results[len(resp.Results)-1]
+	log.Println("Menunggu proses transkripsi asinkron selesai...")
+	resp, err := op.Wait(ctx) // <-- Menunggu hingga proses selesai
+	if err != nil {
+		return "", fmt.Errorf("gagal menunggu operasi transkripsi: %w", err)
+	}
+
+	// Proses hasil (mirip seperti sebelumnya, tapi kita loop semua 'results')
+	var transcriptWithSpeakers strings.Builder
+	currentSpeakerTag := int32(-1)
+	hasDiarizationWords := false
+
+	for _, result := range resp.Results {
+		if len(result.Alternatives) == 0 || len(result.Alternatives[0].Words) == 0 {
+			continue
+		}
+		
+		hasDiarizationWords = true
 		for _, wordInfo := range result.Alternatives[0].Words {
 			if wordInfo.SpeakerTag != currentSpeakerTag {
 				if transcriptWithSpeakers.Len() > 0 {
@@ -112,13 +165,16 @@ func (s *SummarizeService) transcribeAudio(ctx context.Context, fileData []byte,
 			}
 			transcriptWithSpeakers.WriteString(wordInfo.Word)
 		}
-		if transcriptWithSpeakers.Len() > 0 {
-			log.Println("Transkrip dengan pembicara berhasil dibuat.")
-			return transcriptWithSpeakers.String(), nil
-		}
 	}
 
-	log.Println("Diarization gagal atau tidak ada info kata, membuat transkrip biasa.")
+
+	if hasDiarizationWords && transcriptWithSpeakers.Len() > 0 {
+		log.Println("Transkrip dengan pembicara berhasil dibuat (async).")
+		return transcriptWithSpeakers.String(), nil
+	}
+
+	// Fallback jika diarization gagal atau tidak ada info kata
+	log.Println("Diarization gagal atau tidak ada info kata, membuat transkrip biasa (async).")
 	var fallbackTranscript strings.Builder
 	for _, result := range resp.Results {
 		if len(result.Alternatives) > 0 {
@@ -132,7 +188,7 @@ func (s *SummarizeService) transcribeAudio(ctx context.Context, fileData []byte,
 	return finalTranscript, nil
 }
 
-// summarizeText (sekarang menjadi method private di dalam service)
+// summarizeText (Fungsi ini tidak diubah, hanya disalin dari file Anda)
 func (s *SummarizeService) summarizeText(ctx context.Context, textToSummarize string) (string, error) {
 	log.Println("Mengirim transkrip ke Gemini API untuk diringkas...")
 
