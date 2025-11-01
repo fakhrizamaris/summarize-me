@@ -1,0 +1,95 @@
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  opacity: 0;
+  animation: fadeIn 0.2s forwards;
+}
+
+.modal {
+  background-color: #1c1c2b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 24px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transform: scale(0.95);
+  opacity: 0;
+  animation: popIn 0.2s 0.1s forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+@keyframes popIn {
+  to { transform: scale(1); opacity: 1; }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  color: #fca5a5; /* Red warning color */
+}
+.icon {
+  font-size: 1.8em;
+  flex-shrink: 0;
+}
+.title {
+  margin: 0;
+  font-size: 1.2em;
+  font-weight: 600;
+  flex-grow: 1;
+}
+.closeBtn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 1.5em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+}
+.closeBtn:hover { color: #fff; }
+
+.message {
+  font-size: 0.95em;
+  color: #ccc;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+.cancelBtn, .confirmBtn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cancelBtn {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+.cancelBtn:hover { background-color: rgba(255, 255, 255, 0.2); }
+
+.confirmBtn {
+  background-color: #ef4444; /* Red delete */
+  color: #fff;
+}
+.confirmBtn:hover { background-color: #dc2626; }

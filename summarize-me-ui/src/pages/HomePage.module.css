@@ -202,9 +202,11 @@
 
 /* Upload Section */
 .upload-section {
+  padding: 2rem;
   position: relative;
   z-index: 10;
   max-width: 700px;
+  width: 80%;
   margin: 0 auto 80px;
 }
 
@@ -213,10 +215,12 @@
   backdrop-filter: blur(10px);
   border: 2px dashed rgba(255, 255, 255, 0.2);
   border-radius: 20px;
-  padding: 32px; /* Padding lebih kecil di mobile */
+  padding: 2rem; /* Padding lebih kecil di mobile */
   margin-bottom: 24px;
   transition: all 0.3s;
   cursor: pointer;
+  width: 100%; 
+  box-sizing: border-box;
 }
 
 .upload-box-drag {
@@ -297,7 +301,7 @@
   padding: 10px 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-bottom: none; /* Hapus border bawah */
-  background-color: rgba(20, 20, 30, 0.8); /* Sama dengan box */
+  background-color: rgba(0, 0, 0, 0.3); /* Sama dengan box */
   color: #aaa;
   font-size: 0.9em;
   font-weight: 500;
@@ -307,12 +311,12 @@
 }
 
 .tabButton:hover {
-  background-color: rgba(30, 30, 45, 0.8);
+  background-color: rgba(30, 30, 45, 0.3);
   color: #ccc;
 }
 
 .tabButton.active {
-  background-color:  rgba(0, 0, 0, 0.3); /* Lebih terang saat aktif */
+  background-color: rgba(20, 20, 30, 0.8); /* Lebih terang saat aktif */
   color: #e0e0ff;
   border-color: rgba(255, 255, 255, 0.1);
   /* Trik agar menutupi border atas .results-box */
@@ -351,12 +355,12 @@
 } 
 
 .summarizeButton {
-  /* display: flex; */
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 15px;
   width: 100%;
-  max-width: 300px;
+  max-width: 800px;
   margin-top: 24px;
   padding: 14px 24px;
   font-size: 1rem; /* 16px */
@@ -383,23 +387,15 @@
 
 .summarizeButton:disabled {
   background-image: none;
-  background-color: #00173d; /* Abu-abu saat disabled */
+  background-color: #00173d;
   cursor: not-allowed;
   opacity: 0.7;
   transform: none;
   box-shadow: none;
 }
 
-/* ====================================================== */
-/* === HAPUS STYLE UNTUK TOMBOL LOGIN ANEH === */
-/* ====================================================== */
-
-/* Style .loginPromptButton ini yang membuat tombol login
-  terlihat seperti box upload. Kita HAPUS saja.
-*/
 .loginPromptButton {
-  /* ... (SEMUA STYLE di dalam block ini BISA DIHAPUS) ... */
-  display: none !important; /* Pastikan benar-benar hilang */
+  display: none !important;
 }
 .process-btn-disabled {
   opacity: 0.5;
@@ -496,10 +492,19 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  padding: 24px; /* Padding lebih kecil */
+  border-top-left-radius: 0;
+  padding: 24px; 
   max-height: 600px;
   overflow-y: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.results-box-summary-active {
+  border-top-left-radius: 0;
+}
+
+.results-box-transcript-active {
+  border-top-right-radius: 0;
 }
 
 .loading-text {

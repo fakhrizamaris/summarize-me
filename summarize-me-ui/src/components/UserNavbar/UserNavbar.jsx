@@ -1,6 +1,7 @@
 // src/components/UserNavbar/UserNavbar.jsx
 import React, { useState, useEffect, useRef } from 'react'; // <-- PERBAIKAN 2: Impor state, effect, ref
 import styles from './UserNavbar.module.css';
+import { IoMenu, IoClose } from 'react-icons/io5';
 
 // ... (Komponen DefaultProfileIcon tetap sama) ...
 const DefaultProfileIcon = () => (
@@ -42,11 +43,11 @@ function UserNavbar({ user, onLogout, onToggleSidebar, isSidebarOpen }) {
   return (
     <nav className={`${styles.navbar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
       <div className={styles.navContent}>
-        <div className={styles.navLeft}> 
+        <div className={styles.navLeft}>
           <button onClick={onToggleSidebar} className={styles.toggleBtn} aria-label="Toggle sidebar">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            {isSidebarOpen ? <IoClose size={24} /> : <IoMenu size={24} />}
           </button>
-          
+
           <div className={styles.logo}>
             <span className={styles.logoText}>SummarizeMe</span>
           </div>
@@ -55,21 +56,8 @@ function UserNavbar({ user, onLogout, onToggleSidebar, isSidebarOpen }) {
         {/* PERBAIKAN 2: Modifikasi navRight menjadi container menu */}
         <div className={styles.navRight} ref={profileMenuRef}>
           {/* Tombol Avatar yang mentrigger dropdown */}
-          <button 
-            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} 
-            className={styles.profileAvatarButton}
-            aria-label="Buka menu profil"
-          >
-            {user.photoURL ? (
-              <img
-                src={user.photoURL}
-                alt="Profile"
-                className={styles.navAvatar}
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <DefaultProfileIcon />
-            )}
+          <button onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} className={styles.profileAvatarButton} aria-label="Buka menu profil">
+            {user.photoURL ? <img src={user.photoURL} alt="Profile" className={styles.navAvatar} referrerPolicy="no-referrer" /> : <DefaultProfileIcon />}
           </button>
 
           {/* Dropdown Menu Modern */}
@@ -78,11 +66,11 @@ function UserNavbar({ user, onLogout, onToggleSidebar, isSidebarOpen }) {
               Signed in as
               <strong>{user.displayName || user.email || 'User'}</strong>
             </div>
-            <button 
+            <button
               onClick={() => {
                 setIsProfileMenuOpen(false); // Tutup menu
                 onLogout(); // Jalankan logout
-              }} 
+              }}
               className={`${styles.dropdownItem} ${styles.logoutBtn}`}
             >
               Logout

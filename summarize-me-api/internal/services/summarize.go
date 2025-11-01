@@ -64,9 +64,8 @@ func getAudioEncoding(fileName string) speechpb.RecognitionConfig_AudioEncoding 
 		log.Printf("Deteksi format: MP3")
 		return speechpb.RecognitionConfig_MP3
 	case strings.HasSuffix(strings.ToLower(fileName), ".m4a"):
-		// M4A tidak tersedia di versi lama, gunakan LINEAR16 sebagai fallback
-		log.Printf("Deteksi format: M4A (menggunakan LINEAR16)")
-		return speechpb.RecognitionConfig_LINEAR16
+		log.Printf("Deteksi format: M4A (menggunakan MP3 sebagai fallback)")
+		return speechpb.RecognitionConfig_MP3
 	case strings.HasSuffix(strings.ToLower(fileName), ".wav"):
 		log.Printf("Deteksi format: WAV (LINEAR16)")
 		return speechpb.RecognitionConfig_LINEAR16
@@ -134,8 +133,15 @@ func (s *SummarizeService) transcribeAudioAsync(ctx context.Context, gcsURI stri
 	config := &speechpb.RecognitionConfig{
 		LanguageCode:               "id-ID",
 		EnableAutomaticPunctuation: true,
-		Encoding:                   encoding,      // ← GUNAKAN PARAMETER ENCODING
-		SampleRateHertz:            16000,         // ← TAMBAH SAMPLE RATE
+		Encoding:                   encoding, // Ini sekarang MP3 untuk M4A
+	}
+
+	if encoding == speechpb.RecognitionConfig_LINEAR16 || encoding == speechpb.RecognitionConfig_FLAC {
+		log.Printf("Mengatur SampleRateHertz ke 16000 untuk encoding %v", encoding)
+		config.SampleRateHertz = 16000
+	} else {
+		// Ini akan dijalankan untuk MP3, M4A (yang sekarang MP3), dan OGG_OPUS
+		log.Printf("TIDAK mengatur SampleRateHertz untuk encoding %v (biarkan auto-detect)", encoding)
 	}
 
 	req := &speechpb.LongRunningRecognizeRequest{

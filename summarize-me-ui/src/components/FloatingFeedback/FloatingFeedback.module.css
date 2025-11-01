@@ -1,170 +1,205 @@
 /* src/components/FloatingFeedback/FloatingFeedback.module.css */
-.container {
+
+/* Animasi Pulse untuk FAB */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.feedbackContainer {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  z-index: 2000; /* Paling depan */
+  z-index: 1050;
 }
 
+/* Tombol FAB (Floating Action Button) */
 .feedbackButton {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  font-size: 1.8em; /* Ukuran emoji */
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease-in-out;
+  animation: pulse 2.5s infinite ease-in-out;
 }
 
 .feedbackButton:hover {
   transform: scale(1.1);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  animation-play-state: paused;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
 }
 
+/* Backdrop Modal */
 .backdrop {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  z-index: 1998; /* Di bawah modal */
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  z-index: 1040;
 }
 
-.modal {
+/* Modal Modern */
+.feedbackModal {
   position: fixed;
-  bottom: 90px; /* Di atas tombol */
+  bottom: 100px;
   right: 24px;
   width: 320px;
-  background-color: #1e1e32;
-  border-radius: 12px;
+  background-color: rgba(25, 25, 40, 0.95);
+  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-  z-index: 1999;
-  padding: 24px;
-  box-sizing: border-box;
-
-  /* Animasi */
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+  color: #eee;
+  transform: translateY(20px);
   opacity: 0;
-  transform: translateY(10px);
-  animation: slideIn 0.3s ease-out forwards;
+  animation: fadeIn 0.3s ease forwards;
 }
 
-@keyframes slideIn {
+@keyframes fadeIn {
   to {
-    opacity: 1;
     transform: translateY(0);
+    opacity: 1;
   }
 }
 
-.title {
-  font-size: 1.3em;
-  color: #e0e0ff;
-  margin: 0 0 8px 0;
-  text-align: left;
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.modalHeader h3 {
+  margin: 0;
+  font-size: 1.1em;
 }
 
-.subtitle {
+.closeBtn {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  transition: background-color 0.2s, color 0.2s;
+}
+.closeBtn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+.closeBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+.modalBody {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.modalBody p {
   font-size: 0.9em;
-  color: #aaa;
-  margin: 0 0 16px 0;
-  text-align: left;
+  color: #ccc;
+  margin: 0;
   line-height: 1.5;
 }
 
 .textarea {
   width: 100%;
-  min-height: 100px;
-  resize: vertical;
-  background-color: rgba(255, 255, 255, 0.08);
+  box-sizing: border-box; /* Pastikan padding tidak merusak layout */
+  background-color: rgba(0, 0, 0, 0.2);
   border: 1px solid #4a4a6a;
+  color: #fff;
   border-radius: 8px;
   padding: 12px;
-  color: #eee;
   font-family: inherit;
-  font-size: 1em;
-  box-sizing: border-box;
+  font-size: 0.95em;
+  resize: vertical;
+  min-height: 100px;
 }
 .textarea:focus {
   outline: none;
   border-color: #8c8cff;
 }
 
-.actions {
-  display: flex;
-  justify-content: flex-end; /* Tombol ke kanan */
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.closeButton, .submitButton {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 0.9em;
-  transition: all 0.2s;
-}
-
-.closeButton {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #ccc;
-}
-.closeButton:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-.submitButton {
-  background-color: #7a7aff;
+.submitBtn {
+  background: linear-gradient(135deg, #5c61d7 0%, #6a44b1 100%);
   color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  /* Atur tinggi minimum agar spinner tidak melompat */
+  min-height: 45px; 
 }
-.submitButton:hover {
-  background-color: #6a6aff;
+.submitBtn:hover:not(:disabled) {
+  opacity: 0.9;
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
 }
-.submitButton:disabled, .closeButton:disabled {
+.submitBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
+/* --- Style untuk Tampilan Sukses --- */
 .successView {
+  padding: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-align: center;
-  min-height: 100px;
+  gap: 10px;
 }
-
 .successIcon {
-  font-size: 3em;
-  margin-bottom: 16px;
+  color: #4ade80; /* Warna hijau sukses */
+}
+.title {
+  margin: 0;
+  font-size: 1.2em;
+  font-weight: 600;
+}
+.subtitle {
+  font-size: 0.9em;
+  color: #ccc;
+  margin: 0;
+  line-height: 1.5;
 }
 
-/* ... (style Anda yang lain) ... */
-
-.errorMessage {
-  color: #f87171; /* Warna merah (Tailwind red-400) */
-  font-size: 0.875rem; /* 14px */
-  text-align: left;
-  margin-top: -8px; /* Atur spasi di atas textarea */
-  margin-bottom: 12px;
-  line-height: 1.3;
-}
-
-/* Responsif di mobile */
-@media (max-width: 600px) {
-  .modal {
-    width: calc(100vw - 32px); /* Lebar penuh dikurangi padding */
-    left: 16px;
-    right: 16px;
-    bottom: 90px;
-  }
+/* --- Style untuk Pesan Error --- */
+.error {
+  font-size: 0.9em;
+  color: #fca5a5; /* Warna merah error */
+  margin: -8px 0 0 0;
+  text-align: center;
 }

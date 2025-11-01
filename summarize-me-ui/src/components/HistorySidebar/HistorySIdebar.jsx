@@ -1,14 +1,14 @@
 // src/components/HistorySidebar/HistorySidebar.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-// PERBAIKAN: Path import diperbaiki
-import { db } from '../../config/firebaseConfig.js'; 
-import { 
-  collection, query, orderBy, limit, startAfter, getDocs, doc, deleteDoc, updateDoc 
-} from 'firebase/firestore';
-// PERBAIKAN: Path import diperbaiki
+import { db } from '../../config/firebaseConfig.js';
+import { collection, query, orderBy, limit, startAfter, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner.jsx';
-// PERBAIKAN: Path import diperbaiki
 import styles from './HistorySidebar.module.css';
+import { IoFolderOpenOutline, IoClose, IoDocumentTextOutline, IoPencil, IoTrashOutline, IoSearchOutline } from 'react-icons/io5';
+import { FiSearch } from 'react-icons/fi';
+import ConfirmModal from '../ConfirmModal/ConfirmModal';
+import Notification from '../Notification/Notification';
+// (Anda bisa pindahkan/tambahkan import icon di sini jika perlu)
 
 // Helper untuk format tanggal
 const formatDate = (timestamp) => {
@@ -19,7 +19,7 @@ const formatDate = (timestamp) => {
     month: 'short',
     year: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   });
 };
 
@@ -36,65 +36,66 @@ function HistorySidebar({ user, onSelectSummary, isSidebarOpen, onToggle }) {
   const [searchQuery, setSearchQuery] = useState(''); // Untuk search
   const [editingId, setEditingId] = useState(null); // ID item yg sedang diedit
   const [editText, setEditText] = useState(''); // Teks untuk input edit
-
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null); // Simpan item yg akan dihapus
+  const [notification, setNotification] = useState({ message: '', type: '', visible: false });
   // Fungsi untuk memuat riwayat (dengan pagination)
-  const loadHistory = useCallback(async (initialLoad = false) => {
-    if (!user?.uid || !db) return;
+  const loadHistory = useCallback(
+    async (initialLoad = false) => {
+      if (!user?.uid || !db) return;
 
-    if (initialLoad) {
-      setLoading(true);
-      setHistory([]);
-      setLastVisibleDoc(null);
-      setHasMore(true);
-      setError(''); // Reset error saat load awal
-    } else {
-      if (!hasMore || loadingMore) return; // Jangan muat lagi jika sudah habis atau sedang memuat
-      setLoadingMore(true);
-    }
-
-    try {
-      const historyCollectionRef = collection(db, "artifacts", appId, "users", user.uid, "summaries");
-      
-      const constraints = [
-        orderBy("createdAt", "desc"),
-        limit(PAGE_SIZE)
-      ];
-
-      if (!initialLoad && lastVisibleDoc) {
-        constraints.push(startAfter(lastVisibleDoc));
+      if (initialLoad) {
+        setLoading(true);
+        setHistory([]);
+        setLastVisibleDoc(null);
+        setHasMore(true);
+        setError(''); // Reset error saat load awal
+      } else {
+        if (!hasMore || loadingMore) return; // Jangan muat lagi jika sudah habis atau sedang memuat
+        setLoadingMore(true);
       }
 
-      const q = query(historyCollectionRef, ...constraints);
-      const querySnapshot = await getDocs(q);
-      
-      const newSummaries = [];
-      querySnapshot.forEach((doc) => {
-        newSummaries.push({ id: doc.id, ...doc.data() });
-      });
+      try {
+        const historyCollectionRef = collection(db, 'artifacts', appId, 'users', user.uid, 'summaries');
 
-      setHistory(prev => initialLoad ? newSummaries : [...prev, ...newSummaries]);
-      
-      if (querySnapshot.docs.length > 0) {
-        setLastVisibleDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
+        const constraints = [orderBy('createdAt', 'desc'), limit(PAGE_SIZE)];
+
+        if (!initialLoad && lastVisibleDoc) {
+          constraints.push(startAfter(lastVisibleDoc));
+        }
+
+        const q = query(historyCollectionRef, ...constraints);
+        const querySnapshot = await getDocs(q);
+
+        const newSummaries = [];
+        querySnapshot.forEach((doc) => {
+          newSummaries.push({ id: doc.id, ...doc.data() });
+        });
+
+        setHistory((prev) => (initialLoad ? newSummaries : [...prev, ...newSummaries]));
+
+        if (querySnapshot.docs.length > 0) {
+          setLastVisibleDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
+        }
+
+        if (querySnapshot.docs.length < PAGE_SIZE) {
+          setHasMore(false);
+        }
+      } catch (err) {
+        console.error('Gagal mengambil history: ', err);
+        setError('Gagal memuat history. Pastikan Anda telah membuat indeks di Firestore.');
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
       }
-      
-      if (querySnapshot.docs.length < PAGE_SIZE) {
-        setHasMore(false);
-      }
-      
-    } catch (err) {
-      console.error("Gagal mengambil history: ", err);
-      setError("Gagal memuat history. Pastikan Anda telah membuat indeks di Firestore.");
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [user?.uid, lastVisibleDoc, hasMore, loadingMore]); // Sertakan semua dependensi
+    },
+    [user?.uid, lastVisibleDoc, hasMore, loadingMore]
+  ); // Sertakan semua dependensi
 
   // Efek untuk memuat data awal saat user berubah
   useEffect(() => {
     if (user?.uid) {
-      loadHistory(true); 
+      loadHistory(true);
     } else {
       // Bersihkan state jika logout
       setHistory([]);
@@ -109,23 +110,42 @@ function HistorySidebar({ user, onSelectSummary, isSidebarOpen, onToggle }) {
 
   // --- Fungsi Manajemen Riwayat ---
 
-  const handleDelete = async (e, itemId) => {
-    e.stopPropagation(); 
-    
-    // Konfirmasi kustom (gantilah window.confirm jika Anda mau)
-    const isConfirmed = window.confirm("Apakah Anda yakin ingin menghapus riwayat ini?");
-    if (!isConfirmed) {
+  const startDelete = (e, item) => {
+    e.stopPropagation();
+    setItemToDelete(item);
+    setShowConfirmModal(true);
+  };
+
+  const confirmDelete = async () => {
+    // Cek itemToDelete (dari state)
+    if (!itemToDelete) return;
+
+    const { id: itemId, fileName } = itemToDelete;
+
+    // --- PERBAIKAN BUG INTI ---
+    // Cek semua variabel SEBELUM memanggil Firestore
+    if (!db || !appId || !user?.uid || !itemId) {
+      console.error('Gagal menghapus: Path Firestore tidak lengkap.', { db: !!db, appId, uid: user?.uid, itemId });
+      showNotification('Gagal menghapus: Error konfigurasi.', 'error');
+      setShowConfirmModal(false);
+      setItemToDelete(null);
       return;
     }
-    
+    // --- AKHIR PERBAIKAN BUG ---
+
     try {
-      const docRef = doc(db, "artifacts", appId, "users", user.uid, "summaries", itemId);
+      const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'summaries', itemId);
       await deleteDoc(docRef);
-      setHistory(prev => prev.filter(item => item.id !== itemId));
+      setHistory((prev) => prev.filter((item) => item.id !== itemId));
       onSelectSummary({ id: itemId }, true); // Beri tahu parent bahwa item ini dihapus
+      showNotification(`Riwayat "${fileName || 'Tanpa Nama'}" berhasil dihapus.`, 'success');
     } catch (err) {
-      console.error("Gagal menghapus item: ", err);
-      alert("Gagal menghapus item.");
+      console.error('Gagal menghapus item: ', err);
+      showNotification(`Gagal menghapus item: ${err.message}`, 'error');
+    } finally {
+      // Selalu tutup modal dan reset state
+      setShowConfirmModal(false);
+      setItemToDelete(null);
     }
   };
 
@@ -140,27 +160,25 @@ function HistorySidebar({ user, onSelectSummary, isSidebarOpen, onToggle }) {
     if (e.key === 'Enter') {
       const newName = editText.trim();
       if (!newName || !editingId) {
-        setEditingId(null); 
+        setEditingId(null);
         return;
       }
 
       const oldHistory = [...history]; // Salin riwayat lama
-      const updatedItem = { ...history.find(h => h.id === itemId), fileName: newName };
-      
+      const updatedItem = { ...history.find((h) => h.id === itemId), fileName: newName };
+
       // Update UI dulu
-      setHistory(prev => prev.map(h => 
-        h.id === itemId ? updatedItem : h
-      ));
-      onSelectSummary(updatedItem, false); 
-      setEditingId(null); 
+      setHistory((prev) => prev.map((h) => (h.id === itemId ? updatedItem : h)));
+      onSelectSummary(updatedItem, false);
+      setEditingId(null);
       setEditText('');
 
       try {
-        const docRef = doc(db, "artifacts", appId, "users", user.uid, "summaries", itemId);
+        const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'summaries', itemId);
         await updateDoc(docRef, { fileName: newName });
       } catch (err) {
-        console.error("Gagal mengubah nama: ", err);
-        alert("Gagal mengubah nama item.");
+        console.error('Gagal mengubah nama: ', err);
+        alert('Gagal mengubah nama item.');
         setHistory(oldHistory); // Kembalikan jika gagal
       }
     } else if (e.key === 'Escape') {
@@ -168,7 +186,7 @@ function HistorySidebar({ user, onSelectSummary, isSidebarOpen, onToggle }) {
       setEditText('');
     }
   };
-  
+
   const handleEditBlur = () => {
     setEditingId(null);
     setEditText('');
@@ -177,11 +195,7 @@ function HistorySidebar({ user, onSelectSummary, isSidebarOpen, onToggle }) {
   // --- Render ---
 
   // Filter HANYA JIKA ada searchQuery
-  const filteredHistory = searchQuery 
-    ? history.filter(item => 
-        item.fileName?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : history; // Jika tidak ada query, tampilkan semua
+  const filteredHistory = searchQuery ? history.filter((item) => item.fileName?.toLowerCase().includes(searchQuery.toLowerCase())) : history; // Jika tidak ada query, tampilkan semua
 
   const renderContent = () => {
     if (loading) {
@@ -193,27 +207,29 @@ function HistorySidebar({ user, onSelectSummary, isSidebarOpen, onToggle }) {
     if (history.length === 0) {
       return <p className={styles.emptyText}>Belum ada riwayat.</p>;
     }
-     if (filteredHistory.length === 0 && searchQuery) {
+    if (filteredHistory.length === 0 && searchQuery) {
       return <p className={styles.emptyText}>Tidak ada hasil untuk "{searchQuery}".</p>;
     }
-    
+
     const listToRender = filteredHistory; // Tampilkan hasil filter
 
     return (
       <ul className={styles.historyList}>
         {listToRender.map((item) => (
-          <li 
-            key={item.id} 
-            className={styles.historyItem} 
+          <li
+            key={item.id}
+            className={styles.historyItem}
             onClick={() => {
-              if (editingId !== item.id) { 
+              if (editingId !== item.id) {
                 onSelectSummary(item, false); // false = jangan reset
                 if (window.innerWidth < 1024) onToggle(); // Tutup di mobile
               }
             }}
-            tabIndex={0} 
+            tabIndex={0}
           >
-            <span className={styles.itemIcon}>📄</span>
+            <span className={styles.itemIcon}>
+              <IoDocumentTextOutline />
+            </span>
             <div className={styles.itemDetails}>
               {editingId === item.id ? (
                 <input
@@ -222,9 +238,9 @@ function HistorySidebar({ user, onSelectSummary, isSidebarOpen, onToggle }) {
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
                   onKeyDown={(e) => handleRename(e, item.id)}
-                  onBlur={handleEditBlur} 
+                  onBlur={handleEditBlur}
                   autoFocus
-                  onClick={(e) => e.stopPropagation()} 
+                  onClick={(e) => e.stopPropagation()}
                 />
               ) : (
                 <>
@@ -235,8 +251,12 @@ function HistorySidebar({ user, onSelectSummary, isSidebarOpen, onToggle }) {
             </div>
             {editingId !== item.id && (
               <div className={styles.itemActions}>
-                <button onClick={(e) => startEditing(e, item)} className={styles.actionBtn} aria-label="Ubah nama">✏️</button>
-                <button onClick={(e) => handleDelete(e, item)} className={styles.actionBtn} aria-label="Hapus">🗑️</button>
+                <button onClick={(e) => startEditing(e, item)} className={styles.actionBtn} aria-label="Ubah nama">
+                  <IoPencil />
+                </button>
+                <button onClick={(e) => handleDelete(e, item)} className={styles.actionBtn} aria-label="Hapus">
+                  <IoTrashOutline />
+                </button>
               </div>
             )}
           </li>
@@ -247,32 +267,28 @@ function HistorySidebar({ user, onSelectSummary, isSidebarOpen, onToggle }) {
 
   return (
     <aside className={`${styles.sidebarContainer} ${!isSidebarOpen ? styles.closed : ''}`}>
-      <div className={styles.sidebarHeader}> 
+      <div className={styles.sidebarHeader}>
         <h3 className={styles.sidebarTitle}>
-          <span className={styles.titleIcon}>🗂️</span>
+          <span className={styles.titleIcon}>
+            <IoFolderOpenOutline />
+          </span>
           Riwayat Ringkasan
         </h3>
         <button onClick={onToggle} className={styles.closeBtn} aria-label="Tutup sidebar">
-          ✕
+          <IoClose size={20} />
         </button>
       </div>
 
       <div className={styles.searchContainer}>
-        <input 
-          type="search"
-          placeholder="Cari riwayat..."
-          className={styles.searchInput}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+        <input type="search" placeholder="Cari riwayat..." className={styles.searchInput} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
       </div>
 
       <div className={styles.sidebarContent}>
         {renderContent()}
-        
+
         {/* Tampilkan hanya jika: ada item lagi, tidak sedang loading, dan tidak sedang mencari */}
-        {hasMore && !loading && !searchQuery && ( 
-          <button 
+        {hasMore && !loading && !searchQuery && (
+          <button
             className={styles.loadMoreBtn}
             onClick={() => loadHistory(false)} // 'false' berarti BUKAN initial load
             disabled={loadingMore}
@@ -286,4 +302,3 @@ function HistorySidebar({ user, onSelectSummary, isSidebarOpen, onToggle }) {
 }
 
 export default HistorySidebar;
-

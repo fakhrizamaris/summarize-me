@@ -1,0 +1,53 @@
+.footerContainer {
+  width: 100%;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #888; /* Warna abu-abu yang subtle */
+  font-size: 0.9em;
+  background-color: transparent; /* Menyatu dengan background utama */
+  
+  /* Ini adalah KUNCI agar footer menempel di bawah */
+  margin-top: auto; 
+  flex-shrink: 0; /* Mencegah footer mengecil */
+  box-sizing: border-box;
+transition: margin-left 0.3s ease-in-out;
+}
+
+.footerContainer p {
+  margin: 0;
+  display: flex;
+ 
+  flex-wrap: wrap; /* Agar rapi di layar mobile kecil */
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem; /* Jarak antar teks (©, •, Dibuat oleh) */
+}
+
+/* Style untuk link kredit Anda */
+.creditLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem; /* Jarak antara ikon GitHub dan nama */
+  color: #aaa;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  margin-left: 0.4rem; /* Jarak dari "Dibuat oleh" */
+}
+
+.creditLink:hover {
+  color: #e0e0ff; /* Warna highlight saat di-hover */
+}
+
+.sidebarOpen {
+  /* Transisi agar pergeseran terlihat mulus */
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Hanya terapkan margin-left di layar desktop (sama seperti navbar & main) */
+@media (min-width: 1024px) {
+  .sidebarOpen {
+    /* Lebar sidebar Anda adalah 320px */
+    margin-left: 320px; 
+  }
+}

@@ -1,7 +1,11 @@
-import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { useAuth } from './hooks/useAuth.js'; 
+// fakhrizamaris/summarize-me/summarize-me-7ba45f561c515ef95fb7899363fcf68c76c9f33f/summarize-me-ui/src/App.jsx
+
+// --- PERBAIKAN 1: Tambahkan 'useState' ke import ---
+import React, { Suspense, useState } from 'react'; 
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth.js';
 import styles from './App.module.css';
+import Footer from './components/Footer/Footer.jsx';
 
 // Import komponen
 import FullPageLoader from './components/FullPageLoader/FullPageLoader.jsx';
@@ -21,63 +25,58 @@ function ProtectedRoute({ user, children }) {
   return children;
 }
 
-// Komponen AppContent (tempat perbaikan)
-function AppContent() {
+// --- PERBAIKAN 2: Terima props 'isSidebarOpen' dan 'handleToggleSidebar' ---
+function AppContent({ isSidebarOpen, handleToggleSidebar }) {
   const location = useLocation();
-
-  // Ambil user dari hook.
-  // Kita perlu ini untuk menentukan apakah FloatingFeedback boleh tampil.
   const { user } = useAuth();
-
-  // Tentukan apakah navbar/feedback harus disembunyikan
-  // Sembunyikan jika kita di AuthPage ('/login')
   const isAuthPage = location.pathname === '/login';
 
   return (
-    <>
-      <Routes>
-        {/* Rute publik (Landing Page) */}
-        {/* Catatan: File HomePage.jsx Anda saat ini menampilkan konten 
-          berbeda berdasarkan status login (user). 
-          Ini berarti HomePage menangani logika publik (landing) 
-          dan privat (aplikasi) dalam satu file.
-        */}
-        <Route path="/" element={<HomePage />} />
+    // --- PERBAIKAN 3: Hapus tag <Router> yang berlebihan di sini ---
+    <div className={styles.appContainer}>
+      <main className={styles.mainContentArea}>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute user={user}>
+                {/* Kita teruskan props-nya lagi ke HomePage */}
+                <HomePage 
+                  isSidebarOpen={isSidebarOpen} 
+                  onToggleSidebar={handleToggleSidebar} 
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/login" 
+            element={user ? <Navigate to="/" replace /> : <AuthPage />} 
+          />
+        </Routes>
+      </main>
 
-        {/* Rute otentikasi (Halaman Login) */}
-        <Route path="/login" element={<AuthPage />} />
+      {/* Footer juga menerima props agar bisa bergerak */}
+      <Footer user={user} isSidebarOpen={isSidebarOpen} />
 
-        {/* Rute yang dilindungi (Contoh: /dashboard) */}
-        {/* Jika Anda ingin / (HomePage) dilindungi, pindahkan ke sini */}
-        {/* <Route 
-          path="/" 
-          element={
-            <ProtectedRoute user={user}>
-              <HomePage />
-            </ProtectedRoute>
-          } 
-        /> */}
-      </Routes>
-
-      {/* ==================================================================
-        === PERBAIKAN 1: FLOATING FEEDBACK ===
-        ==================================================================
-        Tambahkan kondisi 'user && !isAuthPage'.
-        Ini memastikan FloatingFeedback HANYA muncul jika:
-        1. User SUDAH LOGIN (user)
-        2. User TIDAK sedang di halaman /login (!isAuthPage)
-      */}
+      {/* Tampilkan feedback hanya jika login dan BUKAN di halaman auth */}
       {user && !isAuthPage && <FloatingFeedback />}
-    </>
+    </div>
   );
 }
 
 function App() {
   const { user, loadingAuth, errorAuth } = useAuth();
 
-  // if (loadingAuth) {
-  //   return <FullPageLoader variant="dual" size="large" text="Autentikasi..." />;
-  // }
+  // State untuk sidebar (dipindahkan ke sini)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
+  const handleToggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  if (loadingAuth) {
+    // Ganti 'loadingAuth' dengan 'loading' jika Anda menamakannya 'loading' di useAuth
+    return <FullPageLoader variant="dual" size="large" text="Memuat Sesi..." />;
+  }
 
   if (errorAuth) {
     console.error('Auth Error:', errorAuth);
@@ -89,12 +88,14 @@ function App() {
     );
   }
 
-  // Passing 'user' dan 'loadingAuth' ke AppContent via Context (useAuth)
-  // Jadi AppContent bisa mengaksesnya
   return (
     <Router>
       <Suspense fallback={<FullPageLoader variant="dual" size="large" text="Memuat Halaman..." />}>
-        <AppContent />
+        {/* Kirim state dan handler sebagai props ke AppContent */}
+        <AppContent 
+          isSidebarOpen={isSidebarOpen} 
+          handleToggleSidebar={handleToggleSidebar} 
+        />
       </Suspense>
     </Router>
   );
