@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-// PERBAIKAN: Path salah, harusnya ../../
-import { db } from '../../config/firebaseConfig.js'; 
+// === PERBAIKAN 1: Import auth dan db ===
+import { auth, db } from '../../config/firebaseConfig.js';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import styles from './FloatingFeedback.module.css'; // .css
 import axios from 'axios';
+import styles from './FloatingFeedback.module.css';
 
-function FloatingFeedback({user}) {
+// === PERBAIKAN 2: Import API_BASE_URL ===
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+function FloatingFeedback({ user }) {
   const [isOpen, setIsOpen] = useState(false);
   const [comment, setComment] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -17,34 +20,31 @@ function FloatingFeedback({user}) {
 
     setIsLoading(true);
     try {
-
-      // 1. Dapatkan token otentikasi
+      // === PERBAIKAN 3: Gunakan auth yang sudah di-import ===
       const token = await auth.currentUser.getIdToken();
       
-      // 2. Siapkan data
       const data = {
         email: user.email,
         comment: comment
       };
       
-      // 3. Panggil Go API Anda
+      // Kirim ke Go API
       await axios.post(`${API_BASE_URL}/api/feedback`, data, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-      // Simpan ke koleksi 'project_feedback'
-      await addDoc(collection(db, 'project_feedback'), {
-          comment: comment,
-          createdAt: serverTimestamp(),
-          page: window.location.href, // Catat halaman tempat user memberi feedback
-          userAgent: navigator.userAgent,
 
-          // --- TAMBAHAN BARU ---
-          // Jika user login, simpan emailnya, jika tidak, simpan 'Anonymous'
-          userEmail: user ? user.email : 'Anonymous',
-          userId: user ? user.uid : 'N/A'
+      // Simpan juga ke Firestore (opsional, untuk backup)
+      await addDoc(collection(db, 'project_feedback'), {
+        comment: comment,
+        createdAt: serverTimestamp(),
+        page: window.location.href,
+        userAgent: navigator.userAgent,
+        userEmail: user ? user.email : 'Anonymous',
+        userId: user ? user.uid : 'N/A'
       });
+
       setIsSuccess(true);
       setComment('');
     } catch (error) {
@@ -52,7 +52,6 @@ function FloatingFeedback({user}) {
       alert("Gagal mengirim feedback. Coba lagi nanti.");
     } finally {
       setIsLoading(false);
-      // Biarkan modal sukses terbuka selama 2 detik
       setTimeout(() => {
         setIsSuccess(false);
         setIsOpen(false);
@@ -62,7 +61,6 @@ function FloatingFeedback({user}) {
 
   return (
     <div className={styles.container}>
-      {/* Tombol Melayang */}
       <button 
         className={styles.feedbackButton} 
         onClick={() => setIsOpen(true)}
@@ -71,7 +69,6 @@ function FloatingFeedback({user}) {
         💬
       </button>
 
-      {/* Modal/Form Feedback */}
       {isOpen && (
         <>
           <div className={styles.backdrop} onClick={() => setIsOpen(false)}></div>
@@ -108,7 +105,6 @@ function FloatingFeedback({user}) {
                 </div>
               </form>
             ) : (
-              // Tampilan Sukses
               <div className={styles.successView}>
                 <div className={styles.successIcon}>✅</div>
                 <h3 className={styles.title}>Terima Kasih!</h3>

@@ -50,7 +50,7 @@ func main() {
     }
     defer geminiClient.Close()
 
-    geminiModel := geminiClient.GenerativeModel("gemini-1.5-flash") // Anda bisa ganti modelnya jika perlu
+    geminiModel := geminiClient.GenerativeModel("gemini-2.5-flash") // Anda bisa ganti modelnya jika perlu
 
 	// --- Inisialisasi Storage Client (BARU) ---
 	storageClient, err := storage.NewClient(ctx)
