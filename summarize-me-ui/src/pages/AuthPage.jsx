@@ -173,7 +173,7 @@ function AuthPage({ mode }) {
             className={styles.submitButton}
             disabled={loading || googleLoading}
           >
-            {loading ? <ButtonSpinner light={true} /> : submitText}
+            {loading ? <LoadingSpinner variant="dual" size="small"/> : submitText}
           </button>
         </form>
 
