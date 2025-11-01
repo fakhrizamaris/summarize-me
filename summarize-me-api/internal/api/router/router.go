@@ -22,7 +22,7 @@ func SetupRouter(cfg *config.Config, authClient *auth.Client, summarizeService *
 
 	// ... (Setup CORS Anda tetap sama) ...
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"http://localhost:5173", cfg.FrontendURL}
+	corsConfig.AllowOrigins = []string{"http://localhost:5173", cfg.FrontendURL, "https://summarizemeai.vercel.app"}
 	corsConfig.AllowMethods = []string{"GET", "POST", "OPTIONS"}
 	corsConfig.AllowHeaders = []string{"Authorization", "Content-Type", "Origin"} 
 	corsConfig.AllowCredentials = true 
