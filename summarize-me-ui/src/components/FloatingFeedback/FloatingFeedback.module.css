@@ -148,6 +148,17 @@
   margin-bottom: 16px;
 }
 
+/* ... (style Anda yang lain) ... */
+
+.errorMessage {
+  color: #f87171; /* Warna merah (Tailwind red-400) */
+  font-size: 0.875rem; /* 14px */
+  text-align: left;
+  margin-top: -8px; /* Atur spasi di atas textarea */
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
 /* Responsif di mobile */
 @media (max-width: 600px) {
   .modal {

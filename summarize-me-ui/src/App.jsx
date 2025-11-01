@@ -41,7 +41,7 @@ function AppContent() {
       await signOut(auth);
       // Tunda navigasi agar animasi terlihat
       setTimeout(() => {
-        navigate('/login'); 
+        navigate('/'); 
         setIsLoggingOut(false); 
       }, 1500); // 1.5 detik
     } catch (error) {

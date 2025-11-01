@@ -11,6 +11,7 @@ import {
 import { auth, googleProvider } from '../config/firebaseConfig.js';
 import styles from './AuthPage.module.css';
 import FloatingShapes from '../components/FloatingShapes/FloatingShapes.jsx';
+import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner'; // <-- TAMBAHKAN INI
 
 // Icon Google sederhana (SVG)
 const GoogleIcon = () => (
