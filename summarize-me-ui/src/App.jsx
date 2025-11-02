@@ -1,5 +1,6 @@
+// src/App.jsx
 import React, { Suspense, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth.js';
 import styles from './App.module.css';
 import Footer from './components/Footer/Footer.jsx';
@@ -15,32 +16,52 @@ const LandingPage = React.lazy(() => import('./pages/LandingPage.jsx'));
 
 // Komponen ProtectedRoute
 function ProtectedRoute({ user, children }) {
-  const location = useLocation();
   if (!user) {
-    // Redirect ke AuthPage, simpan lokasi asal
-    return <AuthPage targetPath={location.pathname + location.search} />;
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+}
+
+// Komponen untuk redirect jika sudah login
+function AuthRoute({ user, children }) {
+  if (user) {
+    return <Navigate to="/app" replace />;
   }
   return children;
 }
 
 function AppContent({ user, isSidebarOpen, handleToggleSidebar }) {
-  const location = useLocation();
-  const isAuthPage = location.pathname === '/login';
+  const location = window.location.pathname;
+  const isAuthPage = location === '/login' || location === '/register';
 
   return (
-    // --- PERBAIKAN 3: Hapus tag <Router> yang berlebihan di sini ---
     <div className={styles.appContainer}>
       <main className={styles.mainContentArea}>
         <Routes>
-          {/* RUTE 1: Halaman Publik (Landing Page) di "/"
-            Ini TIDAK dibungkus ProtectedRoute. Siapapun bisa lihat.
-          */}
+          {/* RUTE 1: Landing Page (Publik) */}
           <Route path="/" element={<LandingPage />} />
 
-          {/* RUTE 2: Halaman "Aplikasi" (Dashboard) di "/app"
-            INI yang kita lindungi dengan ProtectedRoute.
-            Ini akan me-render HomePage Anda (halaman setelah login).
-          */}
+          {/* RUTE 2: Login Page */}
+          <Route
+            path="/login"
+            element={
+              <AuthRoute user={user}>
+                <AuthPage />
+              </AuthRoute>
+            }
+          />
+
+          {/* RUTE 3: Register Page */}
+          <Route
+            path="/register"
+            element={
+              <AuthRoute user={user}>
+                <AuthPage />
+              </AuthRoute>
+            }
+          />
+
+          {/* RUTE 4: Dashboard/App (Protected) */}
           <Route
             path="/app"
             element={
@@ -50,17 +71,49 @@ function AppContent({ user, isSidebarOpen, handleToggleSidebar }) {
             }
           />
 
-          {/* RUTE 3: Halaman Login di "/login"
-            Perbarui redirect-nya agar mengarah ke "/app" jika sudah login.
-          */}
-          <Route path="/login" element={user ? <Navigate to="/app" replace /> : <AuthPage />} />
+          {/* RUTE 5: Redirect /home ke /app untuk backward compatibility */}
+          <Route path="/home" element={<Navigate to="/app" replace />} />
+
+          {/* RUTE 6: 404 - Not Found */}
+          <Route
+            path="*"
+            element={
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: '100vh',
+                  textAlign: 'center',
+                  padding: '20px',
+                }}
+              >
+                <h1 style={{ fontSize: '4em', marginBottom: '0.2em' }}>404</h1>
+                <p style={{ fontSize: '1.2em', marginBottom: '2em', opacity: 0.8 }}>Halaman tidak ditemukan</p>
+                <a
+                  href="/"
+                  style={{
+                    padding: '12px 24px',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 600,
+                  }}
+                >
+                  Kembali ke Beranda
+                </a>
+              </div>
+            }
+          />
         </Routes>
       </main>
 
-      {/* Footer juga menerima props agar bisa bergerak */}
+      {/* Footer */}
       <Footer user={user} isSidebarOpen={isSidebarOpen} />
 
-      {/* Tampilkan feedback hanya jika login dan BUKAN di halaman auth */}
+      {/* Floating Feedback - hanya tampil jika login dan bukan di auth page */}
       {user && !isAuthPage && <FloatingFeedback />}
     </div>
   );
@@ -69,21 +122,21 @@ function AppContent({ user, isSidebarOpen, handleToggleSidebar }) {
 function App() {
   const { user, isLoading } = useAuth();
 
-  // State untuk sidebar (dipindahkan ke sini)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
+  // State untuk sidebar
+  const [isSidebarOpen, setIsSidebarOpen] = useState(typeof window !== 'undefined' ? window.innerWidth > 1024 : false);
+
   const handleToggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  // Loading state saat cek autentikasi
   if (isLoading) {
-    // Ganti 'loadingAuth' dengan 'loading' jika Anda menamakannya 'loading' di useAuth
     return <FullPageLoader variant="dual" size="large" text="Memuat Sesi..." />;
   }
 
   return (
     <Router>
       <Suspense fallback={<FullPageLoader variant="dual" size="large" text="Memuat Halaman..." />}>
-        {/* Kirim state dan handler sebagai props ke AppContent */}
         <AppContent user={user} isSidebarOpen={isSidebarOpen} handleToggleSidebar={handleToggleSidebar} />
       </Suspense>
     </Router>

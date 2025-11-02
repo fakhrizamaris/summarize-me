@@ -7,6 +7,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { jsPDF } from 'jspdf';
 import { FiUploadCloud, FiCopy, FiDownload, FiFolder, FiMusic, FiXCircle, FiPlus } from 'react-icons/fi';
 import { IoCloudUploadOutline, IoSparklesOutline, IoCopyOutline, IoDownloadOutline, IoFolderOutline, IoMusicalNoteOutline, IoCloseCircleOutline, IoAdd } from 'react-icons/io5';
+import { convertToWAV, needsConversion } from '../utils/audioConverter';
 
 // Import komponen (ekstensi .jsx dihapus)
 import FloatingShapes from '../components/FloatingShapes/FloatingShapes';
@@ -156,19 +157,40 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
     }
 
     setIsProcessing(true);
-    // setApiResponse({ processing: '⏳ Sedang memproses audio Anda...' });
     setFileName(selectedFile.name);
     setCopyText('Salin Teks');
     setActiveTab('summary');
 
     try {
-      const summaryResult = await summarizeAudio(selectedFile);
+      let fileToUpload = selectedFile;
+
+      // === KONVERSI OTOMATIS JIKA M4A/AAC ===
+      if (needsConversion(selectedFile)) {
+        setApiResponse({
+          processing: '🔄 Mengkonversi format audio ke WAV...',
+        });
+
+        try {
+          fileToUpload = await convertToWAV(selectedFile);
+          console.log('Audio berhasil dikonversi ke WAV');
+        } catch (conversionError) {
+          throw new Error(`Gagal mengkonversi audio: ${conversionError.message}. ` + `Silakan konversi file Anda ke format MP3 atau WAV secara manual.`);
+        }
+      }
+
+      setApiResponse({
+        processing: '⏳ Sedang memproses audio Anda...',
+      });
+
+      const summaryResult = await summarizeAudio(fileToUpload);
       setApiResponse(summaryResult);
 
       saveSummaryToHistory(summaryResult.summary, summaryResult.transcript, selectedFile.name, currentUser.uid);
     } catch (error) {
       console.error('Error during summarization:', error);
-      setApiResponse({ error: `❌ ${error.message}\n\nPastikan file audio Anda valid dan coba lagi.` });
+      setApiResponse({
+        error: `❌ ${error.message}\n\nPastikan file audio Anda valid dan coba lagi.`,
+      });
       if (error.message.includes('User not authenticated')) {
         navigate('/login');
       }
@@ -176,7 +198,6 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
       setIsProcessing(false);
     }
   };
-
   let textToDisplay = '';
   let currentTitle = 'Hasil';
 
@@ -323,7 +344,7 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
     try {
       await auth.signOut();
       // useAuth hook akan mendeteksi perubahan dan App.jsx akan redirect
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       console.error('Gagal logout:', error);
     } finally {
@@ -383,7 +404,7 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
             Upload Audio Anda
           </h2>
 
-          <input id="audio-upload" type="file" onChange={handleFileChange} accept=".mp3,.wav,audio/mpeg,audio/wav,audio/x-wav" className={styles['file-input']} />
+          <input id="audio-upload" type="file" onChange={handleFileChange} accept=".mp3,.wav,.m4a,.aac,audio/*" className={styles['file-input']} />
 
           <div className={`${styles['upload-box']} ${isDragging ? styles['upload-box-drag'] : ''} ${selectedFile ? styles['upload-box-active'] : ''}`} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
             {!selectedFile ? (
@@ -394,7 +415,7 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
                 <div className={styles['upload-text']}>
                   <strong>Klik untuk upload</strong> atau drag & drop
                 </div>
-                <div className={styles['upload-hint']}>MP3, WAV (Max 100MB)</div>
+                <div className={styles['upload-hint']}>MP3, WAV, M4A, AAC (Max 100MB)</div>
               </label>
             ) : (
               <div className={styles['file-selected']}>

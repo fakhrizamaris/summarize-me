@@ -1,148 +1,153 @@
 /* src/pages/AuthPage.module.css */
+
+/* ============================================
+   Container & Layout
+   ============================================ */
 .authContainer {
-  width: 70%;
-  max-width: 400px;
-  margin: 10vh auto; /* Jarak atas/bawah */
-  padding: 2.5rem 3rem;
-  background-color: rgba(30, 30, 50, 0.9);
-  border-radius: 16px;
+  width: 90%;
+  max-width: 460px;
+  margin: 10vh auto;
+  padding: 2.5rem 2rem;
+  background-color: rgba(30, 30, 50, 0.95);
+  border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 600px) {
+  .authContainer {
+    width: 70%;
+    padding: 3rem 3rem;
+  }
+}
+
+/* ============================================
+   Header
+   ============================================ */
+.authHeader {
   text-align: center;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
+  margin-bottom: 2rem;
 }
 
-@media (min-width:600px){
-   .authContainer{
-     width: 50%;
-     margin:10vh auto;
-     padding: 2.5rem 3rem;
-   }
+.authTitle {
+  font-size: 1.8em;
+  font-weight: 700;
+  color: #e0e0ff;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.authContainer h2 {
-    color: #e0e0ff; /* Warna judul */
-    margin-bottom: 2rem; /* Jarak ke form */
+.authSubtitle {
+  font-size: 0.95em;
+  color: #aaa;
+  line-height: 1.5;
 }
 
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  margin-bottom: 1rem;
-}
-
-.input {
+/* ============================================
+   Messages (Success & Error)
+   ============================================ */
+.successMessage,
+.errorMessage {
   padding: 14px 18px;
-  border-radius: 10px;
-  border: 1px solid #4a4a6a;
-  background-color: rgba(255, 255, 255, 0.08);
-  color: #eee;
-  font-size: 1em;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95em;
+  font-weight: 500;
+  animation: fadeInDown 0.4s ease-out;
 }
 
-.input:focus {
-    outline: none;
-    border-color: #8c8cff;
-    box-shadow: 0 0 0 2px rgba(140, 140, 255, 0.3);
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.input:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+.successMessage {
+  background-color: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
 }
-
 
 .errorMessage {
-  color: #ff9a9a;
-  font-size: 0.9em;
-  margin-top: -0.8rem;
-  margin-bottom: 0.5rem;
-  text-align: left;
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
 }
 
-.optionsContainer {
+.successIcon,
+.errorIcon {
+  font-size: 1.2em;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   Google Button
+   ============================================ */
+.googleButton {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-top: -0.5rem;
-  margin-bottom: 1rem;
-}
-
-.rememberMeContainer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.checkbox {
-  margin: 0;
-  width: 15px;
-  height: 15px;
-  cursor: pointer;
-}
-
-.checkboxLabel {
-  font-size: 0.9em;
-  color: #bbb;
-  cursor: pointer;
-  user-select: none;
-}
-
-.forgotPassword {
-  font-size: 0.9em;
-  color: #aaa;
-  text-decoration: none;
-}
- .forgotPassword:hover {
-    color: #ccc;
-    text-decoration: underline;
- }
-
-.submitButton {
-  padding: 14px;
-  font-size: 1.05em;
-  background-color: #7a7aff;
-  color: #fff;
-  font-weight: bold;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-top: 0.5rem;
-  transition: background-color 0.2s, opacity 0.2s;
-}
-
-.submitButton:hover:not(:disabled) {
-    background-color: #6a6aff;
-}
-
-.submitButton:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
-.switchText {
-  margin-top: 1.5rem;
-  font-size: 0.9em;
-  color: #ccc;
-}
-
-.switchLink {
-  color: #b0b0ff;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 1em;
   font-weight: 500;
-  text-decoration: none; /* Hapus underline default */
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #dadce0;
+  border-radius: 12px;
   cursor: pointer;
-  border-bottom: 1px solid transparent; /* Siapkan untuk hover */
-  transition: color 0.2s, border-color 0.2s;
-}
-.switchLink:hover {
-    color: #c0c0ff;
-    border-bottom-color: #c0c0ff; /* Underline saat hover */
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.googleButton:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.googleButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.googleIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   Divider
+   ============================================ */
 .divider {
-  margin: 2rem 0;
+  margin: 1.8rem 0;
   display: flex;
   align-items: center;
   text-align: center;
@@ -151,7 +156,7 @@
 
 .dividerLine {
   flex: 1;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dividerText {
@@ -159,57 +164,343 @@
   font-size: 0.85em;
   font-weight: 500;
   text-transform: uppercase;
+  color: #888;
 }
 
-.googleButton {
+/* ============================================
+   Form
+   ============================================ */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* Input Groups */
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inputLabel {
+  font-size: 0.9em;
+  font-weight: 500;
+  color: #ccc;
+  margin-bottom: 4px;
+}
+
+/* Input Fields */
+.input {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid #4a4a6a;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #eee;
+  font-size: 1em;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #8c8cff;
+  box-shadow: 0 0 0 3px rgba(140, 140, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.input::placeholder {
+  color: #888;
+}
+
+/* Password Wrapper */
+.passwordWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.passwordWrapper .input {
+  padding-right: 50px;
+}
+
+.togglePassword {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 4px 8px;
+  color: #888;
+  transition: color 0.2s;
+  border-radius: 4px;
+}
+
+.togglePassword:hover:not(:disabled) {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.togglePassword:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Password Strength Indicator */
+.passwordStrength {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.strengthBar {
+  flex: 1;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.strengthFill {
+  height: 100%;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.strengthLabel {
+  font-size: 0.85em;
+  font-weight: 500;
+  min-width: 90px;
+  text-align: right;
+}
+
+/* Input Error */
+.inputError {
+  font-size: 0.85em;
+  color: #fca5a5;
+  margin-top: 4px;
+  display: block;
+}
+
+/* ============================================
+   Options & Terms
+   ============================================ */
+.optionsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: -0.3rem;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.rememberMeContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #8c8cff;
+}
+
+.checkboxLabel {
+  font-size: 0.9em;
+  color: #bbb;
+  cursor: pointer;
+}
+
+.forgotPassword {
+  font-size: 0.9em;
+  color: #aaa;
+  text-decoration: none;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.forgotPassword:hover {
+  color: #c0c0ff;
+  text-decoration: underline;
+}
+
+.termsContainer {
+  margin-top: -0.5rem;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.termsText {
+  font-size: 0.85em;
+  color: #aaa;
+  line-height: 1.5;
+  text-align: center;
+  margin: 0;
+}
+
+.termsLink {
+  color: #b0b0ff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.termsLink:hover {
+  color: #c0c0ff;
+  text-decoration: underline;
+}
+
+/* ============================================
+   Submit Button
+   ============================================ */
+.submitButton {
+  width: 100%;
+  padding: 14px 24px;
+  font-size: 1.05em;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  width: 100%;
-  padding: 12px;
-  font-size: 1em;
-  background-color: #fff;
-  color: #333;
-  border: 1px solid #ccc;
-  border-radius: 10px;
+  gap: 8px;
+  min-height: 52px;
+}
+
+.submitButton:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  transform: translateY(-2px);
+}
+
+.submitButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============================================
+   Switch Mode
+   ============================================ */
+.switchMode {
+  margin-top: 1.8rem;
+  text-align: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.switchText {
+  font-size: 0.95em;
+  color: #ccc;
+  margin: 0;
+}
+
+.switchButton {
+  background: none;
+  border: none;
+  color: #b0b0ff;
+  font-size: 0.95em;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s, opacity 0.2s;
-  font-weight: 500;
+  padding: 0;
+  text-decoration: none;
+  transition: all 0.2s;
+  border-bottom: 1px solid transparent;
 }
 
-.googleButton:hover:not(:disabled) {
-    background-color: #f5f5f5;
+.switchButton:hover:not(:disabled) {
+  color: #c0c0ff;
+  border-bottom-color: #c0c0ff;
 }
 
- .googleButton:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
+.switchButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+@media (max-width: 480px) {
+  .authContainer {
+    margin: 5vh auto;
+    padding: 2rem 1.5rem;
+  }
 
-.googleIcon {
-  width: 20px;
-  height: 20px;
+  .authTitle {
+    font-size: 1.5em;
+  }
+
+  .authSubtitle {
+    font-size: 0.9em;
+  }
+
+  .optionsContainer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .forgotPassword {
+    align-self: flex-end;
+  }
 }
 
-.buttonSpinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(0, 0, 0, 0.2);
-  border-top-color: #555;
-  border-radius: 50%;
-  display: inline-block;
-  animation: spin 0.8s linear infinite;
+/* ============================================
+   Accessibility
+   ============================================ */
+.input:focus-visible,
+.checkbox:focus-visible,
+.googleButton:focus-visible,
+.submitButton:focus-visible,
+.switchButton:focus-visible {
+  outline: 2px solid #8c8cff;
+  outline-offset: 2px;
 }
 
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .authContainer {
+    border: 2px solid #fff;
+  }
 
-.buttonSpinnerLight {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.3); /* Border terang */
-  border-top-color: #fff; /* Spinner putih */
-  border-radius: 50%;
-  display: inline-block;
-  animation: spin 0.8s linear infinite; /* Pakai animasi spin dari index.css */
+  .input {
+    border: 2px solid #fff;
+  }
+
+  .googleButton {
+    border: 2px solid #333;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
