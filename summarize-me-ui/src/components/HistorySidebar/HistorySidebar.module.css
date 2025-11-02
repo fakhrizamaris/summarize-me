@@ -33,7 +33,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
+  padding: 9px 18px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0; 
 }
@@ -45,7 +45,7 @@
   margin: 0; 
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
 }
 
 .titleIcon {
@@ -71,19 +71,17 @@
 }
 
 @media (min-width: 1024px) {
-  .closeBtn {
-    display: none;
-  }
 }
 
 .searchContainer {
   padding: 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
+  position: relative;
 }
 .searchInput {
   width: 100%;
-  padding: 10px 14px;
+  padding: 10px 14px 10px 40px;
   border-radius: 8px;
   border: 1px solid #4a4a6a;
   background-color: rgba(255, 255, 255, 0.08);
@@ -91,6 +89,17 @@
   font-size: 0.95em;
   box-sizing: border-box;
 }
+
+.searchIcon {
+  position: absolute;
+  left: 30px; /* 16px padding container + 14px jarak */
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999; /* Sesuaikan warna ikon */
+  font-size: 1.1rem;
+  pointer-events: none; /* Agar klik bisa tembus ke input */
+}
+
 .searchInput:focus {
   outline: none;
   border-color: #8c8cff;
@@ -112,8 +121,8 @@
 .historyItem {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: 14px;
+  padding: 10px 14px;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -169,6 +178,7 @@
 .itemDetails {
   display: flex;
   flex-direction: column;
+  gap: 8px;
   overflow: hidden; 
   flex-grow: 1;
   /* Beri ruang untuk tombol aksi (khususnya di mobile) */

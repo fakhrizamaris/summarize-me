@@ -111,18 +111,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 16px;
   width: 100%;
   padding: 14px 20px;
   font-size: 1em;
   font-weight: 500;
   background-color: #fff;
-  color: #333;
+  color: #000000;
   border: 1px solid #dadce0;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.googleButton span{
+  font-size: 1em;
+  position: relative;
+  bottom: 8px;
+  font-weight: 400;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .googleButton:hover:not(:disabled) {
@@ -188,6 +196,7 @@
   font-weight: 500;
   color: #ccc;
   margin-bottom: 4px;
+  text-align: left;
 }
 
 /* Input Fields */

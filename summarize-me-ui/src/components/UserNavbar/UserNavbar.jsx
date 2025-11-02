@@ -44,9 +44,11 @@ function UserNavbar({ user, onLogout, onToggleSidebar, isSidebarOpen }) {
     <nav className={`${styles.navbar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
       <div className={styles.navContent}>
         <div className={styles.navLeft}>
-          <button onClick={onToggleSidebar} className={styles.toggleBtn} aria-label="Toggle sidebar">
-            {isSidebarOpen ? <IoClose size={24} /> : <IoMenu size={24} />}
-          </button>
+          {!isSidebarOpen && (
+            <button className={styles.toggleBtn} onClick={onToggleSidebar}>
+              <IoMenu size={26} />
+            </button>
+          )}
 
           <div className={styles.logo}>
             <span className={styles.logoText}>SummarizeMe</span>

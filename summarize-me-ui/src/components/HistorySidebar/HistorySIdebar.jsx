@@ -15,8 +15,12 @@ import {
   IoPencil, 
   IoTrashOutline, 
   IoFolderOpenOutline, 
-  IoClose 
+  IoClose,
+  IoAdd,
+  IoSearchCircle,
+  IoSearchSharp
 } from 'react-icons/io5';
+
 
 // Helper untuk format tanggal (ini dari file Anda)
 const formatDate = (timestamp) => {
@@ -268,35 +272,31 @@ function HistorySidebar({ user, onSelectSummary, isSidebarOpen, onToggle }) {
 
   return (
     <aside className={`${styles.sidebarContainer} ${!isSidebarOpen ? styles.closed : ''}`}>
-      <div className={styles.sidebarHeader}> 
+      <div className={styles.sidebarHeader}>
         <h3 className={styles.sidebarTitle}>
-          <span className={styles.titleIcon}><IoFolderOpenOutline /></span>
+          {/* <button className={styles.closeBtn} onClick={onToggle}>
+            <IoClose size={22} />
+          </button> */}
+          <span className={styles.titleIcon}>
+            <IoFolderOpenOutline />
+          </span>
           Riwayat Ringkasan
         </h3>
         <button onClick={onToggle} className={styles.closeBtn} aria-label="Tutup sidebar">
-          <IoClose size={22} />
+          <IoClose size={26} />
         </button>
       </div>
 
       <div className={styles.searchContainer}>
-        <input 
-          type="search"
-          placeholder="Cari riwayat..."
-          className={styles.searchInput}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+        <IoSearchSharp className={styles.searchIcon} />
+        <input type="search" placeholder="Cari riwayat..." className={styles.searchInput} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
       </div>
 
       <div className={styles.sidebarContent}>
         {renderContent()}
-        
-        {hasMore && !loading && !searchQuery && ( 
-          <button 
-            className={styles.loadMoreBtn}
-            onClick={() => loadHistory(false)}
-            disabled={loadingMore}
-          >
+
+        {hasMore && !loading && !searchQuery && (
+          <button className={styles.loadMoreBtn} onClick={() => loadHistory(false)} disabled={loadingMore}>
             {loadingMore ? <LoadingSpinner variant="default" size="small" /> : 'Muat Lebih Banyak'}
           </button>
         )}
@@ -311,14 +311,8 @@ function HistorySidebar({ user, onSelectSummary, isSidebarOpen, onToggle }) {
         title="Konfirmasi Hapus"
         message={`Apakah Anda yakin ingin menghapus riwayat "${itemToDelete?.fileName || 'ini'}"? Tindakan ini tidak dapat dibatalkan.`}
       />
-      
-      {notification.visible && (
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          onClose={() => setNotification({ ...notification, visible: false })}
-        />
-      )}
+
+      {notification.visible && <Notification message={notification.message} type={notification.type} onClose={() => setNotification({ ...notification, visible: false })} />}
     </aside>
   );
 }

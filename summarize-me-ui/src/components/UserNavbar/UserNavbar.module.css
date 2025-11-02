@@ -30,7 +30,7 @@
 .navLeft {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .toggleBtn {
@@ -44,6 +44,7 @@
   justify-content: center;
   border-radius: 6px;
   transition: all 0.2s;
+  pointer-events: auto;
 }
 .toggleBtn:hover {
   background-color: rgba(255, 255, 255, 0.1);
@@ -61,9 +62,11 @@
 
 .logoText {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
+  --webkit-background-clip: text;
   background-clip: text;
-  color: transparent; 
+  color: transparent;
+  position: relative;
+  bottom: 8px;
 }
 
 /* PERBAIKAN 2: Ubah navRight menjadi container dropdown */

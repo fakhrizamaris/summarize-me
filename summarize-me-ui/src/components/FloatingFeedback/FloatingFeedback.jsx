@@ -11,7 +11,7 @@ import { useAuth } from '../../hooks/useAuth';
 import {
   IoChatbubbleEllipsesOutline,
   IoClose,
-  IoSend,
+  IoSendOutline,
   IoCheckmarkCircleOutline, // Icon untuk sukses
 } from 'react-icons/io5';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner.jsx'; // Untuk loading
@@ -137,7 +137,7 @@ function FloatingFeedback() {
                       <LoadingSpinner variant="default" size="small" />
                     ) : (
                       <>
-                        Kirim <IoSend size={16} />
+                        Kirim <IoSendOutline size={16} />
                       </>
                     )}
                   </button>

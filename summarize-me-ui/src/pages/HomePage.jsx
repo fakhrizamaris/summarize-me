@@ -40,6 +40,7 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
   const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
   const [isNavigating, setIsNavigating] = useState(false);
   const [activeTab, setActiveTab] = useState('summary');
+  const [historyKey, setHistoryKey] = useState(0);
 
   // Efek untuk membersihkan state saat logout
   useEffect(() => {
@@ -178,14 +179,17 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
         }
       }
 
-      setApiResponse({
-        processing: '⏳ Sedang memproses audio Anda...',
-      });
+      setApiResponse({});
 
       const summaryResult = await summarizeAudio(fileToUpload);
       setApiResponse(summaryResult);
 
-      saveSummaryToHistory(summaryResult.summary, summaryResult.transcript, selectedFile.name, currentUser.uid);
+      // Simpan ke DB
+      await saveSummaryToHistory(summaryResult.summary, summaryResult.transcript, selectedFile.name, currentUser.uid);
+      
+      // "Picu" sidebar untuk me-refresh datanya
+      setHistoryKey((prevKey) => prevKey + 1); // <-- TAMBAHKAN BARIS INI
+      
     } catch (error) {
       console.error('Error during summarization:', error);
       setApiResponse({
@@ -198,6 +202,7 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
       setIsProcessing(false);
     }
   };
+
   let textToDisplay = '';
   let currentTitle = 'Hasil';
 
@@ -565,7 +570,13 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
       {user && (
         <>
           <div className={`${styles.sidebarBackdrop} ${isSidebarOpen ? styles.open : ''}`} onClick={onToggleSidebar} aria-hidden="true" />
-          <HistorySidebar user={user} onSelectSummary={handleSelectHistory} isSidebarOpen={isSidebarOpen} onToggle={onToggleSidebar} />
+          <HistorySidebar
+            key={historyKey} // <-- TAMBAHKAN PROPS 'key' INI
+            user={user}
+            onSelectSummary={handleSelectHistory}
+            isSidebarOpen={isSidebarOpen}
+            onToggle={onToggleSidebar}
+          />
         </>
       )}
 

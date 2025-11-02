@@ -1,11 +1,3 @@
-// src/utils/audioConverter.js
-
-/**
- * Mengkonversi file audio M4A/AAC/MP4 ke WAV menggunakan Web Audio API
- * @param {File} audioFile - File audio yang akan dikonversi
- * @param {Function} onProgress - Callback untuk progress (opsional)
- * @returns {Promise<File>} - File WAV hasil konversi
- */
 export async function convertToWAV(audioFile, onProgress = null) {
   return new Promise((resolve, reject) => {
     // Validasi input
@@ -36,7 +28,7 @@ export async function convertToWAV(audioFile, onProgress = null) {
         if (onProgress) onProgress(50, 'Mendekode audio...');
 
         // Buat audio context
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)({
+        const audioContext = new (window.AudioContext || window.AudioContext)({
           sampleRate: 16000, // Optimal untuk speech-to-text
         });
 
@@ -92,7 +84,6 @@ export async function convertToWAV(audioFile, onProgress = null) {
       } catch (error) {
         console.error('Audio conversion error:', error);
 
-        // Pesan error yang lebih deskriptif
         let errorMessage = 'Gagal mengkonversi audio';
 
         if (error.name === 'EncodingError') {
@@ -116,31 +107,36 @@ export async function convertToWAV(audioFile, onProgress = null) {
   });
 }
 
-/**
- * Mengkonversi AudioBuffer ke WAV Blob
- * @param {AudioBuffer} audioBuffer
- * @returns {Blob}
- */
 function audioBufferToWav(audioBuffer) {
-  const numberOfChannels = audioBuffer.numberOfChannels;
+  const originalNumberOfChannels = audioBuffer.numberOfChannels;
   const sampleRate = audioBuffer.sampleRate;
-  const format = 1; // PCM
+  const numberOfChannels = 1; 
+  const format = 1; 
   const bitDepth = 16;
 
   const bytesPerSample = bitDepth / 8;
-  const blockAlign = numberOfChannels * bytesPerSample;
+  const blockAlign = numberOfChannels * bytesPerSample; // Ini akan menjadi 1 * 2 = 2
 
-  // Get channel data
-  const channelData = [];
-  for (let i = 0; i < numberOfChannels; i++) {
-    channelData.push(audioBuffer.getChannelData(i));
+  let monoChannelData;
+
+  if (originalNumberOfChannels === 1) {
+    monoChannelData = audioBuffer.getChannelData(0);
+  } else {
+    const leftChannel = audioBuffer.getChannelData(0);
+    // Cek jika ada channel kanan, jika tidak, salin saja channel kiri
+    const rightChannel = originalNumberOfChannels > 1 ? audioBuffer.getChannelData(1) : leftChannel;
+    const length = leftChannel.length;
+    monoChannelData = new Float32Array(length);
+
+    for (let i = 0; i < length; i++) {
+      // Rata-ratakan channel kiri dan kanan
+      monoChannelData[i] = (leftChannel[i] + rightChannel[i]) * 0.5;
+    }
   }
 
-  // Interleave channels
-  const interleaved = interleaveChannels(channelData);
-  const dataLength = interleaved.length * bytesPerSample;
+  const interleavedData = monoChannelData;
+  const dataLength = interleavedData.length * bytesPerSample;
 
-  // Create WAV file buffer
   const buffer = new ArrayBuffer(44 + dataLength);
   const view = new DataView(buffer);
 
@@ -153,10 +149,10 @@ function audioBufferToWav(audioBuffer) {
   writeString(view, 12, 'fmt ');
   view.setUint32(16, 16, true); // Subchunk1Size (16 for PCM)
   view.setUint16(20, format, true); // AudioFormat (1 for PCM)
-  view.setUint16(22, numberOfChannels, true);
+  view.setUint16(22, numberOfChannels, true); 
   view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * blockAlign, true); // ByteRate
-  view.setUint16(32, blockAlign, true);
+  view.setUint32(28, sampleRate * blockAlign, true); // ByteRate (Mono)
+  view.setUint16(32, blockAlign, true); // BlockAlign (Mono)
   view.setUint16(34, bitDepth, true);
 
   // Write data chunk
@@ -164,14 +160,11 @@ function audioBufferToWav(audioBuffer) {
   view.setUint32(40, dataLength, true);
 
   // Write audio data
-  floatTo16BitPCM(view, 44, interleaved);
+  floatTo16BitPCM(view, 44, interleavedData);
 
   return new Blob([buffer], { type: 'audio/wav' });
 }
 
-/**
- * Interleave multiple audio channels into single array
- */
 function interleaveChannels(channelData) {
   const length = channelData[0].length;
   const numberOfChannels = channelData.length;
@@ -319,7 +312,7 @@ export function estimateConversionTime(fileSize) {
  * @returns {boolean}
  */
 export function isWebAudioSupported() {
-  return !!(window.AudioContext || window.webkitAudioContext);
+  return !!(window.AudioContext || window.AudioContext);
 }
 
 // Export semua utilities
