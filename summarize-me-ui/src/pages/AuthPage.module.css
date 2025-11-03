@@ -4,7 +4,7 @@
    Container & Layout
    ============================================ */
 .authContainer {
-  width: 90%;
+  width: 70%;
   max-width: 460px;
   margin: 10vh auto;
   padding: 2.5rem 2rem;
@@ -68,6 +68,7 @@
   border-radius: 12px;
   margin-bottom: 1.5rem;
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 12px;
   font-size: 0.95em;
@@ -102,44 +103,38 @@
 .errorIcon {
   font-size: 1.2em;
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
 /* ============================================
    Google Button
    ============================================ */
-.googleBtn {
+.googleButton {
   display: flex;
+  align-items: center; /* Pastikan vertikal center */
   justify-content: center;
-  align-items: center; /* <-- Ini kuncinya */
-  gap: 12px; /* Memberi jarak antara ikon dan teks */
-  
-  /* ... (style Anda yang lain seperti width, padding, background, etc.) ... */
+  gap: 12px;
   width: 100%;
-  padding: 12px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: 14px 24px;
+  background-color: #ffffff;
+  color: #333333;
+  border: 1px solid #dadce0;
+  border-radius: 12px;
+  font-size: 1em;
+  flex-direction: row;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  min-height: 52px; /* Pastikan tinggi konsisten */
 }
 
-.googleBtn:hover {
-  background-color: #f9f9f9;
-}
-
-.googleBtn img {
-  width: 20px;
-  height: 20px;
-}
-
-.googleButton span{
-  font-size: 1em;
-  position: relative;
-  bottom: 8px;
-  font-weight: 400;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
+.googleButton span {
+  /* HAPUS properti yang merusak alignment */
+  font-size: 0.95em;
+  font-weight: 500;
+  line-height:1; /* Penting untuk alignment */
+  margin-top: 2px;
 }
 
 .googleButton:hover:not(:disabled) {
@@ -191,6 +186,63 @@
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
+}
+
+.backButton {
+  position: absolute; 
+  top: 24px; 
+  left: 14px;  
+  z-index: 10; 
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center; 
+  gap: 8px;
+  padding: 10px 16px;
+  color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.backButton span{
+  margin-top: 1px;
+}
+
+.backButton:hover {
+  color: rgba(255, 255, 255, 0.2); /* Sedikit lebih terang saat di-hover */
+}
+
+/* Mengatur ukuran ikon di dalam tombol */
+.backButton svg {
+  font-size: 1.2rem;
+}
+
+/* --- RESPONSIVE UNTUK MOBILE --- */
+/* (Saat layar lebih kecil dari 600px) */
+@media (max-width: 600px) {
+  .backButton {
+    top: 16px;  /* Lebih dekat ke tepi di mobile */
+    left: 16px;
+    
+    padding: 10px; /* Buat padding sama agar jadi kotak */
+    border-radius: 50%; /* Ubah jadi lingkaran */
+    gap: 0; /* Hilangkan gap */
+  }
+  
+  .backButton span {
+    /* Sembunyikan teks di layar kecil, sisakan ikon saja */
+    display: none; 
+  }
+
+  .backButton svg {
+     font-size: 1.3rem; /* Sedikit lebih besar di mobile */
+  }
 }
 
 /* Input Groups */
@@ -250,27 +302,44 @@
 .togglePassword {
   position: absolute;
   right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 20%;
+  transform: translateY(-10%);
+  background: none;
+  border: none;
   cursor: pointer;
-  color: #aaa;
-  
-  /* --- TAMBAHKAN INI --- */
+  color: #888;
+  padding: 6px;
   display: flex;
   align-items: center;
-  /* --------------------- */
+  justify-content: center;
+  border-radius: 4px;
+  transition: color 0.2s ease, background-color 0.2s ease;
+  font-size: 1.1em;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
 }
 
 .togglePassword:hover:not(:disabled) {
-  color: #fff;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.08); /* Lebih subtle */
+  color: #bbb; /* Tidak terlalu terang */
+}
+
+.togglePassword:active:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-50%) scale(0.95); /* Sedikit scale saat diklik */
 }
 
 .togglePassword:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
+/* Fokus untuk aksesibilitas */
+.togglePassword:focus-visible {
+  outline: 2px solid rgba(140, 140, 255, 0.5);
+  outline-offset: 2px;
+}
 /* Password Strength Indicator */
 .passwordStrength {
   display: flex;
@@ -323,7 +392,8 @@
 .rememberMeContainer {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex-direction: row;
+  gap: 9px;
   cursor: pointer;
   user-select: none;
 }
@@ -338,6 +408,7 @@
 .checkboxLabel {
   font-size: 0.9em;
   color: #bbb;
+  margin-top: 2px;
   cursor: pointer;
 }
 
@@ -382,9 +453,6 @@
   text-decoration: underline;
 }
 
-/* ============================================
-   Submit Button
-   ============================================ */
 .submitButton {
   width: 100%;
   padding: 14px 24px;
@@ -469,7 +537,7 @@
   }
 
   .authTitle {
-    font-size: 1.5em;
+    font-size: 1.3em;
   }
 
   .authSubtitle {

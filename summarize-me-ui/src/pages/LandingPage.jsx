@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { IoMicOutline, IoSparklesOutline, IoDocumentTextOutline, IoRocketOutline, IoCheckmarkCircle, IoTimeOutline, IoShieldCheckmarkOutline, IoArrowForward, IoPlayCircle } from 'react-icons/io5';
+import {IoMicOutline, IoSparklesOutline, IoDocumentTextOutline, IoRocketOutline, IoCheckmarkCircle, IoTimeOutline, IoShieldCheckmarkOutline, IoArrowForward, IoPlayCircle } from 'react-icons/io5';
 
 const LandingPage = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -80,8 +80,8 @@ const LandingPage = () => {
   ];
 
   const stats = [
-    { number: '99%', label: 'Akurasi Transkrip' },
-    { number: '5x', label: 'Lebih Cepat' },
+    { number: '90%', label: 'Akurasi Transkrip' },
+    { number: '3x', label: 'Lebih Cepat' },
     { number: '24/7', label: 'Tersedia' },
   ];
 
@@ -132,10 +132,6 @@ const LandingPage = () => {
             <span>Mulai Gratis</span>
             <IoArrowForward />
           </Link>
-          <button style={styles.secondaryButton}>
-            <IoPlayCircle />
-            <span>Lihat Demo</span>
-          </button>
         </div>
 
         {/* Stats */}
@@ -380,6 +376,8 @@ const styles = {
     flexWrap: 'wrap',
     marginBottom: '60px',
     animation: 'fadeInUp 0.8s ease-out 0.6s backwards',
+    transform: 'translateY(-2px)',
+    boxShadow: '0 6px 25px rgba(102, 126, 234, 0.5) !important',
   },
   primaryButton: {
     display: 'flex',
@@ -396,22 +394,9 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.3s',
     boxShadow: '0 4px 20px rgba(102, 126, 234, 0.4)',
-  },
-  secondaryButton: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '16px 32px',
-    fontSize: '1.1em',
-    fontWeight: 600,
-    background: 'rgba(255, 255, 255, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    borderRadius: '12px',
-    color: 'white',
-    cursor: 'pointer',
-    transition: 'all 0.3s',
     backdropFilter: 'blur(10px)',
   },
+
   statsContainer: {
     display: 'flex',
     justifyContent: 'center',

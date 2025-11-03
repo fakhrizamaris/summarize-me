@@ -28,7 +28,6 @@ import { useAuth } from '../hooks/useAuth';
 
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-// Props (user, onLogout, dll) sekarang diambil dari useAuth dan state internal
 function HomePage({ isSidebarOpen, onToggleSidebar }) {
   const { user } = useAuth(); // Mengambil user dari context
   const [apiResponse, setApiResponse] = useState(null);
@@ -376,11 +375,11 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
             {/* Stats */}
             <div className={styles.stats}>
               <div className={styles['stat-item']}>
-                <div className={styles['stat-number']}>99%</div>
+                <div className={styles['stat-number']}>90%</div>
                 <div className={styles['stat-label']}>Akurasi</div>
               </div>
               <div className={styles['stat-item']}>
-                <div className={styles['stat-number']}>5x</div>
+                <div className={styles['stat-number']}>3x</div>
                 <div className={styles['stat-label']}>Lebih Cepat</div>
               </div>
               <div className={styles['stat-item']}>

@@ -17,7 +17,7 @@ const LandingPage = React.lazy(() => import('./pages/LandingPage.jsx'));
 // Komponen ProtectedRoute
 function ProtectedRoute({ user, children }) {
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
   return children;
 }

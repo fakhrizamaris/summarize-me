@@ -1,11 +1,12 @@
 // src/pages/AuthPage.jsx
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth, googleProvider } from '../config/firebaseConfig';
 import styles from './AuthPage.module.css';
 import FloatingShapes from '../components/FloatingShapes/FloatingShapes';
 import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
+import { IoArrowBackOutline, IoEye, IoEyeOff } from 'react-icons/io5';
 
 // Icon Google sederhana (SVG)
 const GoogleIcon = () => (
@@ -215,7 +216,12 @@ function AuthPage() {
       <FloatingShapes />
       <div className={styles.authContainer}>
         {/* Header dengan Tab Switcher */}
+
         <div className={styles.authHeader}>
+          <Link to="/" className={styles.backButton}>
+            <IoArrowBackOutline />
+            <span>Home</span>
+          </Link>
           <h2 className={styles.authTitle}>{isLoginMode ? 'Selamat Datang Kembali!' : 'Buat Akun Baru'}</h2>
           <p className={styles.authSubtitle}>{isLoginMode ? 'Login untuk melanjutkan ke dashboard' : 'Daftar untuk mulai menggunakan layanan kami'}</p>
         </div>
@@ -291,7 +297,7 @@ function AuthPage() {
                 autoComplete={isLoginMode ? 'current-password' : 'new-password'}
               />
               <button type="button" className={styles.togglePassword} onClick={() => setShowPassword(!showPassword)} disabled={loading || googleLoading}>
-                {showPassword ? '👁️' : '👁️‍🗨️'}
+                {showPassword ? <IoEyeOff /> : <IoEye />}
               </button>
             </div>
 
@@ -332,7 +338,7 @@ function AuthPage() {
                   autoComplete="new-password"
                 />
                 <button type="button" className={styles.togglePassword} onClick={() => setShowConfirmPassword(!showConfirmPassword)} disabled={loading || googleLoading}>
-                  {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                  {showConfirmPassword ? <IoEyeOff /> : <IoEye />}
                 </button>
               </div>
               {confirmPassword && password !== confirmPassword && <span className={styles.inputError}>Password tidak cocok</span>}

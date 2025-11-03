@@ -3,7 +3,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 280px; 
+  width: 340px; 
   height: 100vh; 
   z-index: 1000; 
   
@@ -127,7 +127,7 @@
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s;
-  margin-bottom: 8px;
+  margin: 0;
   position: relative; 
 }
 
@@ -137,7 +137,7 @@
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgba(40, 40, 60, 0.9); /* Background agar tidak transparan */
+  background-color: rgba(40, 40, 60, 0.9); 
   border-radius: 6px;
 }
 .historyItem:hover .itemActions {
@@ -148,7 +148,7 @@
 @media (max-width: 1023px) {
   .historyItem .itemActions {
     display: flex;
-    gap: 4px;
+    gap: 3px;
   }
 }
 
@@ -157,6 +157,9 @@
   border: none;
   font-size: 1em;
   padding: 6px;
+  display: flex;
+  /* margin-top: 1px; */
+  margin-bottom: 1px;
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.2s, color 0.2s;
@@ -174,30 +177,43 @@
   font-size: 1.2em;
   color: #a0a0ff;
   flex-shrink: 0;
+  margin-top: 1px;
 }
 
 .itemDetails {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  overflow: hidden; 
-  flex-grow: 1;
-  padding-right: 60px;
-  min-width: 0; 
+  align-items: start;
+  justify-content: first baseline;
+  gap: 0px;
+  overflow: hidden;
+  /* flex: 1; */
+  min-width: 0; /* PENTING untuk text-overflow */
+  /* Kurangi padding kanan agar tidak terlalu lebar */
+  padding-right: 8px; 
 }
 
 .itemFileName {
   font-size: 0.95em;
   font-weight: 500;
   color: #ddd;
+  display: flex;
+  margin-top: 1px;
+  /* margin-bottom: 1px; */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%; /* Pastikan tidak melebihi container */
 }
 
 .itemDate {
   font-size: 0.8em;
   color: #999;
+  display: flex;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* === TAMBAHAN BARU: Style untuk Input Edit === */
