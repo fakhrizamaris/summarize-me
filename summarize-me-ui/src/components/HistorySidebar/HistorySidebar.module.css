@@ -48,6 +48,7 @@
   gap: 14px;
 }
 
+
 .titleIcon {
   font-size: 1.2em;
 }
@@ -181,8 +182,8 @@
   gap: 8px;
   overflow: hidden; 
   flex-grow: 1;
-  /* Beri ruang untuk tombol aksi (khususnya di mobile) */
   padding-right: 60px;
+  min-width: 0; 
 }
 
 .itemFileName {
@@ -193,6 +194,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .itemDate {
   font-size: 0.8em;
   color: #999;
