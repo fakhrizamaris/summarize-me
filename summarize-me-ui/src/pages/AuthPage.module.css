@@ -107,22 +107,31 @@
 /* ============================================
    Google Button
    ============================================ */
-.googleButton {
+.googleBtn {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 16px;
+  align-items: center; /* <-- Ini kuncinya */
+  gap: 12px; /* Memberi jarak antara ikon dan teks */
+  
+  /* ... (style Anda yang lain seperti width, padding, background, etc.) ... */
   width: 100%;
-  padding: 14px 20px;
-  font-size: 1em;
-  font-weight: 500;
+  padding: 12px;
   background-color: #fff;
-  color: #000000;
-  border: 1px solid #dadce0;
-  border-radius: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s;
+}
+
+.googleBtn:hover {
+  background-color: #f9f9f9;
+}
+
+.googleBtn img {
+  width: 20px;
+  height: 20px;
 }
 
 .googleButton span{
