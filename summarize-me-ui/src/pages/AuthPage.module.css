@@ -249,17 +249,16 @@
 
 .togglePassword {
   position: absolute;
-  right: 14px;
+  right: 15px;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
-  border: none;
-  font-size: 1.2em;
   cursor: pointer;
-  padding: 4px 8px;
-  color: #888;
-  transition: color 0.2s;
-  border-radius: 4px;
+  color: #aaa;
+  
+  /* --- TAMBAHKAN INI --- */
+  display: flex;
+  align-items: center;
+  /* --------------------- */
 }
 
 .togglePassword:hover:not(:disabled) {
