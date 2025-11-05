@@ -208,6 +208,7 @@
 
 .backButton span{
   margin-top: 1px;
+  cursor: pointer;
 }
 
 .backButton:hover {
