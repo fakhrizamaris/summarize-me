@@ -23,7 +23,6 @@ export function useAuth() {
     initSessionTracking();
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      console.log('🔐 Auth State Changed:', currentUser ? currentUser.uid : 'No user');
 
       if (currentUser) {
        
@@ -55,7 +54,6 @@ export function useAuth() {
 
 
     return () => {
-      console.log('🧹 useAuth cleanup');
       unsubscribe();
 
       if (sessionCheckIntervalRef.current) {

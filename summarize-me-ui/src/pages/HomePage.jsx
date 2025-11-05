@@ -146,7 +146,6 @@ function HomePage({ isSidebarOpen, onToggleSidebar, user }) {
         transcript: transcript,
         createdAt: serverTimestamp(),
       });
-      console.log('Ringkasan dan Transkrip berhasil disimpan.');
     } catch (error) {
       console.error('Gagal menyimpan history ke Firestore: ', error);
     }

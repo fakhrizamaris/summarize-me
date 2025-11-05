@@ -200,9 +200,6 @@
   font-size: 1em;
 }
 
-span{
-  margin-top: 1rem;
-}
 
 /* Upload Section */
 .upload-section {
@@ -637,10 +634,6 @@ span{
 
   .title-icon span {
   font-size: 1em;
-}
-
-span{
-  margin-top: 1rem;
 }
 
   .stats {

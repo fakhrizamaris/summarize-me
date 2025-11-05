@@ -28,7 +28,7 @@ const googleProvider = new GoogleAuthProvider();
 
 setPersistence(auth, browserLocalPersistence)
   .then(() => {
-    console.log('✅ Firebase Auth Persistence: LOCAL');
+
   })
   .catch((error) => {
     console.error('❌ Error setting auth persistence:', error);

@@ -16,7 +16,7 @@ export const summarizeAudio = async (selectedFile) => {
     formData.append("audioFile", selectedFile);
 
     const apiUrl = `${API_BASE_URL}/api/summarize`;
-    console.log(`[API Call] POST ${apiUrl}`); 
+   
 
     const response = await axios.post(apiUrl, formData, {
       headers: { Authorization: `Bearer ${token}` },
