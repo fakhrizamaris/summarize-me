@@ -21,14 +21,17 @@ import { summarizeAudio } from '../services/summarizeApi';
 // Import CSS Module
 import styles from './HomePage.module.css';
 
-// Import hook useAuth
-import { useAuth } from '../hooks/useAuth';
+// ❌ HAPUS INI - JANGAN IMPORT useAuth DI SINI!
+// import { useAuth } from '../hooks/useAuth';
 
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-function HomePage({ isSidebarOpen, onToggleSidebar }) {
+// ✅ TERIMA user SEBAGAI PROP dari App.jsx
+function HomePage({ isSidebarOpen, onToggleSidebar, user }) {
   const navigate = useNavigate();
-  const { user } = useAuth();
+
+  // ❌ HAPUS BARIS INI - user sudah dari props
+  // const { user } = useAuth();
 
   // State management
   const [apiResponse, setApiResponse] = useState(null);
@@ -62,6 +65,7 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
     }
   }, [user, navigate, isNavigating]);
 
+  // ... (sisa kode tetap sama)
   // Fungsi untuk kembali ke mode upload baru
   const handleShowUpload = () => {
     setSelectedHistoryItem(null);
@@ -72,7 +76,6 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
     setActiveTab('summary');
   };
 
-  // Fungsi untuk menangani klik history
   const handleSelectHistory = (item, isDeleteOrRename = false) => {
     if (isDeleteOrRename) {
       if (selectedHistoryItem && selectedHistoryItem.id === item.id) {
@@ -87,7 +90,6 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
     }
   };
 
-  // Handle file selection
   const handleFileChange = (event) => {
     if (!user) return;
     const file = event.target.files[0];
@@ -101,7 +103,6 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
     }
   };
 
-  // Handle drag and drop
   const handleDragOver = (e) => {
     e.preventDefault();
     if (!user) return;
@@ -132,7 +133,6 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
     }
   };
 
-  // Save to Firestore
   const saveSummaryToHistory = async (summary, transcript, originalFileName, userId) => {
     if (!db || !userId) {
       console.warn('Firestore DB atau User ID tidak tersedia, history tidak disimpan.');
@@ -152,7 +152,6 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
     }
   };
 
-  // Handle upload and processing
   const handleUpload = async () => {
     if (!selectedFile) {
       setApiResponse({ error: '⚠️ Silakan pilih file audio terlebih dahulu!' });
@@ -174,7 +173,6 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
     try {
       let fileToUpload = selectedFile;
 
-      // Konversi otomatis jika M4A/AAC
       if (needsConversion(selectedFile)) {
         setApiResponse({
           processing: '🔄 Mengkonversi format audio ke WAV...',
@@ -193,10 +191,8 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
       const summaryResult = await summarizeAudio(fileToUpload);
       setApiResponse(summaryResult);
 
-      // Simpan ke DB
       await saveSummaryToHistory(summaryResult.summary, summaryResult.transcript, selectedFile.name, currentUser.uid);
 
-      // Refresh history
       setHistoryKey((prevKey) => prevKey + 1);
     } catch (error) {
       console.error('Error during summarization:', error);
@@ -211,7 +207,6 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
     }
   };
 
-  // Prepare display text
   let textToDisplay = '';
   let currentTitle = 'Hasil';
 
@@ -229,7 +224,6 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
     currentTitle = selectedHistoryItem ? 'Riwayat Ringkasan' : 'Hasil Ringkasan';
   }
 
-  // Copy to clipboard
   const handleCopy = () => {
     if (!hasValidResult) return;
     const textToCopy = textToDisplay;
@@ -270,7 +264,6 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
     }
   };
 
-  // Download PDF
   const handleDownloadPDF = () => {
     if (!hasValidResult) return;
 
@@ -349,7 +342,6 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
     doc.save(`${safeFileName}_${activeTab}.pdf`);
   };
 
-  // Logout handler
   const handleLogoutWrapper = async () => {
     setIsNavigating(true);
     try {
@@ -360,19 +352,16 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
     }
   };
 
-  // Jika belum login, tidak render apapun (akan redirect)
   if (!user) {
     return <FullPageLoader text="Mengarahkan..." variant="dual" />;
   }
 
-  // Render konten utama
   return (
     <div className={styles.homeContainer}>
       <FloatingShapes />
 
       <UserNavbar user={user} onLogout={handleLogoutWrapper} onToggleSidebar={onToggleSidebar} isSidebarOpen={isSidebarOpen} />
 
-      {/* Sidebar */}
       <>
         <div className={`${styles.sidebarBackdrop} ${isSidebarOpen ? styles.open : ''}`} onClick={onToggleSidebar} aria-hidden="true" />
         <HistorySidebar key={historyKey} user={user} onSelectSummary={handleSelectHistory} isSidebarOpen={isSidebarOpen} onToggle={onToggleSidebar} />
@@ -384,14 +373,12 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
             <FullPageLoader text="Membuka halaman..." variant="dual" />
           ) : (
             <>
-              {/* Tombol New Summary jika sedang view history */}
               {selectedHistoryItem && (
                 <button onClick={handleShowUpload} className={styles.newSummaryButton}>
                   <IoAdd /> Buat Ringkasan Baru
                 </button>
               )}
 
-              {/* Upload Section */}
               {!selectedHistoryItem && (
                 <section className={styles['upload-section']}>
                   <h2 className={styles['section-title']}>
@@ -454,7 +441,6 @@ function HomePage({ isSidebarOpen, onToggleSidebar }) {
                 </section>
               )}
 
-              {/* Results Section */}
               {activeData && (
                 <section className={styles['results-section']}>
                   <div className={styles['results-header']}>

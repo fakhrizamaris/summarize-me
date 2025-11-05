@@ -1,6 +1,6 @@
 // src/App.jsx
-import React, { Suspense, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { Suspense, useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth.js';
 import styles from './App.module.css';
 import Footer from './components/Footer/Footer.jsx';
@@ -30,18 +30,16 @@ function AuthRoute({ user, children }) {
   return children;
 }
 
+// ✅ PERBAIKAN 1: Pindahkan useLocation ke dalam Router context
 function AppContent({ user, isSidebarOpen, handleToggleSidebar }) {
-  const location = window.location.pathname;
-  const isAuthPage = location === '/login' || location === '/register';
+  const location = useLocation();
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
   return (
     <div className={styles.appContainer}>
       <main className={styles.mainContentArea}>
         <Routes>
-          {/* RUTE 1: Landing Page (Publik) */}
           <Route path="/" element={<LandingPage />} />
-
-          {/* RUTE 2: Login Page */}
           <Route
             path="/login"
             element={
@@ -50,8 +48,6 @@ function AppContent({ user, isSidebarOpen, handleToggleSidebar }) {
               </AuthRoute>
             }
           />
-
-          {/* RUTE 3: Register Page */}
           <Route
             path="/register"
             element={
@@ -60,60 +56,27 @@ function AppContent({ user, isSidebarOpen, handleToggleSidebar }) {
               </AuthRoute>
             }
           />
-
-          {/* RUTE 4: Dashboard/App (Protected) */}
+          
+          {/* ✅ TAMBAHKAN user={user} PROP */}
           <Route
             path="/app"
             element={
               <ProtectedRoute user={user}>
-                <HomePage isSidebarOpen={isSidebarOpen} onToggleSidebar={handleToggleSidebar} />
+                <HomePage 
+                  isSidebarOpen={isSidebarOpen} 
+                  onToggleSidebar={handleToggleSidebar}
+                  user={user}  
+                />
               </ProtectedRoute>
             }
           />
-
-          {/* RUTE 5: Redirect /home ke /app untuk backward compatibility */}
+          
           <Route path="/home" element={<Navigate to="/app" replace />} />
-
-          {/* RUTE 6: 404 - Not Found */}
-          <Route
-            path="*"
-            element={
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  minHeight: '100vh',
-                  textAlign: 'center',
-                  padding: '20px',
-                }}
-              >
-                <h1 style={{ fontSize: '4em', marginBottom: '0.2em' }}>404</h1>
-                <p style={{ fontSize: '1.2em', marginBottom: '2em', opacity: 0.8 }}>Halaman tidak ditemukan</p>
-                <a
-                  href="/"
-                  style={{
-                    padding: '12px 24px',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    color: 'white',
-                    textDecoration: 'none',
-                    borderRadius: '8px',
-                    fontWeight: 600,
-                  }}
-                >
-                  Kembali ke Beranda
-                </a>
-              </div>
-            }
-          />
+          <Route path="*" element={<div>404 - Page Not Found</div>} />
         </Routes>
       </main>
 
-      {/* Footer */}
       <Footer user={user} isSidebarOpen={isSidebarOpen} />
-
-      {/* Floating Feedback - hanya tampil jika login dan bukan di auth page */}
       {user && !isAuthPage && <FloatingFeedback />}
     </div>
   );
@@ -122,8 +85,33 @@ function AppContent({ user, isSidebarOpen, handleToggleSidebar }) {
 function App() {
   const { user, isLoading } = useAuth();
 
-  // State untuk sidebar
-  const [isSidebarOpen, setIsSidebarOpen] = useState(typeof window !== 'undefined' ? window.innerWidth > 1024 : false);
+  // ✅ PERBAIKAN 2: State sidebar dengan cleanup proper
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    // Initialize dari window width, tapi handle SSR
+    if (typeof window !== 'undefined') {
+      return window.innerWidth > 1024;
+    }
+    return false;
+  });
+
+  // ✅ PERBAIKAN 3: Handle window resize dengan proper cleanup
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 1024) {
+        setIsSidebarOpen(true);
+      } else {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup on unmount
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const handleToggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);

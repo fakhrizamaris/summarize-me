@@ -1,19 +1,23 @@
-const SESSION_TIMEOUT = 10 * 60 * 1000; 
+// src/utils/sessionManager.js
+const SESSION_TIMEOUT = 10 * 60 * 1000;
 const LAST_ACTIVITY_KEY = 'lastActivityTime';
+
+let isTrackingActive = false; // ✅ Flag untuk prevent double tracking
+let throttledUpdate = null; // ✅ Store reference untuk cleanup
 
 export const updateLastActivity = () => {
   const now = new Date().getTime();
   localStorage.setItem(LAST_ACTIVITY_KEY, now.toString());
-  console.log('🕐 Activity updated:', new Date(now).toLocaleTimeString());
+  
 };
 
 export const isSessionValid = () => {
   const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
 
   if (!lastActivity) {
-    console.log('⚠️ No lastActivity found, initializing...');
+
     updateLastActivity();
-    return true; // ← INI PENTING!
+    return true;
   }
 
   const now = new Date().getTime();
@@ -27,37 +31,44 @@ export const isSessionValid = () => {
   return isValid;
 };
 
-
 export const clearSession = () => {
   localStorage.removeItem(LAST_ACTIVITY_KEY);
-  console.log('🗑️ Session cleared');
+ 
 };
 
 export const initSessionTracking = () => {
-  // Update activity saat ada interaksi
+  if (isTrackingActive) {
+    return;
+  }
+
   const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
 
-  const throttledUpdate = throttle(updateLastActivity, 5000); // Update max setiap 5 detik
+  throttledUpdate = throttle(updateLastActivity, 5000);
 
   events.forEach((event) => {
     window.addEventListener(event, throttledUpdate, { passive: true });
   });
 
-  // Update saat pertama kali load
   updateLastActivity();
-
-  console.log('✅ Session tracking initialized');
+  isTrackingActive = true;
 };
 
-
 export const cleanupSessionTracking = () => {
+
+  if (!isTrackingActive) {
+    return;
+  }
+
   const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
 
   events.forEach((event) => {
-    window.removeEventListener(event, updateLastActivity);
+    if (throttledUpdate) {
+      window.removeEventListener(event, throttledUpdate);
+    }
   });
 
-  console.log('🧹 Session tracking cleaned up');
+  throttledUpdate = null;
+  isTrackingActive = false;
 };
 
 function throttle(func, wait) {
