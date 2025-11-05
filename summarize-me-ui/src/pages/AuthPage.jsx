@@ -222,7 +222,7 @@ function AuthPage() {
             <IoArrowBackOutline />
             <span>Home</span>
           </Link>
-          <h2 className={styles.authTitle}>{isLoginMode ? 'Selamat Datang Kembali!' : 'Buat Akun Baru'}</h2>
+          <h2 className={styles.authTitle}>{isLoginMode ? 'Selamat Datang!' : 'Buat Akun Baru'}</h2>
           <p className={styles.authSubtitle}>{isLoginMode ? 'Login untuk melanjutkan ke dashboard' : 'Daftar untuk mulai menggunakan layanan kami'}</p>
         </div>
 

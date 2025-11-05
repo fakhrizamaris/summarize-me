@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import {IoMicOutline, IoSparklesOutline, IoDocumentTextOutline, IoRocketOutline, IoCheckmarkCircle, IoTimeOutline, IoShieldCheckmarkOutline, IoArrowForward, IoPlayCircle } from 'react-icons/io5';
+import {IoMicOutline, IoSparklesOutline, IoDocumentTextOutline, IoRocketOutline, IoCheckmarkCircle, IoTimeOutline, IoShieldCheckmarkOutline, IoArrowForward, IoArrowDown } from 'react-icons/io5';
 
 const LandingPage = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState({});
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Deteksi ukuran layar
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
     const handleMouseMove = (e) => {
       setMousePosition({
         x: (e.clientX / window.innerWidth) * 20 - 10,
@@ -15,7 +24,11 @@ const LandingPage = () => {
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', checkMobile);
+    };
   }, []);
 
   useEffect(() => {
@@ -205,12 +218,23 @@ const LandingPage = () => {
 
         <div style={styles.stepsContainer}>
           {steps.map((step, index) => (
-            <div key={index} style={styles.stepCard}>
-              <div style={styles.stepNumber}>{step.number}</div>
-              <h3 style={styles.stepTitle}>{step.title}</h3>
-              <p style={styles.stepDesc}>{step.description}</p>
-              {index < steps.length - 1 && <div style={styles.stepArrow}>→</div>}
-            </div>
+            <React.Fragment key={index}>
+              <div style={styles.stepCard}>
+                <div style={styles.stepNumber}>{step.number}</div>
+                <h3 style={styles.stepTitle}>{step.title}</h3>
+                <p style={styles.stepDesc}>{step.description}</p>
+              </div>
+              
+              {/* Panah responsif: horizontal di desktop, vertical di mobile */}
+              {index < steps.length - 1 && (
+                <div style={{
+                  ...styles.stepArrow,
+                  ...(isMobile ? styles.stepArrowMobile : styles.stepArrowDesktop)
+                }}>
+                  {isMobile ? <IoArrowDown /> : '→'}
+                </div>
+              )}
+            </React.Fragment>
           ))}
         </div>
       </section>
@@ -376,8 +400,6 @@ const styles = {
     flexWrap: 'wrap',
     marginBottom: '60px',
     animation: 'fadeInUp 0.8s ease-out 0.6s backwards',
-    transform: 'translateY(-2px)',
-    boxShadow: '0 6px 25px rgba(102, 126, 234, 0.5) !important',
   },
   primaryButton: {
     display: 'flex',
@@ -394,9 +416,7 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.3s',
     boxShadow: '0 4px 20px rgba(102, 126, 234, 0.4)',
-    backdropFilter: 'blur(10px)',
   },
-
   statsContainer: {
     display: 'flex',
     justifyContent: 'center',
@@ -496,15 +516,13 @@ const styles = {
   },
   stepsContainer: {
     display: 'flex',
+    flexDirection: 'column',
     gap: '32px',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
+    alignItems: 'center',
   },
   stepCard: {
-    position: 'relative',
-    flex: '1',
-    minWidth: '250px',
-    maxWidth: '300px',
+    width: '100%',
+    maxWidth: '500px',
     padding: '32px',
     background: 'rgba(40, 40, 60, 0.6)',
     backdropFilter: 'blur(10px)',
@@ -536,12 +554,18 @@ const styles = {
     color: '#c0c0cc',
   },
   stepArrow: {
-    position: 'absolute',
-    right: '-30px',
-    top: '50%',
-    transform: 'translateY(-50%)',
     fontSize: '2em',
     opacity: 0.3,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepArrowMobile: {
+    fontSize: '2.5em',
+    margin: '16px 0',
+  },
+  stepArrowDesktop: {
+    display: 'none', // Sembunyikan di mobile, tampilkan dengan media query
   },
   benefitsContainer: {
     display: 'grid',
@@ -670,14 +694,27 @@ styleSheet.textContent = `
     }
   }
 
-  button:hover, a[style*="primaryButton"]:hover, a[style*="ctaButton"]:hover {
+  button:hover, a[href*="/login"]:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5) !important;
   }
 
-  div[style*="featureCard"]:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  /* Desktop: tampilkan panah horizontal */
+  @media (min-width: 768px) {
+    [style*="stepsContainer"] {
+      flex-direction: row !important;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    [style*="stepArrowDesktop"] {
+      display: flex !important;
+      margin: 0 16px;
+    }
+    
+    [style*="stepArrowMobile"] {
+      display: none !important;
+    }
   }
 `;
 document.head.appendChild(styleSheet);
