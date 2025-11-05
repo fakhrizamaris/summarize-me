@@ -248,14 +248,14 @@
 .stepsContainer {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 22px;
   align-items: center;
 }
 
 .stepCard {
   width: 100%;
-  max-width: 500px;
-  padding: 32px;
+  max-width: 310px;
+  padding: 12px;
   background: rgba(40, 40, 60, 0.6);
   backdrop-filter: blur(10px);
   border-radius: 16px;
@@ -306,7 +306,7 @@
 }
 
 .benefitsTitle {
-  font-size: clamp(1.8em, 4vw, 2.5em);
+  font-size: clamp(1.8em, 4vw, 2.2em);
   font-weight: 700;
   margin-bottom: 32px;
 }
@@ -314,20 +314,28 @@
 .benefitsList {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .benefitItem {
   display: flex;
-  align-items: center;
+  align-items:left;
+  flex-direction: row;
   gap: 12px;
   font-size: 1.1em;
+}   
+
+.benefitItem span{
+    flex-direction: row;    
+    text-align: left;
+    margin-top: 1px;
 }
 
 .checkIcon {
   font-size: 1.5em;
   color: #4ade80;
   flex-shrink: 0;
+  margin-top: 5px;
 }
 
 .benefitsVisual {
@@ -444,14 +452,27 @@
 
 /* Desktop: tampilkan panah horizontal */
 @media (min-width: 768px) {
-  .stepsContainer {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
 
-  .stepArrow {
-    margin: 0 16px;
-    font-size: 2em;
-  }
+    .stepCard {
+    width: 100%;
+    max-width: 210px;
+    padding: 12px;
+    background: rgba(40, 40, 60, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    }
+
+    .stepsContainer {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .stepArrow {
+        margin: 0 16px;
+        font-size: 2em;
+    }
 }

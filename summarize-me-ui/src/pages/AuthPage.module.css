@@ -1,8 +1,5 @@
 /* src/pages/AuthPage.module.css */
 
-/* ============================================
-   Container & Layout
-   ============================================ */
 .authContainer {
   width: 70%;
   max-width: 460px;
@@ -34,9 +31,6 @@
   }
 }
 
-/* ============================================
-   Header
-   ============================================ */
 .authHeader {
   text-align: center;
   margin-bottom: 2rem;
@@ -69,7 +63,9 @@
   margin-bottom: 1.5rem;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: left;
+  justify-content: flex-start;
+  text-align: left;
   gap: 12px;
   font-size: 0.95em;
   font-weight: 500;
@@ -375,6 +371,7 @@
   color: #fca5a5;
   margin-top: 4px;
   display: block;
+  text-align: left;
 }
 
 /* ============================================
@@ -437,7 +434,7 @@
   font-size: 0.85em;
   color: #aaa;
   line-height: 1.5;
-  text-align: center;
+  text-align: left;
   margin: 0;
 }
 
@@ -588,4 +585,33 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+.forgotPasswordContainer {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.forgotPasswordButton {
+  background: none;
+  border: none;
+  color: #a8a29e; /* Sesuaikan warnanya */
+  font-size: 0.9em;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.forgotPasswordButton:hover {
+  color: #ffffff; /* Sesuaikan warnanya */
+  text-decoration: underline;
+}
+
+.forgotPasswordButton:disabled {
+  color: #57534e;
+  cursor: not-allowed;
+}
+
+.toggleModeButton {
+  margin-top: 1em ;
 }

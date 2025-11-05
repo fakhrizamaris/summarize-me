@@ -1,7 +1,7 @@
 // src/pages/AuthPage.jsx
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, googleProvider } from '../config/firebaseConfig';
 import styles from './AuthPage.module.css';
 import FloatingShapes from '../components/FloatingShapes/FloatingShapes';
@@ -40,6 +40,7 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [formError, setFormError] = useState(null);
 
   // Toggle between login and register
   const toggleMode = () => {
@@ -143,6 +144,33 @@ function AuthPage() {
       console.error(err.code, err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!email) {
+      setFormError({
+        // <-- Sekarang 'setFormError' bisa diakses
+        type: 'error',
+        message: 'Silakan masukkan email Anda di kolom email terlebih dahulu.',
+      });
+      return;
+    }
+
+    setLoading(true); // <-- 'setIsLoading' juga bisa diakses
+    setFormError(null);
+
+    try {
+      await sendPasswordResetEmail(auth, email); // <-- 'auth' dan 'email' juga bisa diakses
+      setIsLoading(false);
+      setFormError({
+        type: 'success',
+        message: 'Email reset password telah dikirim! Silakan periksa inbox Anda.',
+      });
+    } catch (error) {
+      setIsLoading(false);
+      const errorMessage = error.code === 'auth/user-not-found' ? 'Email tidak terdaftar.' : error.message;
+      setFormError({ type: 'error', message: errorMessage });
     }
   };
 
@@ -352,9 +380,15 @@ function AuthPage() {
                 <input type="checkbox" className={styles.checkbox} checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />
                 <span className={styles.checkboxLabel}>Ingat saya</span>
               </label>
-              <a href="#" className={styles.forgotPassword}>
-                Lupa Password?
-              </a>
+
+              <div className={styles.forgotPasswordContainer}>
+                <Link
+                  to="/lupa-password"
+                  className={styles.forgotPasswordButton}
+                >
+                  Lupa Password?
+                </Link>
+              </div>
             </div>
           )}
 

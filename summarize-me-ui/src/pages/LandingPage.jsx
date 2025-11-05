@@ -223,7 +223,7 @@ const LandingPage = () => {
                 <p className={styles.stepDesc}>{step.description}</p>
               </div>
 
-              {index < steps.length - 1 && <div className={styles.stepArrow}>{isMobile ? <IoArrowDown /> : '→'}</div>}
+              {index < steps.length - 1 && <div className={styles.stepArrow}>{isMobile ? <IoArrowDown /> : <IoArrowForward />}</div>}
             </React.Fragment>
           ))}
         </div>

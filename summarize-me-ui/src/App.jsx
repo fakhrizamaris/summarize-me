@@ -13,6 +13,8 @@ import FloatingFeedback from './components/FloatingFeedback/FloatingFeedback.jsx
 const HomePage = React.lazy(() => import('./pages/HomePage.jsx'));
 const AuthPage = React.lazy(() => import('./pages/AuthPage.jsx'));
 const LandingPage = React.lazy(() => import('./pages/LandingPage.jsx'));
+const ForgotPasswordPage = React.lazy(() => import('./pages/ForgotPasswordPage.jsx'));
+const ResetPasswordPage = React.lazy(() => import('./pages/ResetPasswordPage.jsx'));
 
 // Komponen ProtectedRoute
 function ProtectedRoute({ user, children }) {
@@ -30,7 +32,6 @@ function AuthRoute({ user, children }) {
   return children;
 }
 
-// ✅ PERBAIKAN 1: Pindahkan useLocation ke dalam Router context
 function AppContent({ user, isSidebarOpen, handleToggleSidebar }) {
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
@@ -56,21 +57,27 @@ function AppContent({ user, isSidebarOpen, handleToggleSidebar }) {
               </AuthRoute>
             }
           />
-          
-          {/* ✅ TAMBAHKAN user={user} PROP */}
+
+          <Route
+            path="/lupa-password"
+            element={
+              <AuthRoute user={user}>
+                <ForgotPasswordPage />
+              </AuthRoute>
+            }
+          />
+
+          <Route path="/reset-kata-sandi" element={<ResetPasswordPage />} />  
+
           <Route
             path="/app"
             element={
               <ProtectedRoute user={user}>
-                <HomePage 
-                  isSidebarOpen={isSidebarOpen} 
-                  onToggleSidebar={handleToggleSidebar}
-                  user={user}  
-                />
+                <HomePage isSidebarOpen={isSidebarOpen} onToggleSidebar={handleToggleSidebar} user={user} />
               </ProtectedRoute>
             }
           />
-          
+
           <Route path="/home" element={<Navigate to="/app" replace />} />
           <Route path="*" element={<div>404 - Page Not Found</div>} />
         </Routes>
