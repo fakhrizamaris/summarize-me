@@ -23,7 +23,7 @@ function Footer({ user, isSidebarOpen }) {
             rel="noopener noreferrer"
             className={styles.creditLink}
           >
-            <IoLogoGithub /> Fakhri Zamaris
+            <IoLogoGithub /> Fakhri Djamaris
           </a>
         </span>
       </p>
