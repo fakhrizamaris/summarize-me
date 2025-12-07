@@ -1,4 +1,3 @@
-/* src/components/StepCard/StepCard.module.css */
 .stepCard {
   position: relative;
   flex: 1;
@@ -10,7 +9,7 @@
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
-  margin-bottom: 20px; /* Tambah margin bawah untuk wrap */
+  margin-bottom: 20px;
 }
 
 .stepNumber {
@@ -24,7 +23,7 @@
   font-weight: bold;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 50%;
-  color: white; /* Pastikan angka terlihat */
+  color: white;
 }
 
 .stepTitle {
@@ -41,24 +40,14 @@
 }
 
 .stepArrow {
-  /* Style panah mungkin perlu penyesuaian posisi jika menggunakan flex-wrap */
-  display: none; /* Sembunyikan panah jika layout wrap */
-  /* Jika ingin tetap ada:
-  position: absolute;
-  right: -30px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 2em;
-  opacity: 0.3;
-  color: #888; */
+  display: none; 
 }
 
-/* Media query untuk menampilkan panah hanya di layar lebar */
-@media (min-width: 900px) { /* Sesuaikan breakpoint */
+@media (min-width: 900px) { 
   .stepCard:not(:last-child) .stepArrow {
-    display: block; /* Tampilkan lagi di layar lebar */
+    display: block; 
     position: absolute;
-    right: -30px; /* Atur posisi */
+    right: -30px; 
     top: 50%;
     transform: translateY(-50%);
     font-size: 2em;
