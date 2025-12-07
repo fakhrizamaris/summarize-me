@@ -92,12 +92,12 @@
 
 .searchIcon {
   position: absolute;
-  left: 30px; /* 16px padding container + 14px jarak */
+  left: 30px; 
   top: 50%;
   transform: translateY(-50%);
-  color: #999; /* Sesuaikan warna ikon */
+  color: #999; 
   font-size: 1.1rem;
-  pointer-events: none; /* Agar klik bisa tembus ke input */
+  pointer-events: none; 
 }
 
 .searchInput:focus {
@@ -186,9 +186,7 @@
   justify-content: first baseline;
   gap: 0px;
   overflow: hidden;
-  /* flex: 1; */
-  min-width: 0; /* PENTING untuk text-overflow */
-  /* Kurangi padding kanan agar tidak terlalu lebar */
+  min-width: 0;
   padding-right: 8px; 
 }
 
@@ -198,11 +196,10 @@
   color: #ddd;
   display: flex;
   margin-top: 1px;
-  /* margin-bottom: 1px; */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100%; /* Pastikan tidak melebihi container */
+  max-width: 100%; 
 }
 
 .itemDate {
@@ -215,7 +212,6 @@
   text-overflow: ellipsis;
 }
 
-/* === TAMBAHAN BARU: Style untuk Input Edit === */
 .editInput {
   width: 100%;
   padding: 4px 6px;
