@@ -65,8 +65,6 @@
   --webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  position: relative;
-  bottom: 8px;
 }
 
 /* PERBAIKAN 2: Ubah navRight menjadi container dropdown */
